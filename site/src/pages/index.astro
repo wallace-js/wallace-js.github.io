@@ -1,4 +1,5 @@
 ---
+import { Astro } from 'astro';
 const repo = 'https://github.com/wallace-js/wallace';
 const tagline = 'A tiny, fast and simple framework for the front end.';
 ---
@@ -19,8 +20,8 @@ const tagline = 'A tiny, fast and simple framework for the front end.';
       </p>
 
       <div class="actions">
-        <a href={repo}>GitHub</a>
-        <a href={`${repo}#readme`} class="secondary">Documentation</a>
+        <a href="docs">Documentation</a>
+        <a href={repo} class="secondary">GitHub</a>
       </div>
 
       <section>

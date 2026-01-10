@@ -1,86 +1,148 @@
 ---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
+
+
 const repo = 'https://github.com/wallace-js/wallace';
-const tagline = 'A tiny, fast and simple framework for the front end.';
+const tagline = 'A tiny, fast and logical framework for the front end.';
+const hero = {
+  title: 'Wallace',
+  tagline: 'An <strong><i>insanely</i></strong> small, fast, intuitive and extendable framework for the front end.',
+  image: {
+    // file: '/img/wallace-tags.png',
+    html: '<img id="logo" src="/img/wallace-tags.png" alt="Wallace logo" />',
+  },
+  imageAlt: 'Wallace logo',
+  actions: [
+    {
+      text: 'GitHub',
+      link: repo,
+      icon: 'github',
+      attrs: {
+        class: 'action',
+      }
+    },
+    {
+      text: 'Docs',
+      link: 'docs/',
+      icon: 'open-book',
+      attrs: {
+        class: 'action',
+      }
+    }
+  ]
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Wallace.js</title>
-    <meta name="description" content="{tagline}" />
-  </head>
-
-  <body>
+<StarlightPage 
+  frontmatter={{ 
+    title: 'Wallace' , 
+    // tableOfContents: false,
+    template: 'splash',
+    hero: hero
+  }}
+  // hasSidebar={false} 
+  >
     <main>
-      <h1>Wallace</h1>
-      <p class="tagline">
-        {tagline}
-      </p>
+
+     <!--
 
       <div class="actions">
-        <a href={repo}>GitHub</a>
-        <a href={`${repo}#readme`} class="secondary">Documentation</a>
+        <a href="docs/">Docs</a>
+        <a href={repo} class="secondary">GitHub</a>
       </div>
+    -->
 
       <section>
-        <h2>Why Wallace?</h2>
-        <ul>
-          <li>Insanely small and fast</li>
-          <li>Fine-grained control</li>
-          <li>Sensible design</li>
-        </ul>
+        <h2>How small?</h2>
+        <p>
+          Wallace produces bundles that are up to 95% smaller than React, which
+          significantly speeds up page loading time.</p>
+        <img src="/img//size-compressed.png" alt="Bar chart of bundle sizes" />
       </section>
 
+      <section>
+        <h2>How fast?</h2>
+        <p>
+          Basic DOM updates are around 30% faster than React - but Wallace
+          makes it easy to push this further with granular control, so realistically
+          its even faster than that.
+        </p>
+        <img src="/img//run1k.png" alt="Bar chart of speed benchmarks" />
+      </section>
+
+      <section>
+        <h2>How intuitive?</h2>
+        <p>
+          Wallace feels like React - except you're not trapped in a functional
+          model that requires awkward patterns like hooks! You work with normal objects
+          using normal code.
+          <br/>
+          <br/>
+          All the docs are in tooltips so you never need to leave your IDE.
+        </p>
+        <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
+      </section>
+
+      <section>
+        <h2>How extendable?</h2>
+        <p>
+          Wallace lets you:
+          <ul>
+            <li>Override 90% of runtime behaviour</li>
+            <li>Customise components</li>
+            <li>Extend syntax by adding your own directives</li>
+          </ul>
+          <br/>
+          That's more freedom than you get with any other framework, and that's
+          why it's called Wallace, although that makes more sense if you've seen
+          this film:
+        </p>
+        <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
+      </section>
+    
+      <div class="actions">
+        <a href="docs/">Read the Docs</a>
+      </div>
     </main>
-  </body>
-</html>
+</StarlightPage>
+
 
 <style>
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #0f172a;
-    color: #e5e7eb;
-  }
 
   main {
     max-width: 900px;
     margin: auto;
-    padding: 4rem 1.5rem;
-  }
-
-  h1 {
-    font-size: 3rem;
-  }
-
-  .tagline {
-    color: #94a3b8;
-    font-size: 1.2rem;
+    align: center;
+    // padding: 4rem 1.5rem;
   }
 
   .actions {
     margin: 2rem 0;
     display: flex;
+    justify-content: center;
     gap: 1rem;
-  }
-
-  a {
+    a {
+      
     padding: 0.75rem 1.25rem;
-    border-radius: 0.5rem;
-    background: #38bdf8;
-    color: #020617;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  a.secondary {
-    background: transparent;
-    color: #38bdf8;
-    border: 1px solid #38bdf8;
+      color: black;
+      background-color: #4ac573;
+      border: 2px white solid;
+      border-radius: 10rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
   }
 
   section {
-    margin-top: 4rem;
+    max-width: 600px;
+    margin: 3rem 0;
+    img {
+      ;
+      margin: 2rem auto;
+      padding-right: 1rem;
+    }
   }
+
 </style>

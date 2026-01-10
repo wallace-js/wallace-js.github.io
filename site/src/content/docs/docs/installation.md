@@ -6,7 +6,7 @@ sidebar:
 
 There are several ways to start a project.
 
-## Empty local project
+## New project
 
 Create an empty project on your machine with this script:
 
@@ -15,8 +15,6 @@ npx create-wallace-app
 ```
 
 You will be given a choice of TypeScript or JavaScript. We highly recommend TypeScript, even if you plan to use JavaScript.
-
-Note: use this instead of npm.
 
 ## Stackblitz
 
@@ -49,9 +47,7 @@ module.exports = {
 };
 ```
 
-Then configure your bundler to apply those to jsx/tsx files. 
-
-Here is an example **webpack.config,js**:
+You need to configure your bundler to apply those to jsx/tsx files. Here is an example **webpack.config.js**:
 
 ```js
 const path = require("path");
@@ -74,15 +70,6 @@ const config = {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
-        /*
-        Ensures we process the wallace package, but not others
-        in node_modules.
-        Note that this will not take effect if your babel config
-        is in package.json or .babelrc - it must be in here or in
-        babel.config.cjs, and the latter is better as it allows
-        you to inspect files by running them through 
-        `npx babel` in the terminal.
-        */
         exclude: /node_modules\/(?!(wallace)\/).*/,
         use: [
           {
@@ -109,8 +96,20 @@ module.exports = function () {
 };
 ```
 
- As the comments state, the reason for putting the plugins in **babel.config.cjs** is that these will be picked up when running `babel` as a command, which allows you to see what your transformed code looks like in case you run into issues:
+If using different bundler such as [vite](https://vite.dev/) or [parcel](https://parceljs.org/) then you will need to adjust accordingly, taking into consideration the following points:
 
-```
-npx babel src/index.tsx
-```
+1. You must process the `wallace` package itself as we do with:
+   ```
+   exclude: /node_modules\/(?!(wallace)\/).*/
+   ```
+
+   Although your project may initially work without this, you'll run into problems if you import from modules which define components, such as the `router`.
+
+2. You should define your plugins in **babel.config.cjs** (and not in **webpack.config.js** or **package.json**) because this lets you inspect the transformations by running babel:
+
+   ```
+   npx babel src/index.tsx
+   ```
+
+   Note that this gives you Babel's transformation of just that file, not the compiled bundle.
+

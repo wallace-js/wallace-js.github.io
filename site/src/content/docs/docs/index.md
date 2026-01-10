@@ -1,22 +1,20 @@
 ---
-title: Introduction
+title : Introduction
 sidebar:
   order: 0
 ---
 
 Welcome to Wallace documentation. This page covers a few things you need to know before diving in.
 
-## Overview
+## Prerequisites
 
-Wallace is a front end framework which uses ES6, JSX and Babel, and plays a lot nicer if you use TypeScript. 
-
-Let's go over these one by one and the prerequisites they entail.
+Wallace is a front end framework which uses ES6, JSX and Babel, and plays a lot nicer if you use TypeScript. Let's look at these terms one by one and the prerequisites they entail.
 
 ### Front end
 
-Wallace is used for front end development (runs on the browser, not the server) which makes it comparable to Angular, React, Svelte etc... 
+Wallace is used for front end development (runs on the browser, not the server) which makes it comparable to Angular, React, Svelte etc...
 
-However, those also add in support for server-side rendering, which Wallace does not, partly because its bundles are so small and fast that there's no advantage to doing so, partly because Wallace focuses on doing one job and doing it well.
+You will need a separate tool for the back end.
 
 ##### Prerequisites
 
@@ -24,7 +22,7 @@ A basic understanding of HTML, CSS, JavaScript and general web development.
 
 ### ES6
 
-Wallace makes use of several ES6 (aka "modern" JavaScript) syntax features, such as argument destructuring:
+Wallace makes use of several ES6 (aka "modern JavaScript") syntax features, such as argument destructuring:
 
 ```tsx
 import { mount } from 'wallace';
@@ -60,7 +58,7 @@ This is all covered in the section on [JSX](/docs/jsx).
 
 [Babel](https://babeljs.io/) is a tool which transpiles (transforms + compiles) code from one syntax to another using plugins. Wallace supplies such a plugin which replaces JSX with generated JavaScript code which is central to making everything work.
 
-This means you can't just load wallace on your page via a script tag, you need to build the bundle first using a bundler such as [webpack](https://webpack.js.org/) which runs Babel over your files.
+This means you can't just load wallace on your page via a script tag, you need to build the bundle first using a bundler such as [webpack](https://webpack.js.org/) which runs your files through Babel before gluing them together in a bundle which you can import with a script tag.
 
 This is all covered in the next section: [installation](/docs/installation).
 
@@ -70,7 +68,7 @@ A modern version of [node](https://nodejs.org/en) (20+ is recommended, but a few
 
 ### TypeScript
 
-Wallace doesn't need [TypeScript](https://www.typescriptlang.org/), but you will have a far nicer time if you use it. TypeScript can be brought into your project gradually, so if you're reticent, you can just stick to using if for Wallace code (as .tsx files) and use plain ES6 elsewhere.
+Wallace doesn't need [TypeScript](https://www.typescriptlang.org/), but you will have a far nicer time if you use it. TypeScript only inspects files with the appropriate extensions (ts/tsx) meaning you can bring it into a project gradually. So you could use it for your component definitions and use plain ES6 elsewhere if you wanted.
 
 Here is the above example using TypeScript to control the type:
 
@@ -98,3 +96,4 @@ mount('main', Greeting, {
 
 None, but we recommend reading the [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html).
 
+## Getting help

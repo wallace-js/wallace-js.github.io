@@ -1,13 +1,15 @@
 ---
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
-
+import { Icon } from '@astrojs/starlight/components';
 
 const repo = 'https://github.com/wallace-js/wallace';
-const tagline = 'A tiny, fast and logical framework for the front end.';
+const tagline = 'A tiny, fast and logical fornt-end framework.';
+const stackblitzOptions = '?ctl=1&devtoolsheight=1&terminalHeight=0&hideExplorer=1&&embed=1&file=src%2Findex.jsx';
+const stackblitzLink = 'https://stackblitz.com/edit/wallace-example' + stackblitzOptions;
 const hero = {
   title: 'Wallace',
-  tagline: 'An <strong><i>insanely</i></strong> small, fast, intuitive and extendable framework for the front end.',
+  tagline: 'An <strong><i>insanely</i></strong> small, fast, intuitive and extendable front-end framework.',
   image: {
     // file: '/img/wallace-tags.png',
     html: '<img id="logo" src="/img/wallace-tags.png" alt="Wallace logo" />',
@@ -15,17 +17,17 @@ const hero = {
   imageAlt: 'Wallace logo',
   actions: [
     {
-      text: 'GitHub',
-      link: repo,
-      icon: 'github',
+      text: 'Docs',
+      link: 'docs/',
+      icon: 'open-book',
       attrs: {
         class: 'action',
       }
     },
     {
-      text: 'Docs',
-      link: 'docs/',
-      icon: 'open-book',
+      text: 'GitHub',
+      link: repo,
+      icon: 'github',
       attrs: {
         class: 'action',
       }
@@ -37,28 +39,23 @@ const hero = {
 <StarlightPage 
   frontmatter={{ 
     title: 'Wallace' , 
-    // tableOfContents: false,
     template: 'splash',
     hero: hero
   }}
-  // hasSidebar={false} 
   >
     <main>
-
-     <!--
-
-      <div class="actions">
-        <a href="docs/">Docs</a>
-        <a href={repo} class="secondary">GitHub</a>
-      </div>
-    -->
 
       <section>
         <h2>How small?</h2>
         <p>
           Wallace produces bundles that are up to 95% smaller than React, which
-          significantly speeds up page loading time.</p>
-        <img src="/img//size-compressed.png" alt="Bar chart of bundle sizes" />
+          significantly affects page loading time.
+        </p>
+        <p class="caption">
+          Bundle size of various implementations of the 
+          <a href="https://github.com/krausest/js-framework-benchmark">js-framework-benchmark</a> app:
+        </p>
+        <canvas id="size-compressed"></canvas>
       </section>
 
       <section>
@@ -68,20 +65,35 @@ const hero = {
           makes it easy to push this further with granular control, so realistically
           its even faster than that.
         </p>
-        <img src="/img//run1k.png" alt="Bar chart of speed benchmarks" />
+        <p class="caption">
+          Time to create 1000 rows on the 
+          <a href="https://github.com/krausest/js-framework-benchmark">js-framework-benchmark</a> app:
+        </p>
+        <canvas id="run1k"></canvas>
+        
       </section>
 
       <section>
         <h2>How intuitive?</h2>
         <p>
-          Wallace feels like React - except you're not trapped in a functional
-          model that requires awkward patterns like hooks! You work with normal objects
-          using normal code.
-          <br/>
-          <br/>
-          All the docs are in tooltips so you never need to leave your IDE.
+          Wallace feels like React with the ugly bits removed:
+          <ul>
+            <li>No mangled JSX.</li>
+            <li>No awkward patterns like hooks.</li>
+            <li>Just clean and obvious code.</li>
+          </ul>
         </p>
-        <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
+        <p>
+          Take the <a href="/docs">tour</a> then use the docs in 
+          the tooltips*, or try the embeded StackBlitz:
+        </p>
+        <iframe src={stackblitzLink}></iframe>
+        <p>
+          * Unfortunately the tooltips don't render that well in StackBlitz, here's 
+          what they look like in VSCode:
+          <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
+        </p>
+
       </section>
 
       <section>
@@ -89,21 +101,29 @@ const hero = {
         <p>
           Wallace lets you:
           <ul>
-            <li>Override 90% of runtime behaviour</li>
-            <li>Customise components</li>
-            <li>Extend syntax by adding your own directives</li>
+            <li>Override all runtime operations.</li>
+            <li>Customise component behaviour.</li>
+            <li>Extend syntax by adding your own directives.</li>
           </ul>
           <br/>
-          That's more freedom than you get with any other framework, and that's
-          why it's called Wallace, although that makes more sense if you've seen
-          this film:
+          No other framework lets you do this, which is why its
+          called Wallace, but that makes more sense if you've seen
+          <a href="https://www.imdb.com/title/tt0112573/">this film</a>:
         </p>
         <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
       </section>
-    
-      <div class="actions">
-        <a href="docs/">Read the Docs</a>
-      </div>
+
+      <section>
+        <h2>Next Steps</h2>
+        <p>
+          Continue by reading the docs, and please ⭐ Wallace on GitHub!
+        </p>
+        <div class="actions">
+          <a href="docs/">Docs <Icon name="open-book"></a>
+          <a href="docs/">Github <Icon name="github"></a>
+        </div>
+      </section>
+
     </main>
 </StarlightPage>
 
@@ -117,21 +137,32 @@ const hero = {
     // padding: 4rem 1.5rem;
   }
 
+  iframe {
+    width: 100%;
+    min-height: 400px;
+  }
+
   .actions {
     margin: 2rem 0;
     display: flex;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
-    a {
-      
-    padding: 0.75rem 1.25rem;
+    a, button {
+      display: flex;
+      align-items: center;
+      padding: 0.2rem 1.1rem;
       color: black;
       background-color: #4ac573;
-      border: 2px white solid;
+      border: none;
       border-radius: 10rem;
       font-size: 1.1rem;
       font-weight: 600;
       text-decoration: none;
+    }
+    svg {
+      margin-left: .5em;
     }
   }
 
@@ -139,10 +170,142 @@ const hero = {
     max-width: 600px;
     margin: 3rem 0;
     img {
-      ;
       margin: 2rem auto;
-      padding-right: 1rem;
+    }
+    .caption {
+      font-size: smaller;
+      margin: 1em 2em;
+      padding: .8em;
+      text-align: center;
+      /* 
+      border-bottom: 1px solid grey;
+      border-radius: 8px; */
     }
   }
 
+  canvas {
+    /*height: 00px;*/
+  }
+
 </style>
+
+<script>
+  import Chart from 'chart.js/auto';
+
+  const benchmarkData = {
+    "angular": {
+      "version": "20.0.1",
+      "run1k": 85.6,
+      "size-compressed": 46.3
+    },
+    "inferno": {
+      "version": "8.2.2",
+      "run1k": 57.7,
+      "size-compressed": 8.9
+    },
+    "lit": {
+      "version": "3.2.1",
+      "run1k": 70.5,
+      "size-compressed": 6.6
+    },
+    "react": {
+      "version": "19.2.0",
+      "run1k": 76.5,
+      "size-compressed": 51.4
+    },
+    "riot": {
+      "version": "9.4.4",
+      "run1k": 75.4,
+      "size-compressed": 6.4
+    },
+    "solid": {
+      "version": "1.9.3",
+      "run1k": 63.9,
+      "size-compressed": 4.5
+    },
+    "svelte": {
+      "version": "5.13.0",
+      "run1k": 67.1,
+      "size-compressed": 8.3
+    },
+    "vue": {
+      "version": "3.6.0-alpha.2",
+      "run1k": 69.1,
+      "size-compressed": 22.9
+    },
+    "wallace": {
+      "version": "0.3.0",
+      "run1k": 55.3,
+      "size-compressed": 2.1
+    }
+  };
+
+  const sortData = data => {
+    const newData = { label: data.label, labels: [], values: [] };
+    const arrayOfObj = data.labels.map((d, i) => ({
+      label: d,
+      value: data.values[i]
+    }));
+    arrayOfObj.sort((a, b) => a.value - b.value);
+    arrayOfObj.forEach(d => {
+      newData.labels.push(d.label);
+      newData.values.push(d.value);
+    });
+    return newData;
+  }
+
+  const extractChartData = data => {
+    const charts = {};
+    for (const [framework, stats] of Object.entries(data)) {
+      for (const [test, value] of Object.entries(stats)) {
+        if (test !== "version") {
+          if (!charts.hasOwnProperty(test)) {
+            charts[test] = { labels: [], values: [], label: test };
+          }
+          charts[test].labels.push(framework);
+          charts[test].values.push(value);
+        }
+      }
+    }
+    return Object.values(charts);
+  };
+
+  const buildChart = (ctx, data) => {
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: data.label,
+            data: data.values,
+            borderWidth: 1,
+            maxBarThickness: 60
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            display: false
+          }
+        }
+      }
+    });
+  };
+
+  extractChartData(benchmarkData).forEach( data => {
+    buildChart(document.getElementById(data.label), sortData(data));
+  })
+
+  window.backToTop = function() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+</script>

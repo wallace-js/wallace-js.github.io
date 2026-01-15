@@ -11,5 +11,8 @@
   "dependencies": {
     "@astrojs/starlight": "^0.37.2",
     "astro": "^5.16.7"
+  },
+  "devDependencies": {
+    "chart.js": "^4.5.1"
   }
 }

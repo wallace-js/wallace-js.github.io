@@ -1,7 +1,8 @@
 ---
-title : Introduction
+title : Documentation home
 sidebar:
   order: 0
+  label: Home
 ---
 
 Welcome to Wallace documentation. This page covers a few things you need to know before diving in.

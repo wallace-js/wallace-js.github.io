@@ -1,17 +1,10 @@
-/* :root {
-  --sl-content-width: 50rem;
-  --sl-text-5xl: 3.5rem;
-} */
-
-
 #logo {
   margin: 0 auto;
   max-width: 100%;
 }
 
 .action {
-  background-color: #4ac573;
-  /* border: 2px white solid; */
+  background-color: #4169E1;
   border: none;
   font-size: 1.1rem;
   font-weight: 600;

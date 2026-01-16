@@ -48,12 +48,13 @@ const hero = {
       <section>
         <h2>How small?</h2>
         <p>
-          Wallace produces bundles that are up to 95% smaller than React, which
-          significantly affects page loading time.
+          Wallace produces smaller bundles (and therefore loads faster) than any other 
+          real framework.
         </p>
         <p class="caption">
           Bundle size of various implementations of the 
-          <a href="https://github.com/krausest/js-framework-benchmark">js-framework-benchmark</a> app:
+          <a href="https://github.com/krausest/js-framework-benchmark">
+          js-framework-benchmark</a> app:
         </p>
         <canvas id="size-compressed"></canvas>
       </section>
@@ -61,16 +62,18 @@ const hero = {
       <section>
         <h2>How fast?</h2>
         <p>
-          Basic DOM updates are around 30% faster than React - but Wallace
-          makes it easy to push this further with granular control, so realistically
-          its even faster than that.
+          Wallace comes close to first on 
+          <a href="https://github.com/krausest/js-framework-benchmark">official 
+          benchmarks</a>, but it has
+          more powerful (and nicer) performance tweaking, so it may well be
+          "the" fastest.
         </p>
         <p class="caption">
           Time to create 1000 rows on the 
-          <a href="https://github.com/krausest/js-framework-benchmark">js-framework-benchmark</a> app:
+          <a href="https://github.com/krausest/js-framework-benchmark">
+          js-framework-benchmark</a> app:
         </p>
         <canvas id="run1k"></canvas>
-        
       </section>
 
       <section>
@@ -84,16 +87,16 @@ const hero = {
           </ul>
         </p>
         <p>
-          Take the <a href="/docs">tour</a> then use the docs in 
-          the tooltips*, or try the embeded StackBlitz:
-        </p>
-        <iframe src={stackblitzLink}></iframe>
-        <p>
-          * Unfortunately the tooltips don't render that well in StackBlitz, here's 
-          what they look like in VSCode:
+          Just read the <a href="/docs">tour</a> once then use the tooltips, which
+          include the full cheat sheet:
           <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
         </p>
-
+        <p>
+          Here's and embeded <a href="https://stackblitz.com/">StackBlitz</a> 
+          (which sadly doesn't render markdown tooltips that well) where you can
+          give Wallace a spin:
+        </p>
+        <iframe src={stackblitzLink}></iframe>
       </section>
 
       <section>
@@ -106,8 +109,8 @@ const hero = {
             <li>Extend syntax by adding your own directives.</li>
           </ul>
           <br/>
-          No other framework lets you do this, which is why its
-          called Wallace, but that makes more sense if you've seen
+          No other framework gives you this freedom, which is why it is
+          called Wallac - although that makes more sense if you've seen
           <a href="https://www.imdb.com/title/tt0112573/">this film</a>:
         </p>
         <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
@@ -154,7 +157,7 @@ const hero = {
       align-items: center;
       padding: 0.2rem 1.1rem;
       color: black;
-      background-color: #4ac573;
+      background-color: #4169E1;
       border: none;
       border-radius: 10rem;
       font-size: 1.1rem;

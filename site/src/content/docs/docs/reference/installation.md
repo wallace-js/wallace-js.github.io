@@ -4,32 +4,21 @@ sidebar:
   order: 1
 ---
 
-There are several ways to start a project.
+## Prerequisites
 
-## New project
+You will need [node](https://nodejs.org/en) version 18 or above, which should come with npm and npx commands.
 
-Create an empty project on your machine with this script:
+## Create a new project
+
+To create an empty project use the `create-wallace-app` script, which you can run without manually installing it using the [npx](https://docs.npmjs.com/cli/v8/commands/npx) command:
 
 ```
 npx create-wallace-app
 ```
 
-You will be given a choice of TypeScript or JavaScript. We highly recommend TypeScript, even if you plan to use JavaScript.
+You will be asked to choose between TypeScript or JavaScript. If you select TypeScript you can still use JavaScript files, so that is the recommended option.
 
-## Stackblitz
-
-[StackBlitz](https://stackblitz.com) lets you try Wallace in the browser without installing anything on your machine. You can choose:
-
-- Click counter in [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx)
-- Click counter in [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx)
-
-Stackblitz sometimes fails to load for its own reasons, so this is perhaps not the most reliable method. Additionally the way it renders markdown tooltips isn't great. 
-
-However it is a great way to test out Wallace, and you can always download the project and transition to working locally.
-
-## Clone an example
-
-The Wallace github repository contains some [examples](https://github.com/wallace-js/wallace/tree/master/examples) which all have a [StackBlitz](https://stackblitz.com) link in their README so you can play around online, then download a fully working project.
+The new project will have some feature flags set in the **babel.config.cjs** so check that these are what you want. See [configuration](/docs/reference/configuration) for more details.
 
 ## Add to existing project
 
@@ -39,77 +28,7 @@ To install into an existing project run:
 npm i wallace -D
 ```
 
-This also installs `babel-plugin-wallace` which you need to add to your **babel.config.cjs** or equivalent like so:
+This also installs a compatible version of `babel-plugin-wallace` which you need to add to your Babel plugins. These may be set in your **babel.config.cjs**, **.babelrc.json** or bundler (e.g. **webpack.config.js**) 
 
-```js
-module.exports = {
-  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"],
-};
-```
-
-You need to configure your bundler to apply those to jsx/tsx files. Here is an example **webpack.config.js**:
-
-```js
-const path = require("path");
-
-const config = {
-  entry: "./src/index.tsx",
-  devServer: {
-    static: "./",
-    hot: true,
-    historyApiFallback: true
-  },
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "index.js"
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".tsx", ".ts"]
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx|ts|tsx)$/,
-        exclude: /node_modules\/(?!(wallace)\/).*/,
-        use: [
-          {
-            loader: "babel-loader"
-          }
-        ]
-      }
-    ]
-  }
-};
-
-module.exports = function () {
-  config.mode = process.env.NODE_ENV || "development";
-  if (config.mode === "production") {
-    config.optimization = {
-      minimize: true
-    };
-  } else {
-    config.devtool = "eval-source-map";
-    // alternative
-    // config.devtool = "inline-source-map";
-  }
-  return config;
-};
-```
-
-If using different bundler such as [vite](https://vite.dev/) or [parcel](https://parceljs.org/) then you will need to adjust accordingly, taking into consideration the following points:
-
-1. You must process the `wallace` package itself as we do with:
-   ```
-   exclude: /node_modules\/(?!(wallace)\/).*/
-   ```
-
-   Although your project may initially work without this, you'll run into problems if you import from modules which define components, such as the `router`.
-
-2. You should define your plugins in **babel.config.cjs** (and not in **webpack.config.js** or **package.json**) because this lets you inspect the transformations by running babel:
-
-   ```
-   npx babel src/index.tsx
-   ```
-
-   Note that this gives you Babel's transformation of just that file, not the compiled bundle.
+The [configuration](/docs/reference/configuration) section advises you on which file is best, and additional flags you may want to set.
 

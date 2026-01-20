@@ -87,8 +87,8 @@ const hero = {
           </ul>
         </p>
         <p>
-          Read the <a href="/docs/guide">guide</a> once, then use the tooltips, which
-          include a full cheat sheet:
+          You can probably read the <a href="/docs/guide">guide</a> once then use the 
+          tooltips as they include a full cheat sheet:
           <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
         </p>
         <p>
@@ -186,14 +186,31 @@ const hero = {
     }
   }
 
-  canvas {
-    /*height: 00px;*/
-  }
-
 </style>
 
 <script>
-  import Chart from 'chart.js/auto';
+  import {
+    Chart,
+    BarElement,
+    BarController,
+    CategoryScale,
+    LinearScale,
+    Filler,
+    Legend,
+    Title,
+    Tooltip
+  } from "chart.js";
+
+  Chart.register(
+    BarElement,
+    BarController,
+    CategoryScale,
+    Filler,
+    Legend,
+    LinearScale,
+    Title,
+    Tooltip
+  );
 
   const benchmarkData = {
     "angular": {
@@ -283,7 +300,8 @@ const hero = {
             label: data.label,
             data: data.values,
             borderWidth: 1,
-            maxBarThickness: 60
+            maxBarThickness: 60,
+            backgroundColor: "#4169E1"
           }
         ]
       },

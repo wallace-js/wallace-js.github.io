@@ -63,20 +63,7 @@ A front-end framework with:
   >
     <main>
 
-      <section>
-        <h2>Faster loading</h2>
-        <p>
-          Wallace produces way smaller bundles than other frameworks, making page
-          loads significanlty faster.*
-        </p>
-        <p class="caption">
-          Bundle size of various implementations of the 
-          <a href="https://github.com/krausest/js-framework-benchmark">
-          js-framework-benchmark</a> app:
-        </p>
-        <canvas id="size-compressed"></canvas>
-        * See <a href="/docs/reference/performance">Performance notes</a>.
-      </section>
+      About
 
       <section>
         <h2>Faster rendering</h2>
@@ -175,7 +162,8 @@ A front-end framework with:
     -->
 
     </main>
-    <Footer />
+
+   <Footer />
 </StarlightPage>
 
 
@@ -233,6 +221,7 @@ A front-end framework with:
       border-radius: 8px; */
     }
   }
+
 </style>
 
 <script>
@@ -368,50 +357,12 @@ A front-end framework with:
     });
   };
 
-  function showButtonsOnMobile() {
-    const rightGroup = document.getElementsByClassName('right-group')[0];
-    if (rightGroup.classList.contains('sl-hidden')) {
-      // due to text nodes socialButtons is 1, themeSelect is 3.
-      const socialButtons = rightGroup.childNodes[1];
-      const themeSelect = rightGroup.childNodes[3];
-      const siteSearch = document.getElementsByTagName('site-search')[0];
-      
-      const themeSvg = themeSelect.getElementsByTagName('svg')[0];
-      const themeToggleButton = document.createElement('button');
-      themeToggleButton.style.border = 'none';
-      themeToggleButton.style.background = 'none';
-      themeToggleButton.style.display = 'flex';
-      themeToggleButton.style.marginLeft = '-0.5em';
-      
-      themeToggleButton.innerHTML = themeSvg.outerHTML;
-      const themeToggleSVG = themeToggleButton.childNodes[0];
-      themeToggleSVG.classList = [];
-      themeToggleSVG.style.width = '20';
-      themeToggleSVG.style.height = '20';
+  extractChartData(benchmarkData).forEach( data => {
+    buildChart(document.getElementById(data.label), sortData(data));
+  })
 
-      themeToggleButton.onclick = () => {
-        themeSelect.hidden = false;
-        themeToggleButton.style.display = 'none';
-      };
-      themeSelect.hidden = true;
-      themeSelect.onchange = () => {
-        themeSelect.hidden = true;
-        themeToggleButton.style.display = 'flex';
-      };
-      socialButtons.appendChild(siteSearch);
-      socialButtons.appendChild(themeSelect);
-      socialButtons.appendChild(themeToggleButton);
-      socialButtons.classList.add('no-after');
-      rightGroup.classList.remove('sl-hidden');
-    }
+  window.backToTop = function() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
   }
-
-  showButtonsOnMobile()
-  window.onload = (event) => {
-    extractChartData(benchmarkData).forEach( data => {
-      buildChart(document.getElementById(data.label), sortData(data));
-    })
-  };
-
 
 </script>

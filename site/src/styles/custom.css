@@ -3,6 +3,11 @@
   max-width: 100%;
 }
 
+.actions {
+  gap: 0.8rem;
+  justify-content: left;
+}
+
 .action {
   background-color: #4169E1;
   border: none;
@@ -10,6 +15,14 @@
   font-weight: 600;
 }
 
+.secondary {
+  background-color: none;
+}
+
 .ec-line {
   font-size: 0.75rem;
+}
+
+.no-after::after {
+  content: none;
 }

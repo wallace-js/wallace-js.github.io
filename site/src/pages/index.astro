@@ -1,86 +1,78 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { Icon } from '@astrojs/starlight/components';
-import Footer from '../components/footer.astro';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { Icon } from "@astrojs/starlight/components";
+import Landing from "../components/landing.astro";
 
-const repo = 'https://github.com/wallace-js/wallace';
-const tagline = 'Faster loading, rendering and development.';
-const stackblitzOptions = '?ctl=1&devtoolsheight=1&terminalHeight=0&hideExplorer=1&&embed=1&file=src%2Findex.jsx';
-const stackblitzLink = 'https://stackblitz.com/edit/wallace-example' + stackblitzOptions;
+const repo = "https://github.com/wallace-js/wallace";
+const tagline = "Faster loading, rendering and development.";
+const stackblitzOptions =
+  "?ctl=1&devtoolsheight=1&terminalHeight=0&hideExplorer=1&&embed=1&file=src%2Findex.jsx";
+const stackblitzLink =
+  "https://stackblitz.com/edit/wallace-example" + stackblitzOptions;
 const hero = {
-  title: 'Wallace',
-  tagline: tagline,
+  title: "Wallace",
+  tagline: `
+  <div class="tagline">
+    <span>The front-end framework for:</span>
+    <ul>
+      <li>Faster loading</li>
+      <li>Faster rendering</li>
+      <li>Faster development</li>
+    </ul>
+  </div>
+  `,
   image: {
     // file: '/img/wallace-tags.png',
     html: '<img id="logo" src="/img/wallace-tags.png" alt="Wallace logo" />',
   },
-  imageAlt: 'Wallace logo',
+  imageAlt: "Wallace logo",
   actions: [
-        {
-      text: 'Tour',
-      link: 'docs/guide',
-      icon: 'rocket',
+    {
+      text: "Tour",
+      link: "docs/guide",
+      icon: "rocket",
       attrs: {
-        class: 'primary',
-      }
+        class: "primary action",
+      },
     },
     {
-      text: 'Docs',
-      link: 'docs/',
-      icon: 'open-book',
+      text: "Docs",
+      link: "docs/",
+      icon: "open-book",
       attrs: {
-        class: 'action',
-      }
+        class: "secondary action",
+      },
     },
-    // {
-    //   text: 'GitHub',
-    //   link: repo,
-    //   icon: 'github',
-    //   attrs: {
-    //     class: 'secondary',
-    //   }
-    // }
-  ]
-}
-
-/*
-TOOD: chaneg hero to custom with:
-
-A front-end framework with:
- - Faster loading
- - Faster rendering
- - Faster development
-
-*/
+  ],
+};
 ---
 
-<StarlightPage 
-  frontmatter={{ 
-    title: 'Wallace' , 
-    template: 'splash',
-    hero: hero
+<StarlightPage
+  frontmatter={{
+    title: "Wallace",
+    template: "splash",
+    hero: hero,
   }}
-  >
-    <main>
+>
+  <Landing>
+    <section>
+      <h2>Faster loading</h2>
+      <p>
+        Wallace produces substantially smaller bundles than
+        <a href="/comparison">any other</a> framework, meaning pages will load faster.
+      </p>
+      <p class="caption">
+        Bundle size of various implementations of the
+        <a href="https://github.com/krausest/js-framework-benchmark">
+          js-framework-benchmark</a
+        > app:
+      </p>
+      <canvas id="size-compressed"></canvas>
+    </section>
 
-      <section>
-        <h2>Faster loading</h2>
-        <p>
-          Wallace produces way smaller bundles than other frameworks, making page
-          loads significanlty faster.*
-        </p>
-        <p class="caption">
-          Bundle size of various implementations of the 
-          <a href="https://github.com/krausest/js-framework-benchmark">
-          js-framework-benchmark</a> app:
-        </p>
-        <canvas id="size-compressed"></canvas>
-        * See <a href="/docs/reference/performance">Performance notes</a>.
-      </section>
-
-      <section>
-        <h2>Faster rendering</h2>
-        <!--
+    <section>
+      <h2>Faster rendering</h2>
+      <!--
         <p>
           Wallace comes close to first on 
           <a href="https://github.com/krausest/js-framework-benchmark">official 
@@ -89,37 +81,51 @@ A front-end framework with:
           "the" fastest.
         </p>
       -->
-        <p>
-          Wallace renders DOM updates faster than other frameworks, and has better
-         performance tweaking capabilities.*
-        </p>
-        <p class="caption">
-          Time to create 1000 rows on the 
-          <a href="https://github.com/krausest/js-framework-benchmark">
-          js-framework-benchmark</a> app:
-        </p>
-        <canvas id="run1k"></canvas>
+      <p>
+        Wallace renders DOM updates faster than almost
+        <a href="/comparison">any other</a> framework, and has better performance
+        tweaking capabilities.
+      </p>
+      <p class="caption">
+        Time to create 1000 rows on the
+        <a href="https://github.com/krausest/js-framework-benchmark">
+          js-framework-benchmark</a
+        > app:
+      </p>
+      <canvas id="run1k"></canvas>
+    </section>
 
-        * See <a href="/docs/reference/performance">Performance notes</a>.
-      </section>
+    <section>
+      <h2>Faster development</h2>
+      <p>
+        Wallace helps you develop faster by being more:
+        <h4>Explicit</h4>
+        See exactly when and how components update. No magic. No confusion.
 
-      <section>
-        <h2>Faster development</h2>
-        <p>
-          Wallace helps you develop faster by being more direct, helpful, explicit,
-          flexible, customisable and extendable than other frameworks.
-        </p>
-        <p>
-          These are all covered in the tour.
-        </p>
+        <h4>Helpful</h4>
+        Deep TypeScript support. Docs in tool tips. Easy debugging.
 
-        <div class="actions">
-          <a href="/docs/guide">Tour<Icon name="rocket"></a>
-        </div>
-      </section>
+        <h4>Powerful</h4>
+
+        Inherit, extend or partially update any component. Modify run time
+        behaviour. Create custom directives.
+
+        <!-- <ul>
+          <li>Exposing full docs in the tool tips.</li>
+          <li>Override all runtime operations.</li>
+          <li>Customise component behaviour.</li>
+          <li>Extend syntax by adding your own directives.</li>
+        </ul> -->
+      </p>
+
+      <div class="follow">
+        <a href="/docs/guide">Tour<Icon name="rocket" /> </a>
+      </div>
 
       <!--
       
+        being more direct, helpful,
+        explicit, flexible, customisable and extendable than other frameworks.
       
       <section>
         <h2>How intuitive?</h2>
@@ -161,79 +167,11 @@ A front-end framework with:
         <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
       </section>
 
-      <section>
-        <h2>Next Steps</h2>
-        <p>
-          Continue by reading the docs, and please ⭐ Wallace on GitHub!
-        </p>
-        <div class="actions">
-          <a href="/docs/guide">Get Started<Icon name="rocket"></a>
-          <a href="/docs">Docs <Icon name="open-book"></a>
-          <a href={repo}>Github <Icon name="github"></a>
-        </div>
-      </section>
+    
     -->
-
-    </main>
-    <Footer />
+    </section>
+  </Landing>
 </StarlightPage>
-
-
-<style>
-
-  main {
-    max-width: 900px;
-    margin: auto;
-    align: center;
-    // padding: 4rem 1.5rem;
-  }
-
-  iframe {
-    width: 100%;
-    min-height: 400px;
-  }
-
-  .actions {
-    margin: 3rem 0;
-    display: flex;
-    gap: 1rem 2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-    a, button {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 1.1rem;
-      color: black;
-      background-color: #4169E1;
-      border: none;
-      border-radius: 10rem;
-      font-size: 1.3rem;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    svg {
-      margin-left: .5em;
-    }
-  }
-
-  section {
-    max-width: 600px;
-    margin: 3rem 0;
-    img {
-      margin: 2rem auto;
-    }
-    .caption {
-      font-size: smaller;
-      margin: 1em 2em;
-      padding: .8em;
-      text-align: center;
-      /* 
-      border-bottom: 1px solid grey;
-      border-radius: 8px; */
-    }
-  }
-</style>
 
 <script>
   import {
@@ -245,7 +183,7 @@ A front-end framework with:
     Filler,
     Legend,
     Title,
-    Tooltip
+    Tooltip,
   } from "chart.js";
 
   Chart.register(
@@ -260,68 +198,68 @@ A front-end framework with:
   );
 
   const benchmarkData = {
-    "angular": {
-      "version": "20.0.1",
-      "run1k": 85.6,
-      "size-compressed": 46.3
+    angular: {
+      version: "20.0.1",
+      run1k: 85.6,
+      "size-compressed": 46.3,
     },
-    "inferno": {
-      "version": "8.2.2",
-      "run1k": 57.7,
-      "size-compressed": 8.9
+    inferno: {
+      version: "8.2.2",
+      run1k: 57.7,
+      "size-compressed": 8.9,
     },
-    "lit": {
-      "version": "3.2.1",
-      "run1k": 70.5,
-      "size-compressed": 6.6
+    lit: {
+      version: "3.2.1",
+      run1k: 70.5,
+      "size-compressed": 6.6,
     },
-    "react": {
-      "version": "19.2.0",
-      "run1k": 76.5,
-      "size-compressed": 51.4
+    react: {
+      version: "19.2.0",
+      run1k: 76.5,
+      "size-compressed": 51.4,
     },
-    "riot": {
-      "version": "9.4.4",
-      "run1k": 75.4,
-      "size-compressed": 6.4
+    riot: {
+      version: "9.4.4",
+      run1k: 75.4,
+      "size-compressed": 6.4,
     },
-    "solid": {
-      "version": "1.9.3",
-      "run1k": 63.9,
-      "size-compressed": 4.5
+    solid: {
+      version: "1.9.3",
+      run1k: 63.9,
+      "size-compressed": 4.5,
     },
-    "svelte": {
-      "version": "5.13.0",
-      "run1k": 67.1,
-      "size-compressed": 8.3
+    svelte: {
+      version: "5.13.0",
+      run1k: 67.1,
+      "size-compressed": 8.3,
     },
-    "vue": {
-      "version": "3.6.0-alpha.2",
-      "run1k": 69.1,
-      "size-compressed": 22.9
+    vue: {
+      version: "3.6.0-alpha.2",
+      run1k: 69.1,
+      "size-compressed": 22.9,
     },
-    "wallace": {
-      "version": "0.3.0",
-      "run1k": 55.3,
-      "size-compressed": 2.1
-    }
+    wallace: {
+      version: "0.3.0",
+      run1k: 55.3,
+      "size-compressed": 2.1,
+    },
   };
 
-  const sortData = data => {
+  const sortData = (data) => {
     const newData = { label: data.label, labels: [], values: [] };
     const arrayOfObj = data.labels.map((d, i) => ({
       label: d,
-      value: data.values[i]
+      value: data.values[i],
     }));
     arrayOfObj.sort((a, b) => a.value - b.value);
-    arrayOfObj.forEach(d => {
+    arrayOfObj.forEach((d) => {
       newData.labels.push(d.label);
       newData.values.push(d.value);
     });
     return newData;
-  }
+  };
 
-  const extractChartData = data => {
+  const extractChartData = (data) => {
     const charts = {};
     for (const [framework, stats] of Object.entries(data)) {
       for (const [test, value] of Object.entries(stats)) {
@@ -348,70 +286,29 @@ A front-end framework with:
             data: data.values,
             borderWidth: 1,
             maxBarThickness: 60,
-            backgroundColor: "#4169E1"
-          }
-        ]
+            backgroundColor: "#4169E1",
+          },
+        ],
       },
       options: {
         plugins: {
           legend: {
             display: false,
-          }
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
-            display: false
-          }
-        }
-      }
+            display: false,
+          },
+        },
+      },
     });
   };
 
-  function showButtonsOnMobile() {
-    const rightGroup = document.getElementsByClassName('right-group')[0];
-    if (rightGroup.classList.contains('sl-hidden')) {
-      // due to text nodes socialButtons is 1, themeSelect is 3.
-      const socialButtons = rightGroup.childNodes[1];
-      const themeSelect = rightGroup.childNodes[3];
-      const siteSearch = document.getElementsByTagName('site-search')[0];
-      
-      const themeSvg = themeSelect.getElementsByTagName('svg')[0];
-      const themeToggleButton = document.createElement('button');
-      themeToggleButton.style.border = 'none';
-      themeToggleButton.style.background = 'none';
-      themeToggleButton.style.display = 'flex';
-      themeToggleButton.style.marginLeft = '-0.5em';
-      
-      themeToggleButton.innerHTML = themeSvg.outerHTML;
-      const themeToggleSVG = themeToggleButton.childNodes[0];
-      themeToggleSVG.classList = [];
-      themeToggleSVG.style.width = '20';
-      themeToggleSVG.style.height = '20';
-
-      themeToggleButton.onclick = () => {
-        themeSelect.hidden = false;
-        themeToggleButton.style.display = 'none';
-      };
-      themeSelect.hidden = true;
-      themeSelect.onchange = () => {
-        themeSelect.hidden = true;
-        themeToggleButton.style.display = 'flex';
-      };
-      socialButtons.appendChild(siteSearch);
-      socialButtons.appendChild(themeSelect);
-      socialButtons.appendChild(themeToggleButton);
-      socialButtons.classList.add('no-after');
-      rightGroup.classList.remove('sl-hidden');
-    }
-  }
-
-  showButtonsOnMobile()
   window.onload = (event) => {
-    extractChartData(benchmarkData).forEach( data => {
+    extractChartData(benchmarkData).forEach((data) => {
       buildChart(document.getElementById(data.label), sortData(data));
-    })
+    });
   };
-
-
 </script>

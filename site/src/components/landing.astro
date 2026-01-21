@@ -1,0 +1,55 @@
+---
+/*
+A wrapper for pages that are no inside docs and that use the splash template.
+*/
+import Footer from "./footer.astro";
+---
+
+<div class="wrapper">
+  <div class="landing-content">
+    <slot />
+  </div>
+  <Footer />
+</div>
+
+<script>
+  function showButtonsOnMobile() {
+    const rightGroup = document.getElementsByClassName("right-group")[0];
+    if (rightGroup.classList.contains("sl-hidden")) {
+      // due to text nodes socialButtons is 1, themeSelect is 3.
+      const socialButtons = rightGroup.childNodes[1];
+      const themeSelect = rightGroup.childNodes[3];
+      const siteSearch = document.getElementsByTagName("site-search")[0];
+
+      const themeSvg = themeSelect.getElementsByTagName("svg")[0];
+      const themeToggleButton = document.createElement("button");
+      themeToggleButton.style.border = "none";
+      themeToggleButton.style.background = "none";
+      themeToggleButton.style.display = "flex";
+      themeToggleButton.style.marginLeft = "-0.5em";
+
+      themeToggleButton.innerHTML = themeSvg.outerHTML;
+      const themeToggleSVG = themeToggleButton.childNodes[0];
+      themeToggleSVG.classList = [];
+      themeToggleSVG.style.width = "20";
+      themeToggleSVG.style.height = "20";
+
+      themeToggleButton.onclick = () => {
+        themeSelect.hidden = false;
+        themeToggleButton.style.display = "none";
+      };
+      themeSelect.hidden = true;
+      themeSelect.onchange = () => {
+        themeSelect.hidden = true;
+        themeToggleButton.style.display = "flex";
+      };
+      socialButtons.appendChild(siteSearch);
+      socialButtons.appendChild(themeSelect);
+      socialButtons.appendChild(themeToggleButton);
+      socialButtons.classList.add("no-after");
+      rightGroup.classList.remove("sl-hidden");
+    }
+  }
+
+  showButtonsOnMobile();
+</script>

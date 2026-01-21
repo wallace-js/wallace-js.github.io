@@ -3,6 +3,24 @@
   max-width: 100%;
 }
 
+.tagline {
+  text-align: left;
+  ul {
+    list-style-type: none;
+    padding: 0.5rem;
+  }
+  ul li:before {
+    content: '✓';
+    font-weight: bold;
+    padding: 0.5rem;
+  }
+  /* li {
+    display: block;
+    text-align: left;
+    padding: 0;
+  } */
+}
+
 .actions {
   gap: 0.8rem;
   justify-content: left;
@@ -11,12 +29,14 @@
 .action {
   background-color: #4169E1;
   border: none;
-  font-size: 1.1rem;
+  /* font-size: 1.1rem; */
   font-weight: 600;
 }
 
+
 .secondary {
-  background-color: none;
+  border: 2px solid #4169E1;
+  background: none;
 }
 
 .ec-line {
@@ -25,4 +45,70 @@
 
 .no-after::after {
   content: none;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  /* stupid fucking attempt at pushing footer to botton */
+  min-height: 60vh;
+  footer {
+    bottom: 0;
+    position: relative;
+    border-top: 1px solid #ffffff;
+    margin-bottom: -100px;
+    text-align: center;
+    font-size: smaller;
+    a {
+      margin-right: 1em;
+    }
+  }
+}
+
+.landing-content {
+  max-width: 900px;
+  margin: auto;
+  flex: 1;
+
+  h4 {
+    margin: 1.5rem 0;
+  }
+  .follow {
+    margin: 3rem 0;
+    display: flex;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    a,
+    button {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1.1rem;
+      color: black;
+      background-color: #4169e1;
+      border: none;
+      border-radius: 10rem;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    svg {
+      margin-left: 0.5em;
+    }
+  }
+
+  section {
+    max-width: 600px;
+    margin: 3rem 0;
+    img {
+      margin: 2rem auto;
+    }
+    .caption {
+      font-size: smaller;
+      margin: 1em 2em;
+      padding: 0.8em;
+      text-align: center;
+    }
+  }
+
 }

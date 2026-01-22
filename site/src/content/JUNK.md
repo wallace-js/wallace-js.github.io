@@ -462,28 +462,28 @@ const CounterList: Uses<iCounter[]> = (counters) => (
 ​        being more direct, helpful,
 ​        explicit, flexible, customisable and extendable than other frameworks.
 ​      
-      <section>
-        <h2>How intuitive?</h2>
-        <p>
-          Wallace feels like React with the ugly bits removed:
-          <ul>
-            <li>No mangled JSX.</li>
-            <li>No awkward patterns like hooks.</li>
-            <li>Just clean and obvious code.</li>
-          </ul>
-        </p>
-        <p>
-          You can probably read the <a href="/docs/guide">guide</a> once then use the 
-          tooltips as they include a full cheat sheet:
-          <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
-        </p>
-        <p>
-          Here's and embeded <a href="https://stackblitz.com/">StackBlitz</a> 
-          (which sadly doesn't render markdown tooltips that well) where you can
-          give Wallace a spin:
-        </p>
-        <iframe src={stackblitzLink}></iframe>
-      </section>
+​      <section>
+​        <h2>How intuitive?</h2>
+​        <p>
+​          Wallace feels like React with the ugly bits removed:
+​          <ul>
+​            <li>No mangled JSX.</li>
+​            <li>No awkward patterns like hooks.</li>
+​            <li>Just clean and obvious code.</li>
+​          </ul>
+​        </p>
+​        <p>
+​          You can probably read the <a href="/docs/guide">guide</a> once then use the 
+​          tooltips as they include a full cheat sheet:
+​          <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
+​        </p>
+​        <p>
+​          Here's and embeded <a href="https://stackblitz.com/">StackBlitz</a> 
+​          (which sadly doesn't render markdown tooltips that well) where you can
+​          give Wallace a spin:
+​        </p>
+​        <iframe src={stackblitzLink}></iframe>
+​      </section>
 
       <section>
         <h2>How extendable?</h2>
@@ -503,3 +503,121 @@ const CounterList: Uses<iCounter[]> = (counters) => (
       </section>
 
 ​    
+
+    <p>
+      I wrote the code in 3 weeks, compiled it, installed it on my Moto G,
+      opened it, and waited...for 10 whole seconds for my app to load.
+    </p>
+    <p>
+      I traced that down to the massive size of assets being loaded by Angular
+      (52kb), Ionic (mostly css) and PouchDb (89Kb), MomentJs (51Kb) so I tried
+      to replicate what I needed from Angular with hand-written JavaScript, and
+      was shocked to have it all fit under 1kb!
+    </p>
+    <p>
+      I turned it into a framework, which in retrospect is awful and totally
+      unusable. Over the years that morphed into different frameworks as I tried
+      different approaches, most notable being the switch to using Babel, then
+      JSX and finally embracing TypeScript.
+    </p>
+    <p>Where things really took off was when I started</p>
+
+​    <!--
+​    Andrew
+
+Wallace was written by Andrew Buchan (<a
+        href="https://github.com/andyhasit">andyhasit</a
+      > on GitHub) and released in early 2026.
+      It is the last of 5 frameworks he has produced.
+      
+      culmination of 8 years
+      work, which started with an experiment into just how little JavaScript he
+      could fit on a page. upon finding that an Angular+Ionic mobile app he had
+      spent weeks developing took 10 seconds to load.
+    -->
+
+
+​    
+​    
+
+
+
+0000000
+
+
+
+
+
+Wallace was released in early 2026. Its original goal was to offer an object-oriented alternative to React, which avoids the hated hooks pattern. One upshot of this design is that gain total freedom to modify any run time behaviour by overriding methods. Most frameworks rely on hidden engines which heavily restrict your freedom, so this seemed like a unique selling point.
+
+In Scotland, the word freedom cannot be uttered without conjuring this scene:
+
+
+
+So Wallace was really the only name for it. It also happened to be available on https://www.npmjs.com/package/wallace.
+
+However, compiling JSX into object-oriented components turns out to have many other fringe benefits, making Wallace one of the smallest, fastest, nicest and most powerful frameworks around. 
+
+
+
+ is associated with one indelible scene, so there was no other 
+
+The name Wallace was chosen for three reasons:
+
+- William Wallace is synonymous with the the fight for freedom in Scotland and abroad.
+- His portrayal by Mel Gibson in the 1995 film 
+-  1995 film Braveheart became a staple in Scottish comedy.
+
+
+
+designed to address the author's gripes with React.
+
+
+
+
+
+ to have the good parts of React (JSX components) and swap out the annoying functional model for something more object oriented, because it makes updates simpler
+
+
+
+s original goal was to be a simple OOP framework
+
+
+      <h3>Freedom</h3>
+      <p>
+        Freedom is not something we think of when picking a framework - yet
+        quickly pops into focus when the framework prevents you from doing
+        something simple, or makes it unduly difficult.
+      </p>
+      <p>
+        Wallace differs from most declarative frameworks in that it has no "DOM
+        engine". It compiles functions that are use to create objects, whose can
+        be overriden:
+      </p>
+      <Code
+        lang="tsx"
+        code={`
+const Counter = ({ clicks }) => (
+  <div>
+    <span>Count: {clicks}</span>
+    <button onClick={clicks++}>Click me</button>
+  </div>
+);
+
+Counter.methods = {
+  render(props) {
+    this.props = props;
+    this.update();
+  },
+  update() {
+    this.base.update.call(this);
+    // Do extra stuff...
+  }
+}
+`}
+      />
+      <p>
+        This was a major selling point of the framework during its early days,
+        hence the name. However Wallace has since emerged to be among the
+        smallest and fastest frameworks on the planet
+      </p>

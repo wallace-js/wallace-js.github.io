@@ -1,6 +1,7 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import { Icon } from "@astrojs/starlight/components";
+import { Code } from "@astrojs/starlight/components";
 import Landing from "../components/landing.astro";
 
 const repo = "https://github.com/wallace-js/wallace";
@@ -22,7 +23,6 @@ const hero = {
   </div>
   `,
   image: {
-    // file: '/img/wallace-tags.png',
     html: '<img id="logo" src="/img/wallace-tags.png" alt="Wallace logo" />',
   },
   imageAlt: "Wallace logo",
@@ -32,6 +32,7 @@ const hero = {
       link: "docs/guide",
       icon: "rocket",
       attrs: {
+        id: "tour-btn",
         class: "primary action",
       },
     },
@@ -58,8 +59,10 @@ const hero = {
     <section>
       <h2>Faster loading</h2>
       <p>
-        Wallace produces substantially smaller bundles than
-        <a href="/comparison">any other</a> framework, meaning pages will load faster.
+        Wallace produces substantially smaller bundles than <a
+          href="/docs/claims">almost any other framework</a
+        >, making it ideal for landing pages, or serving apps to areas with poor
+        connectivity.
       </p>
       <p class="caption">
         Bundle size of various implementations of the
@@ -72,19 +75,11 @@ const hero = {
 
     <section>
       <h2>Faster rendering</h2>
-      <!--
-        <p>
-          Wallace comes close to first on 
-          <a href="https://github.com/krausest/js-framework-benchmark">official 
-          benchmarks</a>, but it has
-          more powerful (and nicer) performance tweaking, so it may well be
-          "the" fastest.
-        </p>
-      -->
       <p>
-        Wallace renders DOM updates faster than almost
-        <a href="/comparison">any other</a> framework, and has better performance
-        tweaking capabilities.
+        Wallace renders DOM faster than <a href="/docs/claims"
+          >almost any other framework</a
+        > and offers more control over updates, making it ideal for performance-critical
+        apps.
       </p>
       <p class="caption">
         Time to create 1000 rows on the
@@ -97,78 +92,150 @@ const hero = {
 
     <section>
       <h2>Faster development</h2>
+      <p>Wallace helps you develop faster by being:</p>
+      <h4>Familiar</h4>
+      Use JSX and feel right at home:
+
+      <Code
+        lang="tsx"
+        code={`
+const Counter = ({ clicks }) => (
+  <div>
+    <span>Count: {clicks}</span>
+    <button onClick={clicks++}>Click me</button>
+  </div>
+);
+`}
+      />
+
+      <h4>Expressive</h4>
+      Use special syntax to keep your JSX neat:
+
+      <Code
+        lang="tsx"
+        code={`
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat items={counters} />
+  </div>
+);
+`}
+      />
+
+      <h4>Helpful</h4>
+      Enjoy full TypeScript support and full docs in tool tips:
+
+      <img src="/img/cheat-sheet.jpg" />
+
+      <h4>Explicit</h4>
+
+      Control exactly when and how components update. No magic. No confusion.
+
+      <Code
+        lang="tsx"
+        code={`
+import { mount, watch } from 'wallace';
+
+const counters = [{ clicks: 0 }, { clicks: 0 }];
+const root = mount(
+  document.getElementById('main'),
+  CounterList,
+  watch(counters, () => root.update())
+);
+`}
+      />
+
+      <h4>Powerful</h4>
+
+      Update parts inside components:
+
+      <Code
+        lang="tsx"
+        code={`
+const CounterList = (counters) => (
+  <div>
+    <div part:stats>
+      Total: {counters.reduce((a, c) => a + c.clicks, 0)}
+    </div>
+    <div part:counters>
+      <Counter.repeat items={counters} />
+    </div>
+  </div>
+);
+
+const updateStats = () => root.part.stats.update();
+`}
+      />
+      <p>Extend components and override parts:</p>
+      <Code
+        lang="tsx"
+        code={`
+import { extendComponent } from 'wallace';
+
+const CounterList = (counters) => (
+  <div>
+    <stub:stats />
+    <div>
+      <Counter.repeat items={counters} />
+    </div>
+  </div>
+);
+
+const HighestCounterList = extendComponent(CounterList);
+
+HighestCounterList.stubs.stats = ({ counters }) => (
+  <div>
+    Highest: {Math.max(...counters.map(c => c.clicks))}
+  </div>
+);
+
+`}
+      />
+      <p>Override runtime behaviour:</p>
+      <Code
+        lang="tsx"
+        code={`
+
+const CounterList = (counters) => (
+  <div>
+    <stub:stats>
+    <div>
+      <Counter.repeat items={counters} />
+    </div>
+    <canvas ref:chart />
+  </div>
+);
+
+CounterList.methods = {
+  render(counters) {
+    // Handle awkward DOM operation...
+    buildChart(this.ref.chart, counters);
+    // And let Wallace do the rest...
+    this.base.render.call(this, counters);
+  }
+}
+`}
+      />
+      <p>Create custom directives:</p>
+      <Code
+        lang="tsx"
+        code={`
+const CounterList = (counters) => (
+  <div>
+    <div total:clicks={counters}>
+    </div>
+    <div>
+      <Counter.repeat items={counters} />
+    </div>
+  </div>
+);
+`}
+      />
       <p>
-        Wallace helps you develop faster by being more:
-        <h4>Explicit</h4>
-        See exactly when and how components update. No magic. No confusion.
-
-        <h4>Helpful</h4>
-        Deep TypeScript support. Docs in tool tips. Easy debugging.
-
-        <h4>Powerful</h4>
-
-        Inherit, extend or partially update any component. Modify run time
-        behaviour. Create custom directives.
-
-        <!-- <ul>
-          <li>Exposing full docs in the tool tips.</li>
-          <li>Override all runtime operations.</li>
-          <li>Customise component behaviour.</li>
-          <li>Extend syntax by adding your own directives.</li>
-        </ul> -->
+        Directives operate during compilation, so adding to them doesn't
+        increase bundle size.
       </p>
-
-      <div class="follow">
-        <a href="/docs/guide">Tour<Icon name="rocket" /> </a>
-      </div>
-
-      <!--
-      
-        being more direct, helpful,
-        explicit, flexible, customisable and extendable than other frameworks.
-      
-      <section>
-        <h2>How intuitive?</h2>
-        <p>
-          Wallace feels like React with the ugly bits removed:
-          <ul>
-            <li>No mangled JSX.</li>
-            <li>No awkward patterns like hooks.</li>
-            <li>Just clean and obvious code.</li>
-          </ul>
-        </p>
-        <p>
-          You can probably read the <a href="/docs/guide">guide</a> once then use the 
-          tooltips as they include a full cheat sheet:
-          <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
-        </p>
-        <p>
-          Here's and embeded <a href="https://stackblitz.com/">StackBlitz</a> 
-          (which sadly doesn't render markdown tooltips that well) where you can
-          give Wallace a spin:
-        </p>
-        <iframe src={stackblitzLink}></iframe>
-      </section>
-
-      <section>
-        <h2>How extendable?</h2>
-        <p>
-          Wallace lets you:
-          <ul>
-            <li>Override all runtime operations.</li>
-            <li>Customise component behaviour.</li>
-            <li>Extend syntax by adding your own directives.</li>
-          </ul>
-          <br/>
-          No other framework gives you this freedom, which is why it is
-          called Wallace - although that makes more sense if you've seen
-          <a href="https://www.imdb.com/title/tt0112573/">this film</a>:
-        </p>
-        <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
-      </section>
-
-    
-    -->
+      <div id="next"></div>
     </section>
   </Landing>
 </StarlightPage>
@@ -307,6 +374,10 @@ const hero = {
   };
 
   window.onload = (event) => {
+    document
+      .getElementById("next")
+      .appendChild(document.getElementById("tour-btn").cloneNode(true));
+
     extractChartData(benchmarkData).forEach((data) => {
       buildChart(document.getElementById(data.label), sortData(data));
     });

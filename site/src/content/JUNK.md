@@ -420,3 +420,86 @@ Let's see both of these in action, first by
 
 
 
+
+
+```
+
+      <Code
+        lang="tsx"
+        code={`
+
+import { Uses } from 'wallace';
+
+interface iCounter {
+  clicks: number;
+}
+
+const Counter: Uses<iCounter> = ({ clicks }) => (
+  <div>
+    <span>Count: {clicks}</span>
+    <button onClick={clicks++}>Click me</button>
+  </div>
+);
+
+const CounterList: Uses<iCounter[]> = (counters) => (
+  <div>
+    <Counter.repeat items={counters} />
+  </div>
+);
+`}
+      />
+      
+      
+```
+
+
+
+
+
+
+​      <!--
+​      
+​        being more direct, helpful,
+​        explicit, flexible, customisable and extendable than other frameworks.
+​      
+      <section>
+        <h2>How intuitive?</h2>
+        <p>
+          Wallace feels like React with the ugly bits removed:
+          <ul>
+            <li>No mangled JSX.</li>
+            <li>No awkward patterns like hooks.</li>
+            <li>Just clean and obvious code.</li>
+          </ul>
+        </p>
+        <p>
+          You can probably read the <a href="/docs/guide">guide</a> once then use the 
+          tooltips as they include a full cheat sheet:
+          <img src="/img/cheat-sheet.jpg" alt="Screenshot of cheat sheet" />
+        </p>
+        <p>
+          Here's and embeded <a href="https://stackblitz.com/">StackBlitz</a> 
+          (which sadly doesn't render markdown tooltips that well) where you can
+          give Wallace a spin:
+        </p>
+        <iframe src={stackblitzLink}></iframe>
+      </section>
+
+      <section>
+        <h2>How extendable?</h2>
+        <p>
+          Wallace lets you:
+          <ul>
+            <li>Override all runtime operations.</li>
+            <li>Customise component behaviour.</li>
+            <li>Extend syntax by adding your own directives.</li>
+          </ul>
+          <br/>
+          No other framework gives you this freedom, which is why it is
+          called Wallace - although that makes more sense if you've seen
+          <a href="https://www.imdb.com/title/tt0112573/">this film</a>:
+        </p>
+        <img src="/img/braveheart-1.jpg" alt="Braveheart 1995 movie" />
+      </section>
+
+​    

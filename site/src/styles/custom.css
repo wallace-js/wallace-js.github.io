@@ -14,11 +14,6 @@
     font-weight: bold;
     padding: 0.5rem;
   }
-  /* li {
-    display: block;
-    text-align: left;
-    padding: 0;
-  } */
 }
 
 .actions {
@@ -50,7 +45,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  /* stupid fucking attempt at pushing footer to botton */
+  /* stupid attempt at pushing footer to bottom */
   min-height: 60vh;
   footer {
     bottom: 0;
@@ -66,32 +61,18 @@
 }
 
 .landing-content {
-  max-width: 900px;
-  margin: auto;
-  flex: 1;
-
+  flex: 1; 
   h4 {
     margin: 1.5rem 0;
   }
-  .follow {
+
+  #next {
     margin: 3rem 0;
     display: flex;
     gap: 1rem 2rem;
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
-    a,
-    button {
-      display: flex;
-      align-items: center;
-      padding: 0.5rem 1.1rem;
-      color: black;
-      background-color: #4169e1;
-      border: none;
-      border-radius: 10rem;
-      font-weight: bold;
-      text-decoration: none;
-    }
     svg {
       margin-left: 0.5em;
     }

@@ -30,12 +30,13 @@ export default defineConfig({
           items: [{ slug: "docs" }],
         },
         {
-          label: "Guide",
-          autogenerate: { directory: "docs/guide" },
+          label: "Tour",
+          autogenerate: { directory: "docs/tour" },
         },
         {
           label: "Reference",
-          autogenerate: { directory: "docs/reference" },
+          link: "/docs/reference",
+          // autogenerate: { directory: "docs/reference" },
         },
       ],
     }),

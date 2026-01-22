@@ -4,11 +4,27 @@ sidebar:
   order: 0
 ---
 
-Wallace claims to load faster and render faster than almost any other framework. That naturally raises a few eyebrows as well as some questions, which we'll answer here.
+Wallace claims to load faster and render faster than "almost any other framework" - which raises a few eyebrows as well as some questions.
 
-These claims are based on the [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) which has become the de-facto  benchmark due to its attention to accuracy and coverage. However, there are a few subtleties you need to be aware of when interpreting the results.
+## TLDR
 
-## The js-framework-benchmark
+The [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) runs performance tests on implementations of the same app in different frameworks. It distinguishes between keyed and non-keyed strategies, with the latter being faster but unsuitable for certain situations. Most frameworks allow both strategies.
+
+* Non-keyed results:
+  * Wallace comes first in the **create 1000 rows** test (probably most indicative of render time) and does rather well on other tests.
+  * Wallace comes joint first in **first paint** test (an accurate measure of impact on page loading time).
+* Keyed results:
+  * PR open, awaiting merge.
+
+There's no way to pick an "overall" winner as the relative importance of tests, and whether you can compare keyed vs non-keyed, is subjective. Having said that, if you're looking for a combination of fastest loading and fastest rendering, it's hard not to pick Wallace.
+
+You can see the official results [here](https://krausest.github.io/js-framework-benchmark/current.html).
+
+## Details
+
+The [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) has become the most popular benchmark for JavaScript frameworks due to the enormous work and attention to accuracy by the maintainer (Stefan Krause) as well as its unofficial role as a live register of active frameworks.
+
+However, there are a few subtleties you need to be aware of when interpreting the results.
 
 ### Premise
 
@@ -16,7 +32,7 @@ The project is a repository which includes a multitude of implementations of the
 
 ![](https://raw.githubusercontent.com/krausest/js-framework-benchmark/refs/heads/master/images/screenshot.png)
 
-It run a suite of tests (e.g. create 1000 rows, swap rows, remove a row etc...) against the app and measures the times and other metrics. The latest results are regularly [published](https://krausest.github.io/js-framework-benchmark/current.html), showing how different frameworks stack up against each other.
+It run a suite of tests (e.g. create 1000 rows, swap rows, remove a row etc...) against each implementation and records times and other metrics. The latest results are regularly [published](https://krausest.github.io/js-framework-benchmark/current.html), showing how different frameworks stack up against each other.
 
 ### Implementations
 
@@ -49,44 +65,67 @@ The results are separated by approach, which on one hand gives a fairer comparis
 
 ## Interpreting results
 
-There are two parts we're interested in: loading times and render times, but these both have some nuances.
+There are two parts we're interested in: loading times and render times.
 
 ### Loading times
 
-The metrics we have that affect loading times are:
+Three tests are included for loading times:
 
 - Uncompressed size
 - Compressed size
 - First paint
 
-Each of these matters in different ways. On a first visit to a site, the client will not have any static assets cached (with the possible exception of generic third party libraries) meaning they all need to go over the network, so the compressed size matters.
+Each of these matters in different ways.
 
-However network speeds are much faster than they used to be, we have CDNs, and JavaScript bundles are often smaller than the many images being loaded on the page, so it's not as critical as it used to be. But bloated bundles will still definitely impact loading times on a poor connection.
+On a first visit to a site, the uncompressed size matters as the bundle needs to be fetched over the network. With modern network speeds and the prevalence of CDNs this doesn't matter as much as it used to.
 
-On a second visit, the assets will often be cached, which negates the network loading time, but the bundle still needs to be decompressed, interpreted and converted to machine code - and the latter can be significant. The uncompressed bundle size is the best (though by no means linear) indicator of this.
+On a second visit, the assets will often be cached but the bundle still needs to be decompressed, parsed and converted to machine code before it even runs - which is not insignificant. Then there's the matter of what your bundle does before it starts updating the DOM. The "first paint" metric captures both the interpreting and activity before the bundle starts updating the DOM, and is the really useful one you should be looking at.
 
-Then there's the matter of what your bundle does before it starts updating the DOM. The "first paint" metric captures both the interpreting and activity before the bundle starts updating the DOM, and is the really useful one you should be looking at.
+The spread of scores for loading times dwarfs the spread of scores for render metrics, for example the non-keyed results show:
 
-The spread of scores for loading times dwarfs the spread of scores for render metrics.
-
-- First paint - fastest: 30.7 (vanillas) vs slowest: 989.5 (ember)
-- Create 1000 rows - fastest: 24.0 (deleight) vs slowest 88.6 (qwik)
+- **First paint** 
+  - Fastest: 30.7ms (Wallace & skruv-liten)
+  - Slowest: 2,454.3 ms(reflex-dom)
+- **Create 1000 rows**
+  - Fastest: 21.8ms (Wallace) 
+  - Slowest 141.0ms (incr_dom)
 
 Bear in mind that the js-framework-benchmark app is tiny with just 3 components. So the gargantuan bundles would not grow all that much with 30 components, whereas the smaller bundles would grow almost proportionally.
 
 ### Render times
 
-There are several subtleties to be aware of when interpreting the. The first is that 
+There are 9 tests relating to render times, plus a geometric mean calculation, which confuses a lot of people.
 
+#### Tests and the geometric mean
 
+The test scores are in milliseconds, but the geometric mean is a relative score calculating the difference between frameworks across selected tests. As such, it changes as you include or exclude tests or frameworks.
 
-This is the larger table with a dozen metrics, which makes people tempted to 
+What is potentially misleading is that it is a mean of tests that don't all matter to the same extent. No user is going to notice "remove row" taking 10 vs 30 ms.
 
-If you look at the row headers you'll see mentions of "5 warmup runs" 
+#### Warm up runs
 
-### Geometric mean
+If you look at the row headers you'll see mentions of "5 warmup runs" which helps give a fair comparison on maximum performance after engine optimisation, as it needs to identify hot code. However, your first render of data the page might benefit from that, so that's something to consider, and something that's not captured in the benchmark.
 
-The project goes to great lengths to ensure fairness and accuracy, however the overall score as shown in "geometric mean of all factors in the table" is rather questionable, as the relative importance of each test is subjective. 
+#### Keyed vs non-keyed
 
-For example the speed of "clear all rows" ranges from 9 to 44ms, and no one is going to notice that difference - yet a framework's relative score on that test matters as much as its relative score on "create 1000 rows" which is the one would become visible in certain real world scenarios.
+As mentioned before, the test results are split by keyed vs non-keyed, but this generally ends up with people picking a table (usually keyed as it has more frameworks) and ignoring the fact that you may use non-keyed in certain situations (if the framework allows that).
+
+#### Incompleteness
+
+The most important thing to bear in mind is that the target app is by necessity rather simple and not representative of the real world:
+
+- It is tabular, with one level of nesting. Things change drastically when you include multiple levels of nested repeats, and even more if there are irregular numbers of sub-nested items.
+- There is minimal CSS and no animations.
+- There are almost no gotchas.
+
+Interestingly there is one gotcha: if an implementation fails to preload the `glyphicon` it will be orders of magnitude slower than it should be. This just goes to show that you can't just pick out a fast framework and expect a fast application
+
+Lastly, these implementations don't use the framework's full features, which can sometimes impact performance (sometimes drastically by [deoptimisation](https://www.thenodebook.com/node-arch/v8-engine-intro#common-deoptimization-triggers)).
+
+In other words, solid performance in benchmarks are no guarantee of solid performance in all real life situations, although frameworks which perform poorly on benchmarks are unlikely to fare better in real life.
+
+If you're interested in further exploring performance issues, we recommend these articles:
+
+- https://codeburst.io/taming-huge-collections-of-dom-nodes-bebafdba332
+- https://www.thenodebook.com/node-arch/v8-engine-intro#common-deoptimization-triggers
 

@@ -4,25 +4,19 @@ sidebar:
   order: 0
 ---
 
-This tour shows you how to use Wallace in three sections:
-
-1. Basics - how to use Wallace.
-2. Better - how to better organise your code.
-3. Badass - how to use badass features.
+This tour shows how to use Wallace. 
 
 It doesn't cover everything in minute detail - that's what the [reference](/docs/reference) section is for.
 
 ## Code along
 
-You have two options:
-
-### Work online
+### Online
 
 [StackBlitz](https://stackblitz.com) lets you run node projects in the browser without installing anything on your machine. Choose [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
 
 You can always transition to working locally by downloading the project.
 
-### Work locally
+### Locally
 
 You will need [node](https://nodejs.org/en) version 18 or above, and a modern editor like [vscode](https://code.visualstudio.com/) which displays Mardown tool tips.
 
@@ -43,7 +37,7 @@ You will be asked to choose between TypeScript or JavaScript. If you select Type
 
 > Wallace is a front-end framework which uses ES6, JSX and Babel, and plays well with TypeScript.
 
-If you understood all that, you can skip ahead to the [next section](/docs/guide/setup). If not, read on to see what these bits mean.
+If you understood all that, you can skip ahead to the [next section](/docs/guide/part-1). If not, read on to see what these bits mean.
 
 ### Front end framework
 

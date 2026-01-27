@@ -58,10 +58,9 @@ const hero = {
     <section>
       <h2>Faster loading</h2>
       <p>
-        Wallace produces substantially smaller bundles than <a
-          href="/docs/claims">almost any other framework</a
-        >, making it ideal for landing pages, or serving apps to areas with poor
-        connectivity.
+        Wallace loads faster than <a href="/docs/claims"
+          >almost any other framework</a
+        > thanks to its microscopic bundles, making it ideal for landing pages.
       </p>
       <p class="caption">
         Bundle size of various implementations of the
@@ -75,9 +74,9 @@ const hero = {
     <section>
       <h2>Faster rendering</h2>
       <p>
-        Wallace renders DOM faster than <a href="/docs/claims"
-          >almost any other framework</a
-        > and offers more control over updates, making it ideal for performance-critical
+        Wallace renders faster than <a href="/docs/claims"
+          >most other frameworks</a
+        > and lets you fine tune updates, making it ideal for performance-critical
         apps.
       </p>
       <p class="caption">
@@ -93,7 +92,7 @@ const hero = {
       <h2>Faster development</h2>
       <p>Wallace helps you develop faster by being:</p>
       <h4>Familiar</h4>
-      Use JSX and feel right at home:
+      Work with components and JSX:
 
       <Code
         lang="tsx"
@@ -108,7 +107,7 @@ const Counter = ({ clicks }) => (
       />
 
       <h4>Expressive</h4>
-      Use special syntax to keep your JSX neat:
+      Use neat syntax for concise and readable code:
 
       <Code
         lang="tsx"
@@ -118,28 +117,27 @@ const CounterList = (counters) => (
     <Counter.repeat items={counters} />
   </div>
 );
+
+mount('main', CounterList, [{ clicks: 0 }]);
 `}
       />
 
       <h4>Helpful</h4>
-      Enjoy full TypeScript support and full docs in tool tips:
+      Enjoy deep TypeScript support, full docs in the tool tips and other goodies:
 
       <img src="/img/cheat-sheet.jpg" />
 
       <h4>Explicit</h4>
 
-      Control exactly when and how components update. No magic. No confusion.
+      Know exactly when and how components update. No magic. No confusion.
 
       <Code
         lang="tsx"
         code={`
-import { mount, watch } from 'wallace';
-
-const counters = [{ clicks: 0 }, { clicks: 0 }];
 const root = mount(
-  document.getElementById('main'),
+  'main',
   CounterList,
-  watch(counters, () => root.update())
+  watch([{ clicks: 0 }], () => root.update())
 );
 `}
       />
@@ -165,7 +163,7 @@ const CounterList = (counters) => (
 const updateStats = () => root.part.stats.update();
 `}
       />
-      <p>Extend components and override parts:</p>
+      <p>Subclass components with stubs:</p>
       <Code
         lang="tsx"
         code={`
@@ -190,7 +188,13 @@ HighestCounterList.stubs.stats = ({ counters }) => (
 
 `}
       />
-      <p>Override runtime behaviour:</p>
+
+      <blockquote>
+        Wallace looks functional, but lift the hood and you get juicy OOP.
+      </blockquote>
+
+      <h4>Extendable</h4>
+      <p>Modify any runtime behaviour:</p>
       <Code
         lang="tsx"
         code={`
@@ -215,6 +219,7 @@ CounterList.methods = {
 }
 `}
       />
+
       <p>Create custom directives:</p>
       <Code
         lang="tsx"
@@ -230,10 +235,10 @@ const CounterList = (counters) => (
 );
 `}
       />
-      <p>
-        Directives operate during compilation, so adding to them doesn't
-        increase bundle size.
-      </p>
+      <blockquote>
+        Directives operate during compilation, so adding more doesn't increase
+        bundle size.
+      </blockquote>
       <div id="next"></div>
     </section>
   </Landing>
@@ -266,48 +271,48 @@ const CounterList = (counters) => (
   const benchmarkData = {
     angular: {
       version: "20.0.1",
-      run1k: 85.6,
+      run1k: 38.0,
       "size-compressed": 46.3,
     },
     inferno: {
       version: "8.2.2",
-      run1k: 57.7,
+      run1k: 23.8,
       "size-compressed": 8.9,
     },
     lit: {
       version: "3.2.1",
-      run1k: 70.5,
+      run1k: 27.0,
       "size-compressed": 6.6,
     },
     react: {
       version: "19.2.0",
-      run1k: 76.5,
+      run1k: 26.6,
       "size-compressed": 51.4,
     },
     riot: {
       version: "9.4.4",
-      run1k: 75.4,
+      run1k: 29.0,
       "size-compressed": 6.4,
     },
     solid: {
       version: "1.9.3",
-      run1k: 63.9,
+      run1k: 23.2,
       "size-compressed": 4.5,
     },
     svelte: {
       version: "5.13.0",
-      run1k: 67.1,
+      run1k: 23.6,
       "size-compressed": 8.3,
     },
     vue: {
       version: "3.6.0-alpha.2",
-      run1k: 69.1,
+      run1k: 26.5,
       "size-compressed": 22.9,
     },
     wallace: {
       version: "0.3.0",
-      run1k: 55.3,
-      "size-compressed": 2.1,
+      run1k: 22.2,
+      "size-compressed": 2.0,
     },
   };
 

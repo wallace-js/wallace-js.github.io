@@ -38,6 +38,10 @@
   font-size: 0.75rem;
 }
 
+blockquote {
+  font-size: smaller;
+}
+
 .no-after::after {
   content: none;
 }

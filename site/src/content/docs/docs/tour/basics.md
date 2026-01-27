@@ -1,273 +1,239 @@
 ---
 title : Basics
 sidebar:
-  order: 3
+  order: 1
 ---
 
-## Components
+## Overview
 
-Wallace controls the DOM using "components" which look like React components, but work very differently.
-
-You define components as functions which accept props and return JSX:
+Wallace controls the DOM using components, which you define as functions that accept props and return JSX:
 
 ```tsx
 const Counter = ({ clicks }) => (
   <div>
-    <span>Count: {clicks}</span>
+    <div>Count: {clicks}</div>
     <button onClick={clicks++}>Click me</button>
   </div>
 );
 ```
 
-Components can be nested and repeated using custom JSX syntax:
+Component definitions can be nested or repeated using the following syntax:
 
 ```tsx
-const CounterList = (props) => (
+const CounterList = (counters) => (
   <div>
-    <Counter.repeat items={props} />
+    <Counter.nest props={counters[0]} />
+    <hr/>
+    <div>
+   	  <Counter.repeat items={counters.slice(1)} />
+    </div>
   </div>
 );
 ```
 
-And mounted to the document using a helper function:
+Nested components forms a tree, the root of which is attached to the document using the `mount` function, which also allows setting initial props:
 
 ```tsx
 import { mount } from 'wallace';
 
-// Components as above...
-
 const counters = [{clicks: 0}, {clicks: 0}];
-mount('main', CounterList, counters);
+mount(
+  document.getElementById('main'), 
+  CounterList,
+  counters
+);
 ```
 
-> `mount` passes `counters` as the props to `CounterList` which then nests a `Counter` for every item in `counters`.
+> You should now see two click counters on the page, but clicking the button doesn't update the DOM yet.
 
-Your page should now display two click counters:
-
-<div style="border: 1px solid grey; padding: 10px;">
-  <div>
-    <span>Count: <span>0</span></span>
-    <button>Click me</button>
-  </div> <div>
-    <span>Count: <span>0</span></span>
-    <button>Click me</button>
-  </div>
-</div>
-
-
-Clicking on the buttons doesn't do anything yet. Before we tackle that, let's look at what Wallace did behind the scenes.
-
-## Compilation
-
-Wallace uses a special Babel plugin to replace functions that returns JSX with generated code which equates to this:
-
-```tsx
-const Counter = function () {/*...*/};
-Counter.prototype = {/*...*/};
-```
-
-These functions are used internally as constructors to create objects we call components:
-
-```js
-const component = new Counter();
-```
-
-Theses objects have properties, including functions which come from the prototype, like `render`:
-
-```js
-component.render({ count: 0 });
-```
-
-You don't usually create components manually, but doing it once helps you understand they are just ordinary objects with methods that updates their DOM, which you can attach to the document like any other DOM element:
-
-```js
-const componment = new CounterList();
-document.body.appendChild(componment.el);
-componment.render([{clicks: 1}, {clicks: 2}]);
-```
-
-> During `render` the `CounterList` created two instances of `Counter` and attached them to its DOM.
-
-You should now see two click counters with values set:
-
-<div style="border: 1px solid grey; padding: 10px;">
-  <div>
-    <span>Count: <span>1</span></span>
-    <button>Click me</button>
-  </div> <div>
-    <span>Count: <span>2</span></span>
-    <button>Click me</button>
-  </div>
-</div>
-There's nothing magic, no virtual DOM, no hidden engine or run time complexity - just normal objects which:
-
-- Update their own DOM.
-- Coordinate nested components.
-
-## Mounting
-
-A Wallace application is composed of one or more trees of nested DOM elements (e.g. one tree for the menu, another for the main content). 
-
-The root element of each tree must be attached to the DOM using the `mount` function which:
-
-1. Creates the root component instance.
-2. Calls its `render` method.
-3. Replaces the supplied element (you can pass an id string) with the component's DOM.
-4. Returns the component instance.
-
-You often want to keep a reference to the root component so that you can update the tree:
-
-``` tsx
-const root = mount('main', CounterList, []);
-root.render([{clicks: 0}, {clicks: 0}]);
-```
-
-> `root` is an instance of `CounterList`. 
-
-## Updates
-
-The render function actually looks like this:
-
-```tsx
-(Component).prototype.render = function (props) {
-  this.props = props;
-  this.update();
-}
-```
-
-This tells us we could also update the DOM by modifying the props in-place, then calling the `update` method:
-
-```tsx
-const root = mount('main', CounterList, []);
-root.props.push({ count: 0 });
-root.update();
-```
-
-And this is really useful for coordinating updates.
+To make it reactive, we use `watch` which returns a proxy of an object (which can be an array) which calls a callback when it (or any objects within it) are modified:
 
 ```tsx
 import { mount, watch } from 'wallace';
 
-const counters = [{ clicks: 0 }, { clicks: 0 }];
+const counters = [{clicks: 0}, {clicks: 0}];
 const root = mount(
-  "main",
+  document.getElementById('main'), 
   CounterList,
   watch(counters, () => root.update())
 );
 ```
 
+> Clicking on a button changes the `click` property of the object in the array, which triggers the callback, which updates the `CounterList` component, which updates the `Counter` components.
 
+This may feel like a rather clunky approach to reactivity, but we'll come back to this later.
 
-
-
-
-
-It also tells us we could override `render` for a given component and modify its props before calling `udpate`, for example to add functions:
+To make things more interesting, let's add a total, and a button to add more counters:
 
 ```tsx
-const CounterList = ({ counters, incrementAll, total }) => (
+const CounterList = (counters) => (
   <div>
     <div>
-      <Counter.repeat items={counters} />
+      Total: {counters.reduce((a, c) => a + c.clicks, 0)}
     </div>
-    <button onClick={incrementAll()}>All +1</button>
-    <div>Total: {total()}</div>
+    <div>
+   	  <Counter.repeat items={counters} />
+    </div>
+    <button onClick={counters.push({clicks: 1})}>
+      Add Counter
+    </button>
+  </div>
+);
+```
+
+> Clicking on a button now updates the total.
+
+It might look a bit like React, but Wallace does things very differently, starting with JSX.
+
+## JSX
+
+Instead of mangling your JSX with JavaScript, you control dynamic aspects using directives (attributes with special behaviour) like `if`:
+
+```tsx
+const Counter = ({ clicks }) => (
+  <div>
+    <div>Count: {clicks}</div>
+    <button onClick={clicks++}>Click me</button>
+    <button if={count > 2} onClick={(clicks = 0)} >
+      Reset
+    </button>
+  </div>
+);
+```
+
+> The second button will only become visible when `clicks > 2`
+
+And special syntax for nesting components:
+
+```tsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.nest props={counters[0]} />
+    <Counter.nest props={counters[1]} />
+  </div>
+);
+```
+
+
+And for repeating components:
+
+```tsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat items={counters} />
+  </div>
+);
+```
+
+You are not allowed to put JavaScript *before* or *around* JSX as you would in React:
+
+```tsx
+const CounterList = (counters) => {
+  counters.sort(); // NO ALLOWED
+  return <div>
+    {counters.map((counter) => // NO ALLOWED
+       <Counter.nest props={counter} />
+    )}
+  </div>
+}; 
+```
+
+The only place you're allowed JavaScript in the JSX is inside `{curly}` brackets, and it may not return further JSX.
+
+If you're used to React, this may take some adjustment. Just remember Wallace is different, which comes with benefits, including:
+
+#### Clarity
+
+Your JSX stays neat and compact, with correct indentation, which helps you see the larger DOM structure you're working with, and spot mistakes more easily.
+
+#### Power
+
+Static JSX allows things like partial updates, defining reusable stubs when extending components and other useful things through directives.
+
+Here is a list of the available directives:
+
+- `apply` runs a callback to modify an element.
+- `bind` updates a value when an input is changed.
+- `class:xyz` defines a set of classes to be toggled.
+- `css` shorthand for `fixed:class`.
+- `fixed:xyz` sets a attribute from an expression at definition.
+- `hide` sets an element or component's hidden property.
+- `html` Set the element's `innnerHTML` property.
+- `if` excludes an element from the DOM.
+- `key` specifies a key for repeated items.
+- `items` set items for repeated component, must be an array of props.
+- `on[EventName]` creates an event handler (note the code is copied).
+- `part:xyz` saves a reference to part of a component so it can be updated.
+- `props` specifies props for a nested components.
+- `ref:xyz` saves a reference to an element or nested component.
+- `show` sets and element or component's hidden property.
+- `style:xyz` sets a specific style property.
+- `toggle:xyz` toggles `xyz` as defined by `class:xyz` on same element, or class `xyz`.
+- `unique` can be set on components which are only used once for better performance.
+
+You don't need to remember these as they are covered in the tool tips.
+
+## Tool tips
+
+Wallace has rich tool tips which pop up in in several places:
+
+#### JSX elements
+
+Hovering over any JSX element (like `<div>`) will display a reminder of the nesting syntax, and a list of all the directives.
+
+#### Directives
+
+Hovering over a directives in the JSX shows you how to use that directive.
+
+#### Module
+
+Hovering over the module import shows a complete cheat sheet, which means you can look up 99% of docs without leaving your IDE.
+
+#### Props
+
+You will also get type documentation for props and other bits if you use TypeScript.
+
+## TypeScript
+
+Wallace has amazing type support, but you need to set it up right. Instead of annotating props like this:
+
+```tsx
+interface iCounter {
+  clicks: number;
+}
+
+const Counter = (props: iCounter) => (
+  <div>
+    <div>Count: {clicks}</div>
+    <button onClick={clicks++}>Click me</button>
+  </div>
+);
+```
+
+You use a special type called `Uses`:
+
+```tsx
+import { Uses } from 'wallace';
+
+interface iCounter {
+  clicks: number;
+}
+
+const Counter: Uses<iCounter> = ({ clicks }) => (
+  <div>
+    <div>Count: {clicks}</div>
+    <button onClick={clicks++}>Click me</button>
   </div>
 );
 
-CounterList.prototype.render = function (counters) {
-  this.props = {
-    counters: counters,
-    incrementAll: () => counters.forEach(c => c.clicks++),
-    total: () => counters.reduce((a, c) => a + c.clicks, 0)
-  };
-  this.update();
-};
+const CounterList: Uses<iCounter[]> = (counters) => (
+  <div>
+    <Counter.repeat items={counters} />
+  </div>
+);
 ```
 
-None of the buttons update the DOM yet, so let's fix that by using the `watch` helper function, which takes an object + callback, and returns a proxy (a special kind of wrapper) that calls the callback whenever it is modified:
+This annotates the props within the function, and elsewhere such as during nesting and mounting. 
 
-```tsx
-import { mount, watch } from 'wallace';
+The `Uses` type also lets us annotate controllers and methods as we'll see later.
 
-CounterList.prototype.render = function (counters) {
-  const update = () => this.update();
-  const countersProxy = watch(counters, update);
-  this.props = {
-    counters: countersProxy,
-    incrementAll: () => countersProxy.forEach(c => c.clicks++),
-    total: () => counters.reduce((a, c) => a + c.clicks, 0)
-  };
-  update();
-};
-
-mount('main', CounterList, [{ count: 0 }, { count: 0 }]);
-```
-
-Clicking any of the buttons now triggers the `update` callback, making our app fully reactive.
-
-## Advantages
-
-If you've used other frameworks you will know just how awkward their reactivity is.
-
-
-
-
-
-Why does Wallace reactivity work this way?
-
-
-
-## Philosophy
-
-Wallace goes against two big trends in frameworks:
-
-#### Functional programming
-
-If components are functions, you don't have a reference to them, and need to use hooks - one of the ugliest patterns in web development. Less than 10% of React developers understand how they work, only how to use them.
-
-forces you to use hooks or signals, which are horrible patterns that no one quite knows how they work.
-
-
-
-1. Built-in reactivity.
-
-Many frameworks have reactivity built-in, and many push functional components. 
-
-
-
-
-
-
-
-
-
-We made a reactive app without confusing patterns like hooks or signals, just a proxy with a callback, whose operation is not linked to components.
-
-You can see clearly when and why the DOM updates just 
-
-
-
-But there's a subtle bug: `incrementAll` triggers `update` once for every item in `counters`. It's not noticeable with a small sample, and shows just how easy it is to make mistakes with reactive programming.
-
-Wallace makes reactivity explicit, rather than hidden or built into the components so that these mistakes are easier to notice, debug and fix. All we need to do is work with the original `counters` instead and call `update` once we're done:
-
-```tsx
-import { watch } from 'wallace';
-
-CounterList.prototype.render = function (counters) {
-  const update = () => this.update();
-  this.props = {
-    counters: watch(counters, update),
-    incrementAll: () => {
-      counters.forEach(c => c.clicks++);
-      update();
-    }
-  };
-  update();
-};
-```
-
-You can confirm this works by adding logging to `update`.
-
-In other situations we might pass the `update` callback to nested components.

@@ -4,128 +4,96 @@ sidebar:
   order: 0
 ---
 
-Wallace claims to load faster and render faster than "almost any other framework" - which raises a few eyebrows as well as some questions.
+Wallace claims to:
 
-## TLDR
+- Load faster than almost any other framework.
+- Render faster than most other frameworks.
 
-The [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) runs performance tests on implementations of the same app in different frameworks. It distinguishes between keyed and non-keyed strategies, with the latter being faster but unsuitable for certain situations. Most frameworks allow both strategies.
+These claims are based on the [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) which is widely regarded as the official benchmark for JavaScript frameworks and DOM libraries, and ranks Wallace as:
 
-* Non-keyed results:
-  * Wallace comes first in the **create 1000 rows** test (probably most indicative of render time) and does rather well on other tests.
-  * Wallace comes joint first in **first paint** test (an accurate measure of impact on page loading time).
-* Keyed results:
-  * PR open, awaiting merge.
+- Joint **1st** in the **create (1000) rows** metric - which a pretty good proxy for real-world render speed.
+- Joint **2nd** place in the **first paint** and **uncompressed size** metrics - which are accurate indicators of real-world loading speed.
 
-There's no way to pick an "overall" winner as the relative importance of tests, and whether you can compare keyed vs non-keyed, is subjective. Having said that, if you're looking for a combination of fastest loading and fastest rendering, it's hard not to pick Wallace.
+However, the [results](https://krausest.github.io/js-framework-benchmark/current.html) are laid out in a rather confusing manner, and if you just glance at them without understanding how they are sorted, you see a very different picture. This discrepancy is down to the project's decision to:
 
-You can see the official results [here](https://krausest.github.io/js-framework-benchmark/current.html).
+1. Separate results for keyed and non-keyed implementations.
+2. Sort by geometric mean of all metrics on the table.
 
-## Details
+While these decisions do make sense, they can also be misleading.
 
-The [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) has become the most popular benchmark for JavaScript frameworks due to the enormous work and attention to accuracy by the maintainer (Stefan Krause) as well as its unofficial role as a live register of active frameworks.
+## Keyed vs non-keyed
 
-However, there are a few subtleties you need to be aware of when interpreting the results.
+The project maintains separate results tables for **keyed** and **non-keyed** implementations, which refers to how we treat arrays of same-type elements, like rows in a table.
 
-### Premise
+#### The difference
 
-The project is a repository which includes a multitude of implementations of the same app using different frameworks:
+In the keyed approach each items in the data array stays linked to its DOM element by using a key such as "id". So if you render [A, B, C] then render [A, C] the DOM element for B gets removed.
 
-![](https://raw.githubusercontent.com/krausest/js-framework-benchmark/refs/heads/master/images/screenshot.png)
+The non-keyed approach reuses DOM elements sequentially, so the element for C gets removed and the element for B is made to render C.
 
-It run a suite of tests (e.g. create 1000 rows, swap rows, remove a row etc...) against each implementation and records times and other metrics. The latest results are regularly [published](https://krausest.github.io/js-framework-benchmark/current.html), showing how different frameworks stack up against each other.
+The non-keyed approach often performs better, but causes problems in certain scenarios, such as:
 
-### Implementations
+- When you use animation on the repeated elements (e.g. fade when removed).
+- When you have inputs which may retain focus (really only an issue for active text input, as things like checkboxes should be data-bound).
 
-There are implementations for:
+You can read more on this in Stefan's blog [here](https://www.stefankrause.net/wp/2017/01/js-web-frameworks-benchmark-keyed-vs-non-keyed/).
 
-- Every framework you've likely heard of.
-- A load of frameworks you'll likely never hear of.
-- Alternative implementations of frameworks (E.g. React-redux-hooks, React-zustand)
-- A few vanilla (no framework) implementations which act as baselines.
-- Various DOM libraries which you wouldn't realistically use as a framework (we'll ignore the fact React calls itself a library).
+#### Implementations
 
-Once you exclude permutations of the same, you're left with just over 100 entries which are a mix of frameworks and not-quite-frameworks. The results table has a link to view the source code of each implementation, which is very handy.
+Some frameworks (e.g React) only operates in keyed mode, however it can be made to operate in a non-keyed manner simply by using the index as key when iterating over items.
 
-### Keyed vs non-keyed
+These frameworks tend not to bother submitting a non-keyed implementation to the benchmark, as its scores would be identical to its keyed implementation.
 
-This refers to the two different approaches to repeating elements. 
+Other frameworks such as Wallace operate in either mode, depending on how you set up the repeat instruction:
 
-In the keyed approach each item in the data array stays linked to its DOM element, so if your array renders elements A, B, C, then you re-render just A, C then the DOM element that displayed B would be removed from the DOM.
+```jsx
+<Row.repeat items={items} />           // non-keyed
+<Row.repeat items={items} key="id" />  // keyed
+```
 
-In the non-keyed approach, re-rendering [A, C] would reuse the first two DOM elements, meaning C is displayed in the DOM node that used to display B.
+These may use different algorithms, resulting in a performance difference, and so tend to submit both keyed and non-keyed implementations to the benchmarks.
 
-The keyed approach is preferable in two scenarios:
+Some frameworks only operate in non-keyed mode, which is not suitable for all projects.
 
-- When you use CSS or third party animations.
-- When you have inputs which may retain focus.
+#### The problem
 
-Otherwise, the non-keyed implementation generally offers better performance (and in Wallace's case, even better performance tweaking possibilities). You can read more in Stefan's blog entry [here](https://www.stefankrause.net/wp/2017/01/js-web-frameworks-benchmark-keyed-vs-non-keyed/).
+Because many popular frameworks only appear in the keyed table, people tend to focus on that and ignore the non-keyed results. 
 
-The results are separated by approach, which on one hand gives a fairer comparison within each table, but gives an unfair comparison on the other as framework X may appear slower than framework Y in the keyed table, whereas its non-keyed mode (which you would be using for places where performance really matters) is far superior. And of course, some frameworks only bother submitting one approach.
+That's fine if you're comparing two frameworks which only operate in keyed mode (e.g. Solid vs React). But if you're comparing against a framework which operates in both modes (e.g React vs Wallace) then the comparison is only valid if you need to use keyed mode for the reasons mentioned above.
 
-## Interpreting results
+In cases where performance matters (large grids, infinite scroll etc..) you are more likely to be using non-keyed mode, in which case the valid comparison would be React keyed vs Wallace non-keyed, which gives us a different difference:
 
-There are two parts we're interested in: loading times and render times.
+| create rows | React  | Wallace | Diff    |
+| ----------- | ------ | ------- | ------- |
+| Keyed       | 26.6   | 25.6    | -3.76%  |
+| Non-keyed   | (26.6) | 22.2    | -16.54% |
 
-### Loading times
+But it's rather difficult making this comparison as you have to of scrolling between the two tables.
 
-Three tests are included for loading times:
+## Geometric mean
 
-- Uncompressed size
-- Compressed size
-- First paint
+The geometric mean is an attempt to rank frameworks taking into account the different range and distribution of scores for various metrics by assigning a weight based around the 90% percentile. There is a [wiki page](https://github.com/krausest/js-framework-benchmark/wiki/Computation-of-the-weighted-geometric-mean) explaining this in more detail.
 
-Each of these matters in different ways.
+While the geometric mean is useful when focusing a single metric (you can filter) it loses any meaning when used across multiple metrics as there is no objective way to rate their relative importance:
 
-On a first visit to a site, the uncompressed size matters as the bundle needs to be fetched over the network. With modern network speeds and the prevalence of CDNs this doesn't matter as much as it used to.
+- How important is **create (1000) rows** compared to **remove row**? 
+- How importance is the difference compared to other frameworks? 
+- How likely are you to create 10,000 rows?
 
-On a second visit, the assets will often be cached but the bundle still needs to be decompressed, parsed and converted to machine code before it even runs - which is not insignificant. Then there's the matter of what your bundle does before it starts updating the DOM. The "first paint" metric captures both the interpreting and activity before the bundle starts updating the DOM, and is the really useful one you should be looking at.
+Unfortunately the results are sorted by geometric mean of all factors by default, which penalises frameworks that score badly on less relevant metrics.
 
-The spread of scores for loading times dwarfs the spread of scores for render metrics, for example the non-keyed results show:
+## Conclusion
 
-- **First paint** 
-  - Fastest: 30.7ms (Wallace & skruv-liten)
-  - Slowest: 2,454.3 ms(reflex-dom)
-- **Create 1000 rows**
-  - Fastest: 21.8ms (Wallace) 
-  - Slowest 141.0ms (incr_dom)
+Ultimately, benchmarks are best-attempts at producing useful statistics, but as with all statistics, we need to be careful with how we use them.
 
-Bear in mind that the js-framework-benchmark app is tiny with just 3 components. So the gargantuan bundles would not grow all that much with 30 components, whereas the smaller bundles would grow almost proportionally.
+The overall story these benchmarks tell us is that:
 
-### Render times
+1. Many of the big popular frameworks (Angula, Blazor, Alpine, Ember etc) are comparatively slow.
+2. There's very little difference between the fastest rendering frameworks.
+3. There is *significant* difference in bundle sizes and loading times.
 
-There are 9 tests relating to render times, plus a geometric mean calculation, which confuses a lot of people.
+Bear in mind that render metrics are calculated after the bundle is loaded, and after a number of warm up runs. So if what you're most concerned about is the initial render of a large page then you should be looking at the combined impact of loading and rendering.
 
-#### Tests and the geometric mean
+There isn't a metric for that yet, but you can get a fair idea of where Wallace would land on that from this screenshot:
 
-The test scores are in milliseconds, but the geometric mean is a relative score calculating the difference between frameworks across selected tests. As such, it changes as you include or exclude tests or frameworks.
-
-What is potentially misleading is that it is a mean of tests that don't all matter to the same extent. No user is going to notice "remove row" taking 10 vs 30 ms.
-
-#### Warm up runs
-
-If you look at the row headers you'll see mentions of "5 warmup runs" which helps give a fair comparison on maximum performance after engine optimisation, as it needs to identify hot code. However, your first render of data the page might benefit from that, so that's something to consider, and something that's not captured in the benchmark.
-
-#### Keyed vs non-keyed
-
-As mentioned before, the test results are split by keyed vs non-keyed, but this generally ends up with people picking a table (usually keyed as it has more frameworks) and ignoring the fact that you may use non-keyed in certain situations (if the framework allows that).
-
-#### Incompleteness
-
-The most important thing to bear in mind is that the target app is by necessity rather simple and not representative of the real world:
-
-- It is tabular, with one level of nesting. Things change drastically when you include multiple levels of nested repeats, and even more if there are irregular numbers of sub-nested items.
-- There is minimal CSS and no animations.
-- There are almost no gotchas.
-
-Interestingly there is one gotcha: if an implementation fails to preload the `glyphicon` it will be orders of magnitude slower than it should be. This just goes to show that you can't just pick out a fast framework and expect a fast application
-
-Lastly, these implementations don't use the framework's full features, which can sometimes impact performance (sometimes drastically by [deoptimisation](https://www.thenodebook.com/node-arch/v8-engine-intro#common-deoptimization-triggers)).
-
-In other words, solid performance in benchmarks are no guarantee of solid performance in all real life situations, although frameworks which perform poorly on benchmarks are unlikely to fare better in real life.
-
-If you're interested in further exploring performance issues, we recommend these articles:
-
-- https://codeburst.io/taming-huge-collections-of-dom-nodes-bebafdba332
-- https://www.thenodebook.com/node-arch/v8-engine-intro#common-deoptimization-triggers
-
+![](/img/bundle-sizes.png)

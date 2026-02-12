@@ -17,7 +17,7 @@ const Counter = ({ clicks }) => (
 );
 ```
 
-Component definitions can be nested or repeated using the following syntax:
+Component definitions can be nested or repeated using special syntax:
 
 ```tsx
 const CounterList = (counters) => (

@@ -154,9 +154,7 @@ const CounterList = (counters) => (
     <div part:stats>
       Total: {counters.reduce((a, c) => a + c.clicks, 0)}
     </div>
-    <div part:counters>
-      <Counter.repeat items={counters} />
-    </div>
+    <Counter.repeat items={counters} />
   </div>
 );
 
@@ -172,9 +170,7 @@ import { extendComponent } from 'wallace';
 const CounterList = (counters) => (
   <div>
     <stub:stats />
-    <div>
-      <Counter.repeat items={counters} />
-    </div>
+    <Counter.repeat items={counters} />
   </div>
 );
 
@@ -202,9 +198,7 @@ HighestCounterList.stubs.stats = ({ counters }) => (
 const CounterList = (counters) => (
   <div>
     <stub:stats>
-    <div>
-      <Counter.repeat items={counters} />
-    </div>
+    <Counter.repeat items={counters} />
     <canvas ref:chart />
   </div>
 );
@@ -228,9 +222,7 @@ const CounterList = (counters) => (
   <div>
     <div total:clicks={counters}>
     </div>
-    <div>
-      <Counter.repeat items={counters} />
-    </div>
+    <Counter.repeat items={counters} />
   </div>
 );
 `}
@@ -312,7 +304,7 @@ const CounterList = (counters) => (
     wallace: {
       version: "0.3.0",
       run1k: 22.2,
-      "size-compressed": 2.0,
+      "size-compressed": 1.9,
     },
   };
 

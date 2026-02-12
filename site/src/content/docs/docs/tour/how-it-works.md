@@ -41,7 +41,7 @@ This is very different to frameworks like React, where "components" are function
 
 ## Mounting
 
-The mount function simply:
+The `mount` function simply:
 
 - Creates an instance of a component.
 - Calls its `render` method.
@@ -72,7 +72,7 @@ In either case the element with id "main" is *replaced* by the component's `el` 
 
 ```html
 <div id="main" class="this will disappear">
-  This will also disappear.
+  This will also disappear, as will the id.
 </div>
 ```
 
@@ -87,48 +87,14 @@ const element = document.getElementById('main');
 element.appendChild(counter.el);
 ```
 
-Another advantage of using `createComponent` instead of `new Counter()` is that it sets up the type correctly.
-
-You should render a component before attaching them to the DOM as:
+You should always render components before attaching them to the DOM as:
 
 1. It avoids a repaint.
 2. It avoids displaying the DOM without the data, which may look off.
 
+Another advantage of using `createComponent` instead of `new Counter()` is that it sets up the type correctly.
+
 ## Updates
-
-So far we have been updating the root component:
-
-```js
-import { mount, watch } from 'wallace';
-
-const counters = [{clicks: 0}, {clicks: 0}];
-const root = mount(
-  document.getElementById('main'),
-  CounterList,
-  watch(counters, () => root.update())
-);
-```
-
-
-
-Let's create an app which displays two `CounterList` components:
-
-```jsx
-import { mount } from 'wallace';
-
-const App = () => (
-  <div>
-    <CounterList.nest props={[]} />
-    <CounterList.nest props={[]} />
-  </div>
-)
-
-mount('main', App);
-```
-
-> `App` is just a normal component. Components don't always use props.
-
-
 
 The `render` method looks like this:
 
@@ -148,6 +114,42 @@ counter.update();
 ```
 
 Which makes localising updates (only updating part of the component tree - which you'll be doing a lot) really easy. 
+
+So far we have only been updating the root component:
+
+```js
+import { mount, watch } from 'wallace';
+
+const counters = [{clicks: 0}, {clicks: 0}];
+const root = mount(
+  'main',
+  CounterList,
+  watch(counters, () => root.update())
+);
+```
+
+That's fine for a toy app, but in the real world we'd want more localised updates. To see how we do this, this let's create an app which displays multiple `CounterList` components:
+
+```jsx
+import { mount } from 'wallace';
+
+const CounterListApp = (props) => (
+  <div>
+    <CounterList.repeat items={props} />
+  </div>
+)
+
+mount('main', CounterListApp, [
+  [{clicks: 0}, {clicks: 0}],
+  [{clicks: 0}, {clicks: 0}]
+]);
+```
+
+We want each `CounterList` to update itself, not `CounterListApp`, when its array of counters is modified. The problem is that we don't have a references to them, which is the same predicament we land in when components are functions as they are in React, and we'd need to use a weird hack like hooks.
+
+
+
+
 
 We want each `CounterList` to update itself when its props are modified, which we can do by overriding the `render` method to set its props to a reactive copy of the props passed in:
 

@@ -4,7 +4,7 @@ sidebar:
   order: 2
 ---
 
-You'll need to configure Babel, your bundler and Wallace itslef.
+You'll need to configure Babel, your bundler and Wallace itself.
 
 ## Babel configuration
 
@@ -91,7 +91,33 @@ If using different bundler such as [vite](https://vite.dev/) or [parcel](https:/
 
 ### Feature flags
 
-Certain features you may wish to use need to be enabled with flags in the `babel-plugin-wallace` options:
+You can shave a few bytes off your bundle, or get a very small performance boost by disabling features you don't use. Wallace is tiny and insanely fast as it is, and the gains are really small, so this is only something you need special cases.
+
+If you load the plugin without options:
+
+```js
+module.exports = {
+  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"]
+};
+```
+
+All features flags are will be **enabled**, as this is what you want most of the time. But if you specify `flags` in the plugin options:
+
+```js
+module.exports = {
+  plugins: [
+    [
+      "babel-plugin-wallace",
+      {
+        flags: {}
+      }
+    ],
+    "@babel/plugin-syntax-jsx"
+  ],
+};
+```
+
+Then they are all **disabled** unless you add them back in:
 
 ```js
 module.exports = {
@@ -100,9 +126,8 @@ module.exports = {
       "babel-plugin-wallace",
       {
         flags: {
-          useControllers: true,
-          useMethods: true,
-          useStubs: true
+          allowCtrl: true,
+          allowStubs: false
         }
       }
     ],
@@ -111,24 +136,123 @@ module.exports = {
 };
 ```
 
-Note that:
+Notes:
 
-1. Flags default to false if not set.
-2. The types (and therefore tool tips) are unaffected by these flags, and will treat them all as being true, and will therefore potentially lie.
+- Disabling features doesn't affect the type system (and therefore tool tips) which will always show these features to be available.
+- Where possible, you will receive a compiler error if you attempt to use a feature which you disabled.
 
-Our recommendation is to enable them all, and only remove them if you absolutely need to trim those extra bytes off your bundle or milliseconds off performance.
+List of feature flags:
 
-#### useControllers
+#### allowBase
 
-Enables use of `ctrl` in components. If disabled, components will neither have the `ctrl` property, nor receive it in `render` or pass it to nested components.
+Adds the `base` property to components:
 
-#### useMethods
+```js
+Counter.prototype.render = function (props) {
+  this.base.render.call(this, props);
+}
+```
 
-Enables the use of `Component.methods = {...}` which is a safer way to add things to the prototype.
+Note that `base` is not the same as `super` which is used in classes.
 
-####  useStubs
+#### allowCtrl
 
-Enables the use of stubs.
+Enables the `ctrl` property in components, so that the `render` method looks like this:
+
+```js
+function render (props, ctrl) {
+  this.props = propsl
+  this.ctrl = ctrl;
+  this.update();
+}
+```
+
+Helper functions which forward `props` to `render` (such as `mount` and  `createComponent`) now forward `ctrl` as well:
+
+```js
+mount(element, def, props, ctrl);
+createComponent(def, props, ctrl);
+```
+
+#### allowMethods
+
+Add the `methods` property to component definitions:
+
+```js
+Counter.methods = {
+  render (props) {
+    this.base.render.call(this, props);
+  },
+  doSomething () {
+    console.log('something');
+  }
+}
+```
+
+You can always create or override methods via the prototype:
+
+```js
+Counter.prototype.render = function (props) {
+  this.base.render.call(this, props);
+}
+Counter.prototype.doSomething = function (props) {
+  console.log('something');
+}
+```
+
+####  allowParts
+
+Allows you to declare parts in a component:
+
+```jsx
+const CounterList () => (
+  <div>
+    <div part:stats>Total: {total}</div>
+    <div>
+      <Counter.repeat items={counters} />
+    </div>
+  </div>
+);
+```
+
+#### allowRepeaterSiblings
+
+Allows you to place a repeater under a node with other children: 
+
+```jsx
+const CounterList ({ total, counters }) => (
+  <div>
+    <div>Total: {total}</div>
+    <Counter.repeat items={counters} />
+  </div>
+);
+```
+
+Otherwise you;d need to place it under another node on its own:
+
+```jsx
+const CounterList ({ total, counters }) => (
+  <div>
+    <div>Total: {total}</div>
+    <div>
+      <Counter.repeat items={counters} />
+    </div>
+  </div>
+);
+```
+
+####  allowStubs
+
+Enables the use of stubs:
+
+```jsx
+const CounterList () => (
+  <div>
+    <stub:stats />
+    <stub:counters />
+  </div>
+);
+```
 
 ### Directives
 
@@ -151,4 +275,4 @@ module.exports = {
 };
 ```
 
-See the [Custom Directives](/docs/reference/custom-directives) for more details.
+See [Custom Directives](/docs/reference/directives#custom-directives) for more details.

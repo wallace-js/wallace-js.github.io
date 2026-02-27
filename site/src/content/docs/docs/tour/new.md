@@ -1,5 +1,5 @@
 ---
-title : Tour
+title: Tour
 sidebar:
   order: 2
 ---
@@ -8,14 +8,21 @@ sidebar:
 
 This tour:
 
-1. Assumes familiarity with front end development.
-2. Covers all you need to create regular apps.
-3. Should take 15-20 minutes.
+1. Assumes you are familiar with front end development.
+2. Should take 15 minutes (longer if you play with the code).
+3. Covers almost all of Wallace.
 
 It's not a tutorial, but you can code along:
 
 1. **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
 2. **Locally** with `npx create-wallace-app`.
+
+There's a separate page explaining [why](/docs/why) Wallace exist. The TLDR is that none of the [~100](/docs/why) alternatives meet these four basic criteria:
+
+1. No **ugly** syntax or patterns (like hooks).
+2. No **magic** DOM updates that are hard to follow, debug or control.
+3. No **bloat**, so it works for landing pages and apps with frequent page switches etc...
+4. No **learning** beyond an initial 15-30 minutes.
 
 ## Overview
 
@@ -30,7 +37,7 @@ const Counter = ({ count }) => (
 );
 ```
 
-It looks like React or similar frameworks, but there are three major differences:
+It looks like React, but there are three major differences:
 
 #### 1. Static JSX
 
@@ -39,10 +46,8 @@ Wallace doesn't allow JavaScript around JSX elements, only inside `{expressions}
 ```tsx
 const CounterList = (counters) => (
   <div>
-    <Counter.repeat items={counters} />
-    <div if={counters.length > 5}>
-      Calm down
-    </div>
+    <Counter.repeat props={counters} />
+    <div if={counters.length > 5}>Calm down</div>
   </div>
 );
 ```
@@ -61,17 +66,17 @@ This approach means your JSX:
 Wallace components are real objects. The `mount` function creates the root component of the tree:
 
 ```jsx
-import { mount } from 'wallace';
+import { mount } from "wallace";
 
 /*...*/
 
-const counters = [{count: 0}, {count: 0}];
-const root = mount('main', CounterList, counters);
+const counters = [{ count: 0 }, { count: 0 }];
+const root = mount("main", CounterList, counters);
 ```
 
-> Passing  `'main'` equates to passing `document.getElementById('main')`. 
+> Passing `'main'` equates to passing `document.getElementById('main')`.
 
-Each component manages its own DOM and nested components. So `root` (which is an instance of `CounterList`) creates one instances of `Counter` for each item in `counters`. 
+Each component manages its own DOM and nested components. So `root` (which is an instance of `CounterList`) creates one instances of `Counter` for each item in `counters`.
 
 The DOM is controlled entirely by components, there's no virtual DOM, global state or hidden engine, just a tree of component objects.
 
@@ -79,16 +84,16 @@ Why this matters will become evident later.
 
 #### 3. Sane Reactivity
 
-Wallace is not reactive like Angular or Svelte, nor is it unreactive like React. Instead you use  `watch` which returns a proxy of an object that fires a callback when it is modified, from which you can update a component:
+Wallace is not reactive like Angular or Svelte, nor is it unreactive like React. Instead you use `watch` which returns a proxy of an object that fires a callback when it is modified, from which you can update a component:
 
 ```js
-import { mount, watch } from 'wallace';
+import { mount, watch } from "wallace";
 
 /*...*/
 
 const root = mount(
-  'main',
-  CounterList, 
+  "main",
+  CounterList,
   watch(counters, () => root.update())
 );
 ```
@@ -121,10 +126,8 @@ const Counter = ({ count }) => (
 const CounterList = (counters) => (
   <div>
     <div>Total: {total()}</div>
-    <Counter.repeat items={counters} />
-    <button onClick={counters.push({ count: 1 })}>
-      Add counter
-    </button>
+    <Counter.repeat props={counters} />
+    <button onClick={counters.push({ count: 1 })}>Add counter</button>
   </div>
 );
 
@@ -137,19 +140,13 @@ const root = mount(
 );
 ```
 
-
-
-
-
 Wallace was designed to produce code that's easy to follow and easy to change, the insane performance came later.
 
 ## Support
 
-
-
 ### Directives
 
-Directives are special attributes that do something, such as `if` which conditionally attaches an element, and `bind` which creates two-way binding between an element and data, and also takes a *qualifier* to specify which event fires the change:
+Directives are special attributes that do something, such as `if` which conditionally attaches an element, and `bind` which creates two-way binding between an element and data, and also takes a _qualifier_ to specify which event fires the change:
 
 ```jsx
 const Counter = ({ count }) => (
@@ -180,7 +177,7 @@ You can also define as many custom directives as you like, which won't impact bu
 Wallace provides its own type to annotate components, which lets you specify the props and a couple of other bits that we'll cover later. Functions like `mount` and `watch` are all type-aware too:
 
 ```tsx
-import { mount, watch, Uses } from 'wallace';
+import { mount, watch, Uses } from "wallace";
 
 interface iCounter {
   count: number;
@@ -195,14 +192,14 @@ const Counter: Uses<iCounter> = ({ count }) => (
 
 const CounterList: Uses<iCounter[]> = (counters) => (
   <div>
-    <Counter.repeat items={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 
-const counters = [{count: 0}, {count: 0}];
+const counters = [{ count: 0 }, { count: 0 }];
 const root = mount(
-  'main',
-  CounterList, 
+  "main",
+  CounterList,
   watch(counters, () => root.update())
 );
 ```
@@ -245,7 +242,7 @@ Note that all the nested `Counter` components are created by `CounterList`. Comp
 The `render` function simply does this:
 
 ```tsx
-function render (props) {
+function render(props) {
   this.props = props;
   this.update();
 }
@@ -254,17 +251,17 @@ function render (props) {
 So you can also update a component by setting/modifying its `props` then calling `update`:
 
 ```js
-component.props[0].count ++;
+component.props[0].count++;
 component.update();
 ```
 
 Which is how we've been handling reactivity:
 
 ```js
-const counters = [{count: 0}, {count: 0}];
+const counters = [{ count: 0 }, { count: 0 }];
 const root = mount(
-  'main',
-  CounterList, 
+  "main",
+  CounterList,
   watch(counters, () => root.update())
 );
 ```
@@ -275,8 +272,8 @@ You can override these methods as they live on the prototype:
 Counter.prototype.render = function (props) {
   this.props = props;
   this.update();
-  console.log('Rendered Counter with', props);
-}
+  console.log("Rendered Counter with", props);
+};
 ```
 
 > The type of `props` carries through from `Use<iCounter>`.
@@ -285,24 +282,24 @@ But working with the prototype directly has some quirks, so Wallace provides a n
 
 ```js
 Counter.methods = {
-  render (props) {
+  render(props) {
     this.props = props;
     this.update();
-    this.base.render.call(this, props); 
-    console.log('Rendered Counter with', props);
-  }
-}
+    this.base.render.call(this, props);
+    console.log("Rendered Counter with", props);
+  },
+};
 ```
 
 You can also shorten the above to this:
 
 ```js
 Counter.methods = {
-  render (props) {
-    this.base.render.call(this, props); 
-    console.log('Rendered Counter with', props);
-  }
-}
+  render(props) {
+    this.base.render.call(this, props);
+    console.log("Rendered Counter with", props);
+  },
+};
 ```
 
 ### Reactivity
@@ -318,18 +315,16 @@ And depending on how the framework implements reactivity, it can also be hard to
 To illustrate this let's add a total, and a button that increments each counter:
 
 ```jsx
-const total = (counters) =>
-  counters.reduce((a, c) => a + c.count, 0);
+const total = (counters) => counters.reduce((a, c) => a + c.count, 0);
 
-const incrementAll = (counters) =>
-  counters.forEach(c => c.count++);
+const incrementAll = (counters) => counters.forEach((c) => c.count++);
 
 const CounterList = (counters) => (
   <div>
     <div>Total: {total(counters)}</div>
     <button onClick={incrementAll(counters)}>++</button>
     <div>
-      <Counter.repeat items={counters} />
+      <Counter.repeat props={counters} />
     </div>
   </div>
 );
@@ -349,10 +344,10 @@ You'll notice a delay when clicking the **++** button. If you add some logging, 
 
 ```js
 const root = mount(
-  'main',
-  CounterList, 
+  "main",
+  CounterList,
   watch(counters, (target, key, value) => {
-    console.log('updated', target, key, value);
+    console.log("updated", target, key, value);
     root.update();
   })
 );
@@ -367,7 +362,7 @@ Way can easily fix this by working on the original array rather than the proxy r
 
 ```js
 const incrementAll = () => {
-  counters.forEach(c => c.count++);
+  counters.forEach((c) => c.count++);
   root.update();
 };
 ```
@@ -401,12 +396,12 @@ class Store {
   constructor() {
     this.counters = [
       { id: 1, count: 0 },
-      { id: 2, count: 0 }
+      { id: 2, count: 0 },
     ];
   }
   setCount(id: number, count: number) {
     // First save to local storage or server etc...
-    this.counters.find(c => c.id === id).count = count;
+    this.counters.find((c) => c.id === id).count = count;
   }
 }
 
@@ -416,9 +411,9 @@ const store = new Store();
 You don't want the UI to modify `counter` or a copy of `counters` without going via `setCount`. We can do this:
 
 ```js
-import { mount, protect } from 'wallace';
+import { mount, protect } from "wallace";
 
-mount('main', CounterList, protect(store.counters));
+mount("main", CounterList, protect(store.counters));
 ```
 
 > Clicking on any of the buttons now throws an error.
@@ -430,7 +425,7 @@ We need to change the buttons to use `setCount` then update the `root` which cou
 When enabled, the `render` function changes to this:
 
 ```tsx
-function render (props, ctrl) {
+function render(props, ctrl) {
   this.props = props;
   this.ctrl = ctrl;
   this.update();
@@ -465,9 +460,7 @@ We access `ctrl` in the JSX function via a second argument called **xargs** whic
 const Counter: Uses<iCounter, Controller> = ({ id, count }, { ctrl }) => (
   <div>
     <div>Count: {count}</div>
-    <button onClick={ctrl.setCount(id, count + 1)}>
-      Click me
-    </button>
+    <button onClick={ctrl.setCount(id, count + 1)}>Click me</button>
   </div>
 );
 ```
@@ -478,12 +471,12 @@ As your app grows, you'll need different controllers for different parts of the 
 
 ```js
 SettingsDialog.methods = {
-  render (props, appController) {   
+  render(props, appController) {
     this.ctrl = new SettingsDialogController(this, appController);
     this.props = props;
     this.update();
-  }
-}
+  },
+};
 ```
 
 So the tree of DOM elements is managed by a tree of components which is managed by a tree of controllers. This tree of controllers coordinates updates between components and services like stores, so it becomes the locus of control, with components being pushed to the outer layer.
@@ -512,29 +505,21 @@ In React you do all this inside component functions before returning JSX, which 
 
 Another subtle benefit of your logic living in ordinary classes that aren't under framework "jurisdiction" is that when things break, you don't waste time suspecting the framework.
 
-Our brain knows that frameworks do a bit of "magic" - so when things break, we often suspect it relates to that. But 
+Our brain knows that frameworks do a bit of "magic" - so when things break, we often suspect it relates to that. But
 
 n't affected by the framework, they're just ordinary classes, and you locate the source of error much quicker when you know there's no "magic" involved.
-
-
-
-
 
 And because they are ordinary classes, not framework artefacts, you can do whatever you like.
 
 we know that's not the case and find the issue quicker.
 
-
-
 When your logic lives in normal code which the framework doesn't touch, there's one less thing to suspect when things break.
-
-
 
 There are three advantage of doing this:
 
 1. The components become so simple they're unlikely to malfunction or hide bugs.
 2. It's easier to control or add logic, like caching, logging etc...
-3. The logic 
+3. The logic
 
 segway into updates
 
@@ -542,13 +527,11 @@ segway into updates
 
 So far we've only been updating the root component, which is easy as `mount` returns a reference to it. Let's see how we get a reference to a nested component. First let's give the controller a register of `Counter` components:
 
-
-
 ```tsx
-import { Component } from 'wallace';
+import { Component } from "wallace";
 
 class Controller {
-  counterComponents: {[key: number]: Component<iCounter>};
+  counterComponents: { [key: number]: Component<iCounter> };
   constructor() {
     this.counterComponents = {};
   }
@@ -560,17 +543,17 @@ Then override the `Counter.render` method to assign itself:
 
 ```tsx
 Counter.methods = {
-  render (props, ctrl) {
+  render(props, ctrl) {
     ctrl.counterComponents[props.id] = this;
     this.base.render.call(this, props, ctrl);
-  }
-}
+  },
+};
 ```
 
 The controller can now update any `Counter` in isolation, which isn't very useful as that doesn't update the total. However Wallace lets you update part of a component:
 
 ```tsx
-const CounterList = ({counters, total}) => (
+const CounterList = ({ counters, total }) => (
   <div>
     <div part:total>Total: {tota}</div>
     ...
@@ -578,7 +561,7 @@ const CounterList = ({counters, total}) => (
 );
 
 class Controller {
-  counterComponents: {[key: number]: Component<iCounter>};
+  counterComponents: { [key: number]: Component<iCounter> };
   constructor() {
     this.counterComponents = {};
   }
@@ -599,45 +582,41 @@ This lets you run very narrow updates anywhere in the tree, which is the key to 
 2. Updating a part updates everything in it.
 
 ```jsx
-<div part:total class={total > 5 ? 'red' : 'black'}>  
+<div part:total class={total > 5 ? "red" : "black"}>
   Total: {total(counters)} (from {counters.lenght} counters).
 </div>
 ```
 
-
-
 - You can do DOM updates (show in overriden update) but best use apply(link)
 - Another thing you can do in render on high-level is create the controller and/or props - because update...
 
-
-
 ```jsx
 CounterList.methods = {
-  render () {
+  render() {
     this.ctrl = new Controller(this);
     this.props = {
       total: 0, // TODO remove
-      counters: protect(store.counters)
+      counters: protect(store.counters),
     };
     this.update();
-  }
-}
+  },
+};
 
-mount('main', CounterList);
+mount("main", CounterList);
 ```
-
-
 
 ### Binding
 
 You might think you're far away from needing to worry about performance, but there's one case where it hits sooner, typing, because you type a lot quicker than you push buttons.
 
 ```jsx
-const CounterList = ({counters, total, things}) => (
+const CounterList = ({ counters, total, things }) => (
   <div>
-    <div part:total>Total {things.value}: {total}</div>
+    <div part:total>
+      Total {things.value}: {total}
+    </div>
     <div>
-      <Counter.repeat items={counters} />
+      <Counter.repeat props={counters} />
     </div>
     <input type="text" bind:keyup={things.value} />
   </div>
@@ -663,7 +642,7 @@ class Controller {
     root.props = {
       counters: protect(store.counters),
       total: 0,
-      things: watch({value: 'sheep'}, () => this.updateTotal()), 
+      things: watch({value: 'sheep'}, () => this.updateTotal()),
     };
     this.updateTotal(false);
   }
@@ -681,12 +660,9 @@ class Controller {
 }
 ```
 
-
-
 - parts
 - controllers setting props
 - methods
 
 - events
 - stubs
-

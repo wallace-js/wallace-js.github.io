@@ -1,7 +1,7 @@
 ---
 title: Claims
 sidebar:
-  order: 0
+  order: 1
 ---
 
 Wallace claims to:
@@ -47,8 +47,8 @@ These frameworks tend not to bother submitting a non-keyed implementation to the
 Other frameworks such as Wallace operate in either mode, depending on how you set up the repeat instruction:
 
 ```jsx
-<Row.repeat items={items} />           // non-keyed
-<Row.repeat items={items} key="id" />  // keyed
+<Row.repeat props={items} />           // non-keyed
+<Row.repeat props={items} key="id" />  // keyed
 ```
 
 These may use different algorithms, resulting in a performance difference, and so tend to submit both keyed and non-keyed implementations to the benchmarks.
@@ -57,7 +57,7 @@ Some frameworks only operate in non-keyed mode, which is not suitable for all pr
 
 #### The problem
 
-Because many popular frameworks only appear in the keyed table, people tend to focus on that and ignore the non-keyed results. 
+Because many popular frameworks only appear in the keyed table, people tend to focus on that and ignore the non-keyed results.
 
 That's fine if you're comparing two frameworks which only operate in keyed mode (e.g. Solid vs React). But if you're comparing against a framework which operates in both modes (e.g React vs Wallace) then the comparison is only valid if you need to use keyed mode for the reasons mentioned above.
 
@@ -76,8 +76,8 @@ The geometric mean is an attempt to rank frameworks taking into account the diff
 
 While the geometric mean is useful when focusing a single metric (you can filter) it loses any meaning when used across multiple metrics as there is no objective way to rate their relative importance:
 
-- How important is **create (1000) rows** compared to **remove row**? 
-- How importance is the difference compared to other frameworks? 
+- How important is **create (1000) rows** compared to **remove row**?
+- How importance is the difference compared to other frameworks?
 - How likely are you to create 10,000 rows?
 
 Unfortunately the results are sorted by geometric mean of all factors by default, which penalises frameworks that score badly on less relevant metrics.
@@ -90,7 +90,7 @@ The overall story these benchmarks tell us is that:
 
 1. Many of the big popular frameworks (Angula, Blazor, Alpine, Ember etc) are comparatively slow.
 2. There's very little difference between the fastest rendering frameworks.
-3. There is *significant* difference in bundle sizes and loading times.
+3. There is _significant_ difference in bundle sizes and loading times.
 
 Bear in mind that render metrics are calculated after the bundle is loaded, and after a number of warm up runs. So if what you're most concerned about is the initial render of a large page then you should be looking at the combined impact of loading and rendering.
 

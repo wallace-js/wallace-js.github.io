@@ -1,7 +1,7 @@
 ---
 title: Compilation
 sidebar:
-  order: 3
+  order: 5
 ---
 
 Wallace uses a custom Babel plugin which looks for functions that return JSX, like this:

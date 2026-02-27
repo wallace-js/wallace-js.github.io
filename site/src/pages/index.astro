@@ -91,8 +91,9 @@ const hero = {
     <section>
       <h2>Faster development</h2>
       <p>Wallace helps you develop faster by being:</p>
-      <h4>Familiar</h4>
-      Work with components and JSX:
+
+      <h4>1. Expressive</h4>
+      Directives make JSX clean and compact:
 
       <Code
         lang="tsx"
@@ -100,35 +101,46 @@ const hero = {
 const Counter = ({ clicks }) => (
   <div>
     <span>Count: {clicks}</span>
-    <button onClick={clicks++}>Click me</button>
+    <button onClick={clicks++}>
+      Click me
+    </button>
   </div>
 );
-`}
-      />
 
-      <h4>Expressive</h4>
-      Use neat syntax for concise and readable code:
-
-      <Code
-        lang="tsx"
-        code={`
 const CounterList = (counters) => (
   <div>
-    <Counter.repeat items={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 
-mount('main', CounterList, [{ clicks: 0 }]);
+mount('main', CounterList, [
+  { clicks: 0 },
+  { clicks: 0 }
+]);
 `}
       />
+      <p>Expect ~50% fewer lines of JSX than React.</p>
 
-      <h4>Helpful</h4>
-      Enjoy deep TypeScript support, full docs in the tool tips and other goodies:
+      <h4>2. Helpful</h4>
+      Full docs in tool tips = one less tab open:
 
       <img src="/img/cheat-sheet.jpg" />
 
-      <h4>Explicit</h4>
+      There is also full (but optional) TypeScript support.
 
+      <h4>3. Logical</h4>
+
+      Wallace is insultingly simple, and avoids:
+
+      <ul>
+        <li>Awkward syntax.</li>
+        <li>Confusing paradigms.</li>
+        <li>Magic updates.</li>
+      </ul>
+
+      <p>As these waste time in the long run.</p>
+
+      <!-- 
       Know exactly when and how components update. No magic. No confusion.
 
       <Code
@@ -140,28 +152,31 @@ const root = mount(
   watch([{ clicks: 0 }], () => root.update())
 );
 `}
-      />
+      /> -->
 
-      <h4>Powerful</h4>
-
-      Update parts inside components:
-
+      <h4>4. Powerful</h4>
+      <p>Run partial updates inside components:</p>
       <Code
         lang="tsx"
         code={`
 const CounterList = (counters) => (
   <div>
     <div part:stats>
-      Total: {counters.reduce((a, c) => a + c.clicks, 0)}
+      Total: {total(counters)}
     </div>
-    <Counter.repeat items={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 
-const updateStats = () => root.part.stats.update();
+const total = (counters) => (
+  counters.reduce((a, c) => a + c.clicks, 0)
+)
+const updateStats = () => (
+  root.part.stats.update();
+);
 `}
       />
-      <p>Subclass components with stubs:</p>
+      <p>Define stubs to implement later:</p>
       <Code
         lang="tsx"
         code={`
@@ -169,36 +184,36 @@ import { extendComponent } from 'wallace';
 
 const CounterList = (counters) => (
   <div>
-    <stub:stats />
-    <Counter.repeat items={counters} />
+    <stub.stats props={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 
-const HighestCounterList = extendComponent(CounterList);
+const HighestCounterList = extendComponent(
+  CounterList
+);
 
-HighestCounterList.stubs.stats = ({ counters }) => (
+HighestCounterList.stub.stats = (counters) => (
   <div>
-    Highest: {Math.max(...counters.map(c => c.clicks))}
+    Highest: {highest(counters)}
   </div>
 );
 
+const highest = (counters) => (
+  Math.max(...counters.map(c => c.clicks))
+);
 `}
       />
-
-      <blockquote>
-        Wallace looks functional, but lift the hood and you get juicy OOP.
-      </blockquote>
-
-      <h4>Extendable</h4>
-      <p>Modify any runtime behaviour:</p>
+      <h4>5. Extendable</h4>
+      <p>Override component methods:</p>
       <Code
         lang="tsx"
         code={`
 
 const CounterList = (counters) => (
   <div>
-    <stub:stats>
-    <Counter.repeat items={counters} />
+    <stub.stats>
+    <Counter.repeat props={counters} />
     <canvas ref:chart />
   </div>
 );
@@ -222,15 +237,15 @@ const CounterList = (counters) => (
   <div>
     <div total:clicks={counters}>
     </div>
-    <Counter.repeat items={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 `}
       />
-      <blockquote>
+      <p>
         Directives operate during compilation, so adding more doesn't increase
         bundle size.
-      </blockquote>
+      </p>
       <div id="next"></div>
     </section>
   </Landing>

@@ -37,6 +37,14 @@ export default defineConfig({
           label: "Reference",
           autogenerate: { directory: "docs/reference" },
         },
+        {
+          label: "Other",
+          items: [
+            // { label: "About", link: "/about" },
+            { label: "Claims", link: "/docs/claims" },
+            { label: "Why", link: "/docs/why" },
+          ],
+        },
       ],
     }),
   ],

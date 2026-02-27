@@ -43,6 +43,16 @@ blockquote {
   }
 }
 
+@media (max-width: 768px) {
+  .sl-markdown-content {
+  font-size: 0.85rem;
+}
+  .ec-line {
+    font-size: 0.60rem;
+  }
+
+}
+
 .no-after::after {
   content: none;
 }

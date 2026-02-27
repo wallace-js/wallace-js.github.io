@@ -1,7 +1,7 @@
 ---
 title: Directives
 sidebar:
-  order: 4
+  order: 7
 ---
 
 ## Tool tips
@@ -45,47 +45,47 @@ const Counter = ({ count }, { element }) => (
 );
 
 const setStyle = (count, element) =>
-  (element.style.color = count > 2 ? 'red' : 'black');
+  (element.style.color = count > 2 ? "red" : "black");
 ```
 
 ### bind
 
 Sets up two-way binding:
 
-  1. It uses the expression as the element's value.
-  2. It assigns the value back to the expression when the element's `change` event
-fires.
+1. It uses the expression as the element's value.
+2. It assigns the value back to the expression when the element's `change` event
+   fires.
 
 So this:
 
 ```jsx
-const MyComponent = ({name}) => (
-  <input type="text" bind={name}/>
-);
+const MyComponent = ({ name }) => <input type="text" bind={name} />;
 ```
 
 Is the equivalent of this:
 
 ```jsx
-const MyComponent = ({name}, {event}) => (
-  <input type="text" onChange={name = event.target.value} value={name}/>
+const MyComponent = ({ name }, { event }) => (
+  <input type="text" onChange={(name = event.target.value)} value={name} />
 );
 ```
 
 In the case of a checkbox it uses `checked` instead of `value`, so is the equivalent of this:
 
 ```jsx
-const MyComponent = ({done}, {event}) => (
-  <input type="checkbox" onChange={done = event.target.checked} checked={done}/>
+const MyComponent = ({ done }, { event }) => (
+  <input
+    type="checkbox"
+    onChange={(done = event.target.checked)}
+    checked={done}
+  />
 );
 ```
 
 By defaults it listens to the `change` event, but you can specify a different one:
 
 ```jsx
-const MyComponent = ({name}) => (
-  <input type="text" bind:keyup={name} />
-);
+const MyComponent = ({ name }) => <input type="text" bind:keyup={name} />;
 ```
 
 Note that destructured props are converted to member expressions, so these examples
@@ -96,7 +96,7 @@ work even though it looks like you're setting a local variable.
 Without a qualifier this acts as a normal attribute setting the `class` attribute of the element:
 
 ```jsx
-<div class={foo} ></div>
+<div class={foo}></div>
 ```
 
 But when a qualifier is given it instead defines a group of classes which can be toggled:
@@ -113,8 +113,8 @@ Shorthand for `fixed:class`:
 
 ```jsx
 <div>
-  <div css={foo} ></div>
-  <div fixed:class={foo} ></div>
+  <div css={foo}></div>
+  <div fixed:class={foo}></div>
 </div>
 ```
 
@@ -126,9 +126,9 @@ Specifies an alternative `ctrl` for nested or repeated components, which would o
 
 ```jsx
 <div>
-  <MyComponent.nest ctrl={altController} />
+  <MyComponent ctrl={altController} />
   <div>
-    <MyComponent.repeat items={item} ctrl={altController} />
+    <MyComponent.repeat props={item} ctrl={altController} />
   </div>
 </div>
 ```
@@ -139,8 +139,8 @@ Sets the value of an attribute at point of component definition:
 
 ```jsx
 <div>
-  <div fixed:id={foo} ></div>
-  <div fixed:class={foo} ></div>
+  <div fixed:id={foo}></div>
+  <div fixed:class={foo}></div>
 </div>
 ```
 
@@ -175,10 +175,10 @@ Set the element's `innnerHTML` property:
 
 ```jsx
 <div>
-  <div html={getDivContents()} ></div>
-</div>
+  <div html={getDivContents()}></div>
+</div>;
 
-const getDivContents = () => '<span>hello</span>';
+const getDivContents = () => "<span>hello</span>";
 ```
 
 ### if
@@ -191,7 +191,6 @@ Excludes this element from the DOM completely if the condition is false, and doe
     This will be detached from the DOM if foo is false.
     <span>{bar}</span>
   </div>
- 
 </div>
 ```
 
@@ -203,10 +202,10 @@ Specifies a key for repeated components, creating an association between the key
 
 ```jsx
 <div>
-  <MyComponent.repeat items={item} key="id" />
+  <MyComponent.repeat props={item} key="id" />
 </div>
 <div>
-  <MyComponent.repeat items={item} key={(x) => x.id}/>
+  <MyComponent.repeat props={item} key={(x) => x.id}/>
 </div>
 ```
 
@@ -220,7 +219,7 @@ Specifies the items to be repeated, which must be an array of the props that com
 
 ```jsx
 <div>
-  <MyComponent.repeat items={item} />
+  <MyComponent.repeat props={item} />
 </div>
 ```
 
@@ -243,13 +242,9 @@ The expression is copied into a function during compilation, so it should not be
 Saves a reference to part of a component, allowing you to update just that part:
 
 ```jsx
-const Greeting = ({ name }) => (
-  <div part:title>
-    {name}
-  </div>
-);
+const Greeting = ({ name }) => <div part:title>{name}</div>;
 
-const component = createComponent(Greeting, {name: 'Wallace'});
+const component = createComponent(Greeting, { name: "Wallace" });
 component.part.title.update();
 ```
 
@@ -260,7 +255,7 @@ This will update all elements underneath, as if you had called `update` taking i
 Sets the props for a nested component:
 
 ```jsx
-<MyComponent.nest props={foo} />
+<MyComponent props={foo} />
 ```
 
 For repeated components use items instead.
@@ -270,9 +265,7 @@ For repeated components use items instead.
 Saves a reference to an element:
 
 ```jsx
-const Greeting = ({ name }) => (
-  <div ref:title></div>
-);
+const Greeting = ({ name }) => <div ref:title></div>;
 
 const component = createComponent(Greeting);
 component.ref.title.textConten = "Hello";
@@ -298,9 +291,9 @@ See also: [hide](#hide).
 Without a qualifier this acts as a normal attribute setting the `style` attribute of the element:
 
 ```jsx
-<div style={getStyle()}></div>
+<div style={getStyle()}></div>;
 
-const getStyle = () => 'color: red; background: white;';
+const getStyle = () => "color: red; background: white;";
 ```
 
 Note that you must provide a string, not an object.
@@ -308,9 +301,9 @@ Note that you must provide a string, not an object.
 With a qualifier it targets a specific style property:
 
 ```jsx
-<div style:color={getColor()}></div>
+<div style:color={getColor()}></div>;
 
-const getStyle = () => 'red';
+const getStyle = () => "red";
 ```
 
 ### toggle
@@ -336,11 +329,7 @@ See also: [class](#class).
 Can be set on components which are only created once to avoid the DOM being created twice:
 
 ```jsx
-const Greeting = ({ name }) => (
-  <div unique>
-    {name}
-  </div>
-);
+const Greeting = ({ name }) => <div unique>{name}</div>;
 ```
 
 A component definition creates its own DOM template at point of definition, and component instances clone this to create their initial DOM. If there is only to be one instance of the component, then that creates double the DOM for no reason.
@@ -358,7 +347,7 @@ Directives are defined as classes which inherit from the base `Directive` class.
 ```js
 const {
   Directive,
-  constants: { WATCH_CALLBACK_ARGS }
+  constants: { WATCH_CALLBACK_ARGS },
 } = require("babel-plugin-wallace");
 
 class ColorDirective extends Directive {
@@ -395,10 +384,10 @@ module.exports = {
       "babel-plugin-wallace",
       {
         flags: {},
-        directives: [ColorDirective]
-      }
+        directives: [ColorDirective],
+      },
     ],
-    "@babel/plugin-syntax-jsx"
+    "@babel/plugin-syntax-jsx",
   ],
 };
 ```

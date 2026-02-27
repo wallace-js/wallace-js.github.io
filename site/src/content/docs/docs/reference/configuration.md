@@ -14,7 +14,7 @@ The best place to specify your plugins is in a **babel.config.cjs** file at the 
 
 ```js
 module.exports = {
-  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"]
+  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"],
 };
 ```
 
@@ -49,10 +49,10 @@ const config = {
   entry: "./src/index.tsx",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "index.js"
+    filename: "index.js",
   },
   resolve: {
-    extensions: [".js", ".jsx", ".tsx", ".ts"]
+    extensions: [".js", ".jsx", ".tsx", ".ts"],
   },
   module: {
     rules: [
@@ -62,19 +62,19 @@ const config = {
         use: [
           {
             // loads from webpack.config.js
-            loader: "babel-loader"
-          }
-        ]
-      }
-    ]
-  }
+            loader: "babel-loader",
+          },
+        ],
+      },
+    ],
+  },
 };
 
 module.exports = function () {
   config.mode = process.env.NODE_ENV || "development";
   if (config.mode === "production") {
     config.optimization = {
-      minimize: true
+      minimize: true,
     };
   } else {
     config.devtool = "eval-source-map";
@@ -97,7 +97,7 @@ If you load the plugin without options:
 
 ```js
 module.exports = {
-  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"]
+  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"],
 };
 ```
 
@@ -109,10 +109,10 @@ module.exports = {
     [
       "babel-plugin-wallace",
       {
-        flags: {}
-      }
+        flags: {},
+      },
     ],
-    "@babel/plugin-syntax-jsx"
+    "@babel/plugin-syntax-jsx",
   ],
 };
 ```
@@ -127,11 +127,11 @@ module.exports = {
       {
         flags: {
           allowCtrl: true,
-          allowStubs: false
-        }
-      }
+          allowStubs: false,
+        },
+      },
     ],
-    "@babel/plugin-syntax-jsx"
+    "@babel/plugin-syntax-jsx",
   ],
 };
 ```
@@ -150,7 +150,7 @@ Adds the `base` property to components:
 ```js
 Counter.prototype.render = function (props) {
   this.base.render.call(this, props);
-}
+};
 ```
 
 Note that `base` is not the same as `super` which is used in classes.
@@ -160,14 +160,14 @@ Note that `base` is not the same as `super` which is used in classes.
 Enables the `ctrl` property in components, so that the `render` method looks like this:
 
 ```js
-function render (props, ctrl) {
-  this.props = propsl
+function render(props, ctrl) {
+  this.props = propsl;
   this.ctrl = ctrl;
   this.update();
 }
 ```
 
-Helper functions which forward `props` to `render` (such as `mount` and  `createComponent`) now forward `ctrl` as well:
+Helper functions which forward `props` to `render` (such as `mount` and `createComponent`) now forward `ctrl` as well:
 
 ```js
 mount(element, def, props, ctrl);
@@ -180,13 +180,13 @@ Add the `methods` property to component definitions:
 
 ```js
 Counter.methods = {
-  render (props) {
+  render(props) {
     this.base.render.call(this, props);
   },
-  doSomething () {
-    console.log('something');
-  }
-}
+  doSomething() {
+    console.log("something");
+  },
+};
 ```
 
 You can always create or override methods via the prototype:
@@ -194,13 +194,13 @@ You can always create or override methods via the prototype:
 ```js
 Counter.prototype.render = function (props) {
   this.base.render.call(this, props);
-}
+};
 Counter.prototype.doSomething = function (props) {
-  console.log('something');
-}
+  console.log("something");
+};
 ```
 
-####  allowParts
+#### allowParts
 
 Allows you to declare parts in a component:
 
@@ -209,7 +209,7 @@ const CounterList () => (
   <div>
     <div part:stats>Total: {total}</div>
     <div>
-      <Counter.repeat items={counters} />
+      <Counter.repeat props={counters} />
     </div>
   </div>
 );
@@ -217,13 +217,13 @@ const CounterList () => (
 
 #### allowRepeaterSiblings
 
-Allows you to place a repeater under a node with other children: 
+Allows you to place a repeater under a node with other children:
 
 ```jsx
 const CounterList ({ total, counters }) => (
   <div>
     <div>Total: {total}</div>
-    <Counter.repeat items={counters} />
+    <Counter.repeat props={counters} />
   </div>
 );
 ```
@@ -235,21 +235,21 @@ const CounterList ({ total, counters }) => (
   <div>
     <div>Total: {total}</div>
     <div>
-      <Counter.repeat items={counters} />
+      <Counter.repeat props={counters} />
     </div>
   </div>
 );
 ```
 
-####  allowStubs
+#### allowStubs
 
 Enables the use of stubs:
 
 ```jsx
 const CounterList () => (
   <div>
-    <stub:stats />
-    <stub:counters />
+    <stub.stats />
+    <stub.counters />
   </div>
 );
 ```
@@ -267,10 +267,10 @@ module.exports = {
       "babel-plugin-wallace",
       {
         flags: {},
-        directives: [MyCustomDirective]
-      }
+        directives: [MyCustomDirective],
+      },
     ],
-    "@babel/plugin-syntax-jsx"
+    "@babel/plugin-syntax-jsx",
   ],
 };
 ```

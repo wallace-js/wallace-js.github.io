@@ -4,31 +4,31 @@ sidebar:
   order: 2
 ---
 
-## Preface
-
 This tour:
 
-1. Assumes you are familiar with front end development.
-2. Should take 15 minutes (longer if you play with the code).
-3. Covers almost all of Wallace.
+- Assumes you are familiar with front end development.
+- Covers everything in 7 short sections.
+- Should take 15-20 minutes.
 
 It's not a tutorial, but you can code along:
 
-1. **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
-2. **Locally** with `npx create-wallace-app`.
+- **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
+- **Locally** with `npx create-wallace-app`.
 
-There's a separate page explaining [why](/docs/why) Wallace exist. The TLDR is that none of the [~100](/docs/why) alternatives meet these four basic criteria:
+There's a separate page explaining [why](/docs/why) Wallace exist. The TLDR is that none of the alternatives met the author's four basic criteria:
 
-1. No **ugly** syntax or patterns (like hooks).
+1. No **ugly** syntax or patterns.
 2. No **magic** DOM updates that are hard to follow, debug or control.
 3. No **bloat**, so it works for landing pages and apps with frequent page switches etc...
 4. No **learning** beyond an initial 15-30 minutes.
 
+The result is a delightfully simple framework which also happens to beat most of the others on performance.
+
 ## Overview
 
-Wallace controls the DOM using components, which you define as functions that accept props and return JSX:
+Wallace is a compiled framework which requires a tool like Webpack to transform the jsx/tsx files in which you define components:
 
-```tsx
+```jsx
 const Counter = ({ count }) => (
   <div>
     <span>Count: {count}</span>
@@ -37,7 +37,182 @@ const Counter = ({ count }) => (
 );
 ```
 
-It looks like React, but there are three major differences:
+It looks like React, and due to its similarity and popularity we'll be using that as a base for comparison. Just remember Wallace works differently, and is used differently too.
+
+It's more fun learning with an interactive UI so let's set this up first, and explain how it works later:
+
+```tsx
+import { mount, watch } from 'wallace';
+
+const Counter = ({ count }) => (
+  <div>
+    <span>Count: {count}</span>
+    <button onClick={count++}>Click me</button>
+  </div>
+);
+
+const root = mount(
+  'main',
+  Counter,
+  watch({ count: 0 }, () => root.update()
+);
+```
+
+> This replaces the element with `id="main"` with an instance of `Counter`.
+
+## Assistance
+
+#### Tool tips
+
+Wallace has extensive the documentation in its tool tips, which you'll get by hovering over:
+
+1. The  `wallace` module in the import statement which covers almost everything.
+2. Helper functions like `mount` and `watch` which cover their respective usage.
+3. JSX elements like `div` which shows the JSX syntax cheat sheet.
+4. Directives in the JSX (like `if`) which have detailed notes on their usage.
+
+In a modern editor which renders JSDoc Markdown correctly it should look like this:
+
+![](/img/div-tooltip.jpg)
+
+This helps you work faster by not having to leave your editor as often.
+
+#### TypeScript
+
+You will have a more enjoyable time if you use TypeScript for your components, even if you don't use it in your other modules.
+
+The main thing you'll be annotating are the props that each component accepts which you do with the `Uses` type:
+
+```tsx
+import { mount, watch, Uses } from 'wallace';
+
+interface iCounter {
+  count: number;
+}
+
+const Counter: Uses<iCounter> = ({ count }) => (
+  <div>
+    <div>Count: {count}</div>
+    <button onClick={count++}>Click me</button>
+  </div>
+);
+
+const root = mount(
+  'main',
+  Counter,
+  watch({ count: 0 }, () => root.update()
+);
+```
+
+Make sure you use `Uses` as shows above, rather than annotating the props parameter, which is only useful inside that function:
+
+```tsx
+// WRONG
+const Counter = ({ count }: iCounter) => (...);
+```
+
+`Uses` can annotate more than just props, as covered in [TypeScript](/docs/reference/typescript/).
+
+For brevity we'll omit type annotations from the rest of the tour.
+
+## JSX
+
+Instead of putting JavaScript around JSX elements, you place *directives* (like `if`) inside elements:
+
+```jsx
+const Counter = ({ count }) => (
+  <div>
+    <span>Count: {count}</span>
+    <button onClick={count++}>Click me</button>
+    <button if={count > 3} onClick={(count=0)}>
+      Reset
+    </button>
+  </div>
+);
+```
+
+You loose the full flexibility of React, but:
+
+1. You rarely need that flexibility.
+2. You can still achieve the same end result.
+3. Your JSX will be less cluttered (and easier to debug) and more compact (~50% fewer lines).
+4. You don't create false indentation.
+5. More power.
+
+Nesting syntax is also different: you pass props in a single directive, which means you can use other directives:
+
+```jsx
+const DoubleCounter = (counters) => (
+  <div>
+    <Counter props={counters[0]} />
+    <Counter props={counters[1]} if={counters.length > 1}/>
+  </div>
+);
+```
+
+To repeat a nested component you just add `.repeat` after the name:
+
+```jsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat props={counters} />
+  </div>
+);
+```
+
+Both Wallace and TypeScript understands that `props` should now be an Array.
+
+Lastly, you can't put any code before the JSX:
+
+```jsx
+const CounterList = (counters) => {
+  counters.sort() // << No code allowed here!
+  return <div>
+    <Counter.repeat props={counters} />
+  </div>
+};
+```
+
+If you're use to React this might seem like madness, but once you see how Wallace does it,  then React might seem the madder of the two.
+
+### Components
+
+The second difference is that these functions are never *called* - they are *replaced* with a constructor function during compilation, which lets us create component objects:
+
+```jsx
+const component = new Counter();
+```
+
+However you don't usually do that yourself, instead you define a tree of nested components:
+
+```jsx
+const CounterList = (counters) => (
+  <div>
+    Total: {counters.reduce((a, c) => a + c.count, 0)}
+    <Counter.repeat props={counters} />
+  </div>
+);
+```
+
+And mount the root component to the DOM:
+
+```jsx
+import { mount } from 'wallace';
+
+/*...*/
+
+const counters = [{ count: 0 }, { count: 0 }];
+const root = mount('main', CounterList, counters);
+```
+
+The root component is a component like any other, which:
+
+1. Updates its own DOM.
+2. Manages its nested components.
+
+So your DOM is controlled by a tree of very simple objects which you can customise and interact with.
+
+Before we look at what we can do with that, let's quickly cover the JSX rules.
 
 #### 1. Static JSX
 
@@ -119,7 +294,7 @@ const Counter = ({ count }) => (
   <div>
     <span>Count: {count}</span>
     <button onClick={count++}>Click me</button>
-    <input type="number" bind:keyup={count} />
+    <input type="number" bind={count} />
   </div>
 );
 

@@ -7,7 +7,7 @@ sidebar:
 This tour:
 
 - Assumes you are familiar with front end development.
-- Covers everything in 7 short sections.
+- Covers almost everything you need to know.
 - Should take 15-20 minutes.
 
 It's not a tutorial, but you can code along:
@@ -15,14 +15,529 @@ It's not a tutorial, but you can code along:
 - **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
 - **Locally** with `npx create-wallace-app`.
 
-There's a separate page explaining [why](/docs/why) Wallace exist. The TLDR is that none of the alternatives met the author's four basic criteria:
+## Overview
+
+Wallace mirrors React's overall structure in that you:
+
+1. Define components as functions that return JSX.
+2. Nest them to form a tree.
+3. Attach the root component to the document.
+
+For example:
+
+```tsx
+import { mount } from 'wallace';
+
+const User = ( name ) => <div>User: {name}</div>;
+
+const UserList = ( users ) => (
+  <div>
+    <h2>Showing {users.length} users:</h2>
+    <User.repeat items={users} />
+  </div>
+);
+
+mount('main', UserList, ['Wallace', 'Gromit']);
+```
+
+It looks like React so far, but Wallace components:
+
+1. Use JSX differently.
+2. Operate differently.
+3. Manage DOM differently.
+4. Have different capabilities.
+5. Play a different role in your app.
+
+We'll cover things roughly in that order, but first, some help.
+
+## Help
+
+If you forget how to do something, just type `help` inside a JSX tag and hover your cursor over it:
+
+```tsx
+const Example = () => (
+  <div help >
+    ...
+  </div>
+);
+```
+
+The tool tip displays a cheat sheet with code snippets which your editor hopefully lets you copy.
+
+For more extensive documentation, hover over the `wallace` module import:
+
+```ts
+import {} from 'wallace';
+```
+
+It includes everything (in condensed format) so that's one less browser tab open, and means you can work offline too.
+
+## TypeScript
+
+You don't have to use TypeScript, but it makes working with Wallace a whole lot nicer.
+
+The main thing you'll be annotating are the arguments which components accept, which you do with the `Accepts` type:
+
+```tsx
+import type { Accepts } from 'wallace';
+
+// CORRECT
+const User: Accepts<string> = ( name ) => <div>User: {name}</div>;
+
+// WRONG
+const User = ( name: string ) => <div>User: {name}</div>;
+```
+
+The correct form ensures type safety when nesting or mounting the component too.
+
+The type `Uses` lets you annotate other aspects of the component:
+
+```tsx
+import type { Uses } from 'wallace';
+
+type UserTypes = { props: string, stubs: {...} };
+const User: Uses<UserTypes> = ( name ) => <div>User: {name}</div>;
+```
+
+These are covered in more detail in [TypeScript](/docs/reference/typescript/).
+
+For brevity we'll omit type annotations from the rest of the tour.
+
+## JSX
+
+Wallace doesn't *run* the JSX, it *reads* it during compilation, and *replaces* the entire function (which must contain a single JSX expression and nothing else) with a class-like structure.
+
+You're not allowed any code before, around or within the JSX, except in placeholders, so long as it doesn't return further JSX:
+
+```tsx
+// ALLOWED
+const User = ( name ) => (
+  <div>User: {name || '??'}</div>
+);
+
+// NOT ALLOWED
+const User = ( name ) => (
+  <div>User: {name || <span>??</span>}</div>
+);
+```
+
+Wallace trades the boundless freedom of React (you can still build the same UI) for a more powerful directive-based syntax.
+
+Directives are attributes which take effect during compilation and let you do interesting things:
+
+```tsx
+const User = ( user ) => (
+  <div class:active="active" toggle:active={user.active}>    
+    User: {user.name}
+    <div if={mode === "edit"} >
+      <input bind={user.name} />
+      <button on:click={deleteUser()} />
+    </div>
+  </div>
+);
+```
+
+As well as directives there is special syntax for nesting and repeating:
+
+```tsx
+const UserList = ( users ) => (
+  <div>
+    <User arg={users[0]} />
+    <User.repeat args={users} />
+  </div>
+);
+```
+
+If you forget this, just ask for `help`.
+
+## Components
+
+Wallace *replaces* functions which return JSX with class-like structure during compilation. These are used to create component *instances* behind the scenes. To see this working, let's comment out the call to `mount` and do it manually:
+
+```tsx
+import { mount } from 'wallace';
+
+const User = ( name ) => <div>User: {name}</div>;
+
+const UserList = ( users ) => (
+  <div>
+    <h2>Showing {users.length} users:</h2>
+    <User.repeat items={users} />
+  </div>
+);
+
+// mount('main', UserList, ['Wallace', 'Gromit']);
+
+const userList = new UserList();
+document.body.appendChild(userList.el);
+userList.render(['Wallace', 'Gromit']);
+```
+
+TypeScript will complain because it is unaware that `UserList` will be transformed into something else, so just ignore that as you don't normally do this.
+
+As you can see, `userList` is an ordinary object with properties like `el` (its root HTML element) and methods like `render`, which update its DOM with the arguments:
+
+```tsx
+userList.render(['Gromit', 'Wallace']);
+```
+
+There is no global engine coordinating things: each component manages its own DOM and nested components, which manage their DOM and nested components, and so on down the tree.
+
+## Rendering
+
+For current purposes the `render` method looks like this:
+
+```ts
+function render ( arg ) {
+  this.arg = arg;
+  this.update();
+}
+```
+
+Let's override it for `User` to add some logging:
+
+```ts
+User.methods = {
+  render( user ) {
+    this.arg = user;
+    this.update();
+    console.log("Rendered User");
+  }
+};
+```
+
+The `methods` property is just a proxy for `protoype` that extends rather than overwrites it, which reduces typing and accidents, so you're essentially doing this:
+
+```ts
+User.prototype.render = function ( user ) {
+  this.arg = user;
+  this.update();
+  console.log("Rendered User");
+};
+```
+
+The point of having `render` call `update` is so we can bypass `render` and update the component like this:
+
+```ts
+userList.arg.reverse();
+userList.update();
+```
+
+If you do that, you'll see it logs `"Rendered User"` twice, because `update` calls `render` on any nested components.
+
+This two step process comes in very handy when creating dynamic UI as we'll see in the next section. But first let's wrap up by showing how components update their DOM.
+
+Let's use the `ref` directive to create a reference to the raw DOM element:
+
+```tsx
+const User = ( name ) => 
+  <div>
+    User: <span ref:name></span>
+  </div>
+);
+
+User.methods = {
+  render( user ) {
+    if (user !== this.oldValue) {
+      this.ref.name.texContent = user;
+      this.oldValue = user;
+    }
+  }
+};
+```
+
+We don't need to call `update` as we're working with the raw DOM element directly. This is essentially what the component does when we use a placeholder, with a few extra bits to account for hidden elements, nested components and repeaters.
+
+This makes for very efficient update as it only touches elements that need to be updates, and completely ignores the rest. It is also a very simple mental model which makes it easy to follow what's going on.
+
+Now you understand how Wallace works, lets dive into how you use it.
+
+## Watch
+
+
+
+
+
+
+
+Then render then update.
+
+Decide on the point I'm trying to make, and how much I want to cover with the tour.
+
+I need to go over:
+
+- watch + bind > bad for (state + data (like mode for inputs vs buttons)
+- controller
+- hot props partials
+- 
+
+Remember this is not a "How to use Wallace".
+
+
+
+
+
+In our example so far it makes no difference whether components are functions or objects.
+
+This is very different from React, where a special "root" object calls component functions and patches the DOM.
+
+Although you can add methods to component definitions like you did with React classes, you tend not to do that, and instead wrap functionality into the arguments.
+
+#### Arguments
+
+The render method accepts two argument which can be anything, but is usually an object.
+
+
+
+We'll now look a how components works, which matters because it affects the various ways you can structure your app as well explore in the subsequent sections, 
+
+
+
+
+
+The functions with JSX are never executed. They get replaced with constructor functions during compilation, which are 
+
+
+
+
+
+
+
+
+
+
+
+
+
+- A primitive
+- A plain object
+- An instance of a class
+
+
+
+You might think this happens in the `render` method, but it's actually the `update` method
+
+```ts
+User.methods = {
+  render(user) {
+    console.log("rendering user", user);
+    this.item = user;
+    this.update();
+  }
+}
+```
+
+
+
+```tsx
+const User = ( name ) => (
+  <div>
+     <span>User: {name}</span>
+     <span ref:age></span>
+  </div>
+);
+
+User.methods = {
+  render(user) {
+    this.ref.name.textContent = user;
+    this.update();
+  }
+}
+```
+
+
+
+
+
+
+
+If all you're doing is displaying data, then it feel much like React, except for the JSX syntax and faster page load. But when the UI becomes dynamic
+
+But Wallace works very differently to React, and this only becomes apparent 
+
+If all you're 
+
+
+
+
+
+In React you your components do all the work
+
+
+
+
+
+You probably noticed the JSX syntax is a bit different. What's less obvious is that components, their arguments, how the render and how you use them is also *very* different.
+
+
+
+1. 
+
+```
+New plan:
+	Show that components are objects
+	more mechanical
+	why its better:
+
+	
+```
+
+
+
+### Why this is better
+
+The point of a frameworks is to reduce your workload
+
+because development time is not about churning out code.
+
+
+
+Doing, Deciding, Debugging
+
+
+
+There's a separate page explaining [why](/docs/why) Wallace exists. The TLDR is that none of the alternatives met the author's four basic criteria:
 
 1. No **ugly** syntax or patterns.
 2. No **magic** DOM updates that are hard to follow, debug or control.
-3. No **bloat**, so it works for landing pages and apps with frequent page switches etc...
+3. No **bloat**, so it can be used on landing pages and apps with frequent page switches etc...
 4. No **learning** beyond an initial 15-30 minutes.
 
-The result is a delightfully simple framework which also happens to beat most of the others on performance.
+
+
+
+
+
+
+which lets you create component instances:
+
+```ts
+const greeting = new Greeting();
+greeting.render('Wallace');
+document.body.appendChild(greeting.el);
+setTimeout(() => greeting.render('Gromit'), 2000);
+```
+
+But you'd normally use `mount`:
+
+```tsx
+import { mount } from 'wallace';
+
+const greeting = mount('main', Greeting, 'Wallace');
+setTimeout(() => greeting.render('Gromit'), 2000);
+```
+
+
+
+
+
+
+
+```ts
+const Counter = ({ count }) => (
+  <div>
+    <span>Count: {count}</span>
+    <button onClick={count++}>Click me</button>
+  </div>
+);
+```
+
+
+
+ look like React but work very differently:
+
+
+
+
+
+Wallace is a component-based framework (like React, but different) where you structure the UI as a components are defined as functions:
+
+(show two components)
+
+Like React you define components as functions that return JSX:
+
+But they don't work the same way.
+
+During compilation any function with JSX is replaced with a generated constructor function that lets you create component instances:
+
+```
+new 
+```
+
+These objects control their own DOM
+
+```
+apend and render
+```
+
+(later) There's no virtual DOM. The component stores references to dynamic elements.
+
+You don't normally do this manually, you'd use mount:
+
+```ts
+
+```
+
+So how is this different to React?
+
+
+
+## First glance
+
+Let's jump right in with a reactive click counter:
+
+```tsx
+import { mount, watch } from 'wallace';
+
+const Counter = ({ count }) => (
+  <div>
+    <span>Count: {count}</span>
+    <button onClick={count++}>Click me</button>
+  </div>
+);
+
+const root = mount(
+  'main',
+  Counter,
+  watch({ count: 0 }, () => root.update())
+);
+```
+
+Alt
+
+
+
+```tsx
+import { mount, watch } from 'wallace';
+
+const Counter = ({ count }) => (
+  <div assign:cmp>
+    <span>Count: {count}</span>
+    <button onClick={count++}>Click me</button>
+  </div>
+);
+
+Counter.methods = {
+  render(item) {
+    this.item = watch(item, () => this.update());
+    this.update();
+  }
+}
+
+mount('main', Counter, { count: 0 });
+```
+
+
+
+
+
+We defined a component as a function with JSX, then called `mount`
+
+
+
+mounted an instance of it to the DOM by replacing the element with id `main` with the 
+
+
 
 ## Overview
 
@@ -54,7 +569,7 @@ const Counter = ({ count }) => (
 const root = mount(
   'main',
   Counter,
-  watch({ count: 0 }, () => root.update()
+  watch({ count: 0 }, () => root.update())
 );
 ```
 
@@ -62,58 +577,7 @@ const root = mount(
 
 ## Assistance
 
-#### Tool tips
 
-Wallace has extensive the documentation in its tool tips, which you'll get by hovering over:
-
-1. The  `wallace` module in the import statement which covers almost everything.
-2. Helper functions like `mount` and `watch` which cover their respective usage.
-3. JSX elements like `div` which shows the JSX syntax cheat sheet.
-4. Directives in the JSX (like `if`) which have detailed notes on their usage.
-
-In a modern editor which renders JSDoc Markdown correctly it should look like this:
-
-![](/img/div-tooltip.jpg)
-
-This helps you work faster by not having to leave your editor as often.
-
-#### TypeScript
-
-You will have a more enjoyable time if you use TypeScript for your components, even if you don't use it in your other modules.
-
-The main thing you'll be annotating are the props that each component accepts which you do with the `Uses` type:
-
-```tsx
-import { mount, watch, Uses } from 'wallace';
-
-interface iCounter {
-  count: number;
-}
-
-const Counter: Uses<iCounter> = ({ count }) => (
-  <div>
-    <div>Count: {count}</div>
-    <button onClick={count++}>Click me</button>
-  </div>
-);
-
-const root = mount(
-  'main',
-  Counter,
-  watch({ count: 0 }, () => root.update()
-);
-```
-
-Make sure you use `Uses` as shows above, rather than annotating the props parameter, which is only useful inside that function:
-
-```tsx
-// WRONG
-const Counter = ({ count }: iCounter) => (...);
-```
-
-`Uses` can annotate more than just props, as covered in [TypeScript](/docs/reference/typescript/).
-
-For brevity we'll omit type annotations from the rest of the tour.
 
 ## JSX
 
@@ -841,3 +1305,20 @@ class Controller {
 
 - events
 - stubs
+
+
+
+And for stubs, which are placeholders for nested components which derived components can override:
+
+```tsx
+const AbstractUserList = ( users ) => (
+  <div>
+    <stub.user arg={users[0]} />
+    <stub.user.repeat args={users} />
+  </div>
+);
+
+AbstractUserList.stub.user = GuestUser;
+```
+
+More compact

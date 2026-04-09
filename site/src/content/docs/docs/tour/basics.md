@@ -6,7 +6,7 @@ sidebar:
 
 ## Overview
 
-Wallace controls the DOM using components, which you define as functions that accept props and return JSX:
+Wallace controls the DOM using components, which you define as functions that accept model and return JSX:
 
 ```tsx
 const Counter = ({ clicks }) => (
@@ -22,16 +22,16 @@ Component definitions can be nested or repeated using special syntax:
 ```tsx
 const CounterList = (counters) => (
   <div>
-    <Counter props={counters[0]} />
+    <Counter model={counters[0]} />
     <hr />
     <div>
-      <Counter.repeat props={counters.slice(1)} />
+      <Counter.repeat models={counters.slice(1)} />
     </div>
   </div>
 );
 ```
 
-Nested components forms a tree, the root of which is attached to the document using the `mount` function, which also allows setting initial props:
+Nested components forms a tree, the root of which is attached to the document using the `mount` function, which also allows setting initial model:
 
 ```tsx
 import { mount } from "wallace";
@@ -66,7 +66,7 @@ const CounterList = (counters) => (
   <div>
     <div>Total: {counters.reduce((a, c) => a + c.clicks, 0)}</div>
     <div>
-      <Counter.repeat props={counters} />
+      <Counter.repeat models={counters} />
     </div>
     <button onClick={counters.push({ clicks: 1 })}>Add Counter</button>
   </div>
@@ -100,8 +100,8 @@ And special syntax for nesting components:
 ```tsx
 const CounterList = (counters) => (
   <div>
-    <Counter props={counters[0]} />
-    <Counter props={counters[1]} />
+    <Counter model={counters[0]} />
+    <Counter model={counters[1]} />
   </div>
 );
 ```
@@ -111,7 +111,7 @@ And for repeating components:
 ```tsx
 const CounterList = (counters) => (
   <div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 ```
@@ -127,7 +127,7 @@ const CounterList = (counters) => {
         (
           counter // NO ALLOWED
         ) => (
-          <Counter props={counter} />
+          <Counter model={counter} />
         )
       )}
     </div>
@@ -158,10 +158,10 @@ Here is a list of the available directives:
 - `html` Set the element's `innnerHTML` property.
 - `if` excludes an element from the DOM.
 - `key` specifies a key for repeated items.
-- `items` set items for repeated component, must be an array of props.
+- `items` set items for repeated component, must be an array of model.
 - `on[EventName]` creates an event handler (note the code is copied).
 - `part:xyz` saves a reference to part of a component so it can be updated.
-- `props` specifies props for a nested components.
+- `model` specifies model for a nested components.
 - `ref:xyz` saves a reference to an element or nested component.
 - `show` sets and element or component's hidden property.
 - `style:xyz` sets a specific style property.
@@ -188,18 +188,18 @@ Hovering over the module import shows a complete cheat sheet, which means you ca
 
 #### Props
 
-You will also get type documentation for props and other bits if you use TypeScript.
+You will also get type documentation for model and other bits if you use TypeScript.
 
 ## TypeScript
 
-Wallace has amazing type support, but you need to set it up right. Instead of annotating props like this:
+Wallace has amazing type support, but you need to set it up right. Instead of annotating model like this:
 
 ```tsx
 interface iCounter {
   clicks: number;
 }
 
-const Counter = (props: iCounter) => (
+const Counter = (model: iCounter) => (
   <div>
     <div>Count: {clicks}</div>
     <button onClick={clicks++}>Click me</button>
@@ -225,11 +225,11 @@ const Counter: Uses<iCounter> = ({ clicks }) => (
 
 const CounterList: Uses<iCounter[]> = (counters) => (
   <div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 ```
 
-This annotates the props within the function, and elsewhere such as during nesting and mounting.
+This annotates the model within the function, and elsewhere such as during nesting and mounting.
 
 The `Uses` type also lets us annotate controllers and methods as we'll see later.

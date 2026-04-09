@@ -4,16 +4,16 @@ sidebar:
   order: 9
 ---
 
-Component functions can specify a second parameter after **props** called **xargs**:
+Component functions can specify a second parameter after **model** called **xargs**:
 
 ```tsx
-const Counter = (props, xargs) => <div></div>;
+const Counter = (model, xargs) => <div></div>;
 ```
 
 However it must always be destructured:
 
 ```jsx
-const Counter = (props, { ctrl }) => <div></div>;
+const Counter = (model, { hub }) => <div></div>;
 ```
 
 Bear in mind component functions are dismantled during compilation, and never get called, so these aren't real parameter. They just make things available to use in the JSX expression.
@@ -32,8 +32,8 @@ const Counter = (_, { element }) => (
 );
 
 const print = (element) => console.log(element.tagName);
-// Prints: 
-"BUTTON"
+// Prints:
+("BUTTON");
 ```
 
 It always refers to the element where it is used, meaning you can use it in multiple places:
@@ -47,9 +47,9 @@ const Counter = (_, { element }) => (
 );
 
 const print = (element) => console.log(element.tagName);
-// Prints: 
-"BUTTON"
-"SPAN"
+// Prints:
+("BUTTON");
+("SPAN");
 ```
 
 If you need to make the element of a specific type, do it at point of use rather than in the signature:
@@ -57,10 +57,10 @@ If you need to make the element of a specific type, do it at point of use rather
 ```tsx
 const Counter = (_, { element }) => (
   <div>
-    <imr src="/icon.jpg" 
+    <imr src="/icon.jpg"
        apply={printSrc(element as HTMLImageElement)}
     />
-    <a href="/" 
+    <a href="/"
       apply={printHref(element as HTMLAnchorElement)}
     ></span>
   </div>
@@ -86,8 +86,8 @@ const Counter = (_, { event }) => (
 );
 
 const print = (event) => console.log(event.type);
-// Prints: 
-"click"
+// Prints:
+("click");
 ```
 
 Like `element` it always refers to the event where it is used, meaning you can use it in multiple places, and assign different types:
@@ -119,40 +119,40 @@ const Counter = ({ count }, { self }) => (
 Unfortunately we can't use `this` in arrow functions, which makes it a bit annoying transitioning from code in JSX and code in methods, where you need to use `this`:
 
 ```js
-Counter.methods.render = function (props) {
-  this.props = props;
+Counter.methods.render = function (model) {
+  this.model = model;
   this.update();
-}
+};
 ```
 
-### props
+### model
 
-The props as a complete object, which is useful as the original props is usually destructured:
+The model as a complete object, which is useful as the original model is usually destructured:
 
 ```tsx
-const Counter = ({ count, id }, { props }) => (
+const Counter = ({ count, id }, { model }) => (
   <div>
     <span>Count: {count}</span>
-    <button onClick={removeCounter(props)}>Remove</button>
+    <button onClick={removeCounter(model)}>Remove</button>
   </div>
 );
 ```
 
-This does not result in the props getting passed into the function twice - as there is no function. Both get compiled to access the `props` property of the component.
+This does not result in the model getting passed into the function twice - as there is no function. Both get compiled to access the `model` property of the component.
 
-Note that you generally want to avoid passing the entire props object to external functions, as it may not be the object you think it is, particularly if using `watch`. Try to rely on identifying keys instead.
+Note that you generally want to avoid passing the entire model object to external functions, as it may not be the object you think it is, particularly if using `watch`. Try to rely on identifying keys instead.
 
 Note that you cannot destructure any xarg.
 
-### ctrl
+### hub
 
-The controller:
+The hub:
 
 ```jsx
-const Counter = ({ count, id }, { ctrl }) => (
+const Counter = ({ count, id }, { hub }) => (
   <div>
     <span>Count: {count}</span>
-    <button onClick={ctrl.removeCounter(id)}>Remove</button>
+    <button onClick={hub.removeCounter(id)}>Remove</button>
   </div>
 );
 ```

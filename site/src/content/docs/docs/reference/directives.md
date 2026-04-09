@@ -88,7 +88,7 @@ By defaults it listens to the `change` event, but you can specify a different on
 const MyComponent = ({ name }) => <input type="text" bind:keyup={name} />;
 ```
 
-Note that destructured props are converted to member expressions, so these examples
+Note that destructured model are converted to member expressions, so these examples
 work even though it looks like you're setting a local variable.
 
 ### class
@@ -120,15 +120,15 @@ Shorthand for `fixed:class`:
 
 See also: [fixed](#fixed).
 
-### ctrl
+### hub
 
-Specifies an alternative `ctrl` for nested or repeated components, which would otherwise get the parent's `ctrl`:
+Specifies an alternative `hub` for nested or repeated components, which would otherwise get the parent's `hub`:
 
 ```jsx
 <div>
-  <MyComponent ctrl={altController} />
+  <MyComponent hub={altController} />
   <div>
-    <MyComponent.repeat props={item} ctrl={altController} />
+    <MyComponent.repeat models={item} hub={altController} />
   </div>
 </div>
 ```
@@ -144,7 +144,7 @@ Sets the value of an attribute at point of component definition:
 </div>
 ```
 
-As the expression is evaluated once before any component is created, it cannot access the component or props.
+As the expression is evaluated once before any component is created, it cannot access the component or model.
 
 It is useful when setting a string would take up too much space in the JSX.
 
@@ -202,10 +202,10 @@ Specifies a key for repeated components, creating an association between the key
 
 ```jsx
 <div>
-  <MyComponent.repeat props={item} key="id" />
+  <MyComponent.repeat models={item} key="id" />
 </div>
 <div>
-  <MyComponent.repeat props={item} key={(x) => x.id}/>
+  <MyComponent.repeat models={item} key={(x) => x.id}/>
 </div>
 ```
 
@@ -215,11 +215,11 @@ If key is not specified, the components are reused sequentially, which is perfor
 
 ### items
 
-Specifies the items to be repeated, which must be an array of the props that component expects:
+Specifies the items to be repeated, which must be an array of the model that component expects:
 
 ```jsx
 <div>
-  <MyComponent.repeat props={item} />
+  <MyComponent.repeat models={item} />
 </div>
 ```
 
@@ -250,12 +250,12 @@ component.part.title.update();
 
 This will update all elements underneath, as if you had called `update` taking into account visibility toggles from `if`, `show`, `hide` etc.
 
-### props
+### model
 
-Sets the props for a nested component:
+Sets the model for a nested component:
 
 ```jsx
-<MyComponent props={foo} />
+<MyComponent model={foo} />
 ```
 
 For repeated components use items instead.

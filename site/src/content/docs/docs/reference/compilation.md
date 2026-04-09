@@ -17,9 +17,9 @@ const Counter = ({ count }) => (
 And replaces them with component definitions generated from the JSX, which equate to something like this:
 
 ```tsx
-function Counter () {
+function Counter() {
   // generated code
-};
+}
 Counter.prototype = {
   // generated code
 };
@@ -54,7 +54,7 @@ There are two rule concerning JSX:
 - JSX is only allowed in functions which contain (and return) a single JSX expression and nothing else.
 - No JavaScript is allowed in the function body, except in JSX placeholders, so long as it doesn't return further JSX.
 
-Note that the original function with JSX is completely replaced, and therefore never runs. It is just a placeholder for a JSX expression enclosed in a scope with the variables it will need. The JSX only needs to be returned for TypeScript reasons. 
+Note that the original function with JSX is completely replaced, and therefore never runs. It is just a placeholder for a JSX expression enclosed in a scope with the variables it will need. The JSX only needs to be returned for TypeScript reasons.
 
 Here are some examples of invalid code:
 
@@ -92,43 +92,31 @@ If you're used to React you might be wondering how you get anything done with th
 
 The function may specify 2 parameters, both of which are optional:
 
-- `props` - the data passed into the component.
+- `model` - the data passed into the component.
 - `xargs` - provides access to extras you might need, such as:
   - A reference to the component instance (`self` as `this` isn't allowed in arrow functions)
-  - A reference to the controller (`ctrl`)
+  - A reference to the hub (`hub`)
 
 If `xargs` is used, it must be the 2nd argument, and must be destructured. So all of the following are valid:
 
 ```tsx
-const Counter = () => (
-  <div>...</div>
-);
+const Counter = () => <div>...</div>;
 
-const Counter = (props, { self, ctrl }) => (
-  <div>...</div>
-);
+const Counter = (model, { self, hub }) => <div>...</div>;
 
-const Counter = ({ name }, { self, ctrl }) => (
-  <div>...</div>
-);
+const Counter = ({ name }, { self, hub }) => <div>...</div>;
 
-const Counter = (_, { self, ctrl }) => (
-  <div>...</div>
-);
+const Counter = (_, { self, hub }) => <div>...</div>;
 ```
 
 But the following are not valid:
 
 ```tsx
 // xargs must be destructured
-const Counter = (_, xargs) => (
-  <div>...</div>
-);
+const Counter = (_, xargs) => <div>...</div>;
 
 // Only 2 args allowed
-const Counter = (props, { self, ctrl }, whatever) => (
-  <div>...</div>
-);
+const Counter = (model, { self, hub }, whatever) => <div>...</div>;
 ```
 
-Note the use of `_` when `props` are not used, but `xargs` is.
+Note the use of `_` when `model` are not used, but `xargs` is.

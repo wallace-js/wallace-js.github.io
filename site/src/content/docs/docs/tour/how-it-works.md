@@ -99,8 +99,8 @@ Another advantage of using `createComponent` instead of `new Counter()` is that 
 The `render` method looks like this:
 
 ```tsx
-function render(props) {
-  this.props = props;
+function render(model) {
+  this.model = model;
   this.update();
 }
 ```
@@ -109,7 +109,7 @@ Which means we can update a component without calling `render`:
 
 ```js
 counter.render({ clicks: 0 });
-counter.props.clicks++;
+counter.model.clicks++;
 counter.update();
 ```
 
@@ -133,9 +133,9 @@ That's fine for a toy app, but in the real world we'd want more localised update
 ```jsx
 import { mount } from "wallace";
 
-const CounterListApp = (props) => (
+const CounterListApp = (model) => (
   <div>
-    <CounterList.repeat props={props} />
+    <CounterList.repeat models={model} />
   </div>
 );
 
@@ -147,14 +147,14 @@ mount("main", CounterListApp, [
 
 We want each `CounterList` to update itself, not `CounterListApp`, when its array of counters is modified. The problem is that we don't have a references to them, which is the same predicament we land in when components are functions as they are in React, and we'd need to use a weird hack like hooks.
 
-We want each `CounterList` to update itself when its props are modified, which we can do by overriding the `render` method to set its props to a reactive copy of the props passed in:
+We want each `CounterList` to update itself when its model are modified, which we can do by overriding the `render` method to set its model to a reactive copy of the model passed in:
 
 ```js
 import { watch } from "wallace";
 
 CounterList.methods = {
   render(counters) {
-    this.props = watch(counters, () => this.update());
+    this.model = watch(counters, () => this.update());
     this.update();
   },
 };
@@ -191,7 +191,7 @@ CounterList.prototype.render = function (counters) {
 import { watch } from "wallace";
 
 CounterList.prototype.render = function (counters) {
-  this.props = watch(counters, () => this.update());
+  this.model = watch(counters, () => this.update());
   this.update();
 };
 ```
@@ -203,7 +203,7 @@ In React you'd need
 During the life cycle of the page:
 
 - `App` renders and updates once.
-- Each `CounterList` renders once, but updates every time its props change.
+- Each `CounterList` renders once, but updates every time its model change.
 - Each `Counter` renders and updates many times.
 
 However `render` gets called on `Counter` every time its containing `CounterList` updates. Component never calls `update` on ne component, it always calls `ren calls `up inside `render`
@@ -234,11 +234,11 @@ Which means there are three ways to update a component:
 ```js
 // 1. Using render:
 counter.render({ clicks: 1 });
-// 2. Assigning new props:
-counter.props = { clicks: 1 };
+// 2. Assigning new model:
+counter.model = { clicks: 1 };
 counter.update();
-// 3. Modifying props in place:
-counter.props.clicks++;
+// 3. Modifying model in place:
+counter.model.clicks++;
 counter.update();
 ```
 
@@ -262,10 +262,10 @@ document.body.appendChild(component.el);
 component.render([{clicks: 0}, {clicks: 0});
 ```
 
-And seeing as `root.props` and `counters` are the same object,we could do this:
+And seeing as `root.model` and `counters` are the same object,we could do this:
 
 ```tsx
-root.props[1].clicks = 1;
+root.model[1].clicks = 1;
 root.update();
 ```
 
@@ -289,13 +289,13 @@ root.render(counters);
 
 d, but in a weird twist, it actually helps make your code safer.
 
-If you only ever call `render` then components are as good as stateless and you'd never know about `props` and `update`. The only risk is if you mo
+If you only ever call `render` then components are as good as stateless and you'd never know about `model` and `update`. The only risk is if you mo
 
 You'd only call `update` on certain high-level components. During `update` the component calls `render` on its nested components. In fact, Wallace only calls `update` from `render` as shown above.
 
 , which call `render` on nested components.
 
-And `render` sets the `props`
+And `render` sets the `model`
 
 The `update` method calls `render`
 
@@ -317,7 +317,7 @@ The component object is
 
 ```js
 component.el;
-component.props;
+component.model;
 component.render({ clicks: 0 });
 component.update();
 
@@ -356,7 +356,7 @@ root.render(readonlyCounters);
 So you get safety where you need safety and reactivity where you need reactivity. You can also use these alongside each other:
 
 ```tsx
-const props = {
+const model = {
   state: watch(state, root.update()),
   data: protect(data),
 };
@@ -380,7 +380,7 @@ This makes it really easy to transition from one to the other, which is is quite
 You can also have both side by side:
 
 ```tsx
-const props = {
+const model = {
   state: watch(state, root.update()),
   data: protect(data),
 };
@@ -389,7 +389,7 @@ const props = {
 Or use different callbacks for different parts of the data:
 
 ```tsx
-const props = {
+const model = {
   state: watch(state, root.update()),
   dialogState: watch(dialogState, dialog.update()),
   data: protect(data),
@@ -405,7 +405,7 @@ All you need to do is update the correct components after
 
 ```tsx
 const root = mount("main", CounterList, []);
-root.props.push({ clicks: 0 });
+root.model.push({ clicks: 0 });
 root.update();
 ```
 
@@ -488,13 +488,13 @@ There's nothing magic, no virtual DOM, no hidden engine or run time complexity -
 
 ## Updates
 
-It also tells us we could override `render` for a given component and modify its props before calling `udpate`, for example to add functions:
+It also tells us we could override `render` for a given component and modify its model before calling `udpate`, for example to add functions:
 
 ```tsx
 const CounterList = ({ counters, incrementAll, total }) => (
   <div>
     <div>
-      <Counter.repeat props={counters} />
+      <Counter.repeat models={counters} />
     </div>
     <button onClick={incrementAll()}>All +1</button>
     <div>Total: {total()}</div>
@@ -502,7 +502,7 @@ const CounterList = ({ counters, incrementAll, total }) => (
 );
 
 CounterList.prototype.render = function (counters) {
-  this.props = {
+  this.model = {
     counters: counters,
     incrementAll: () => counters.forEach((c) => c.clicks++),
     total: () => counters.reduce((a, c) => a + c.clicks, 0),
@@ -519,7 +519,7 @@ import { mount, watch } from "wallace";
 CounterList.prototype.render = function (counters) {
   const update = () => this.update();
   const countersProxy = watch(counters, update);
-  this.props = {
+  this.model = {
     counters: countersProxy,
     incrementAll: () => countersProxy.forEach((c) => c.clicks++),
     total: () => counters.reduce((a, c) => a + c.clicks, 0),
@@ -565,7 +565,7 @@ import { watch } from "wallace";
 
 CounterList.prototype.render = function (counters) {
   const update = () => this.update();
-  this.props = {
+  this.model = {
     counters: watch(counters, update),
     incrementAll: () => {
       counters.forEach((c) => c.clicks++);
@@ -585,13 +585,13 @@ This form of repeat reuses components sequentially, which may cause issues with 
 ```tsx
 const TaskList = (tasks) => (
   <div>
-    <Task.repeat props={tasks} key="id" />
+    <Task.repeat models={tasks} key="id" />
   </div>
 );
 
 const TaskList = (tasks) => (
   <div>
-    <Task.repeat props={tasks} key={(x) => x.id} />
+    <Task.repeat models={tasks} key={(x) => x.id} />
   </div>
 );
 ```
@@ -611,7 +611,7 @@ const counters = [{ clicks: 0 }, { clicks: 0 }];
 mount("main", CounterList, counters);
 ```
 
-> `mount` passes `counters` as the props to `CounterList` which then nests a `Counter` for every item in `counters`.
+> `mount` passes `counters` as the model to `CounterList` which then nests a `Counter` for every item in `counters`.
 
 Your page should now display two click counters:
 

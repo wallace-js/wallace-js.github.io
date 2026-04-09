@@ -43,21 +43,19 @@ The function body must be a single JSX expression, returned, and nothing else.
 
 The function takes two arguments, both optional:
 
-1. **props** - which *may* be destructured.
-2. **xargs** - which *must* be destructured to exactly one level, as shown:
+1. **model** - which _may_ be destructured.
+2. **xargs** - which _must_ be destructured to exactly one level, as shown:
 
 ```tsx
-const MyComponent = ({title}, {ctrl, event}) => (
-  <button onClick={ctrl.doSomething(event)}>
-    {title}
-  </button>
+const MyComponent = ({ title }, { hub, event }) => (
+  <button onClick={hub.doSomething(event)}>{title}</button>
 );
 ```
 
 The **xargs** contains:
 
-- `ctrl` refers to the controller.
-- `props` refers to the props, in case you want the non-destructured version too.
+- `hub` refers to the hub.
+- `model` refers to the model, in case you want the non-destructured version too.
 - `self` refers to the component instance (as `this` is not allowed).
 - `event` refers to the event in an event callback.
 - `element` refers to the element in an event callback, or in `apply`.

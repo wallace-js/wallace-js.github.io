@@ -126,7 +126,7 @@ module.exports = {
       "babel-plugin-wallace",
       {
         flags: {
-          allowCtrl: true,
+          allowHub: true,
           allowStubs: false,
         },
       },
@@ -148,30 +148,30 @@ List of feature flags:
 Adds the `base` property to components:
 
 ```js
-Counter.prototype.render = function (props) {
-  this.base.render.call(this, props);
+Counter.prototype.render = function (model) {
+  this.base.render.call(this, model);
 };
 ```
 
 Note that `base` is not the same as `super` which is used in classes.
 
-#### allowCtrl
+#### allowHub
 
-Enables the `ctrl` property in components, so that the `render` method looks like this:
+Enables the `hub` property in components, so that the `render` method looks like this:
 
 ```js
-function render(props, ctrl) {
-  this.props = propsl;
-  this.ctrl = ctrl;
+function render(model, hub) {
+  this.model = model;
+  this.hub = hub;
   this.update();
 }
 ```
 
-Helper functions which forward `props` to `render` (such as `mount` and `createComponent`) now forward `ctrl` as well:
+Helper functions which forward `model` to `render` (such as `mount` and `createComponent`) now forward `hub` as well:
 
 ```js
-mount(element, def, props, ctrl);
-createComponent(def, props, ctrl);
+mount(element, def, model, hub);
+createComponent(def, model, hub);
 ```
 
 #### allowMethods
@@ -180,8 +180,8 @@ Add the `methods` property to component definitions:
 
 ```js
 Counter.methods = {
-  render(props) {
-    this.base.render.call(this, props);
+  render(model) {
+    this.base.render.call(this, model);
   },
   doSomething() {
     console.log("something");
@@ -192,10 +192,10 @@ Counter.methods = {
 You can always create or override methods via the prototype:
 
 ```js
-Counter.prototype.render = function (props) {
-  this.base.render.call(this, props);
+Counter.prototype.render = function (model) {
+  this.base.render.call(this, model);
 };
-Counter.prototype.doSomething = function (props) {
+Counter.prototype.doSomething = function (model) {
   console.log("something");
 };
 ```
@@ -209,7 +209,7 @@ const CounterList () => (
   <div>
     <div part:stats>Total: {total}</div>
     <div>
-      <Counter.repeat props={counters} />
+      <Counter.repeat models={counters} />
     </div>
   </div>
 );
@@ -223,7 +223,7 @@ Allows you to place a repeater under a node with other children:
 const CounterList ({ total, counters }) => (
   <div>
     <div>Total: {total}</div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 ```
@@ -235,7 +235,7 @@ const CounterList ({ total, counters }) => (
   <div>
     <div>Total: {total}</div>
     <div>
-      <Counter.repeat props={counters} />
+      <Counter.repeat models={counters} />
     </div>
   </div>
 );

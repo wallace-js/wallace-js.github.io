@@ -22,9 +22,9 @@ And special syntax for nesting and repeating:
 ```tsx
 const CounterList = (counters) => (
   <div>
-    <Counter props={counters[0]} />
+    <Counter model={counters[0]} />
     <div>
-      <Counter.repeat props={counters} />
+      <Counter.repeat models={counters} />
     </div>
   </div>
 );

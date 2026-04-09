@@ -109,7 +109,7 @@ const Counter = ({ clicks }) => (
 
 const CounterList = (counters) => (
   <div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 
@@ -164,7 +164,7 @@ const CounterList = (counters) => (
     <div part:stats>
       Total: {total(counters)}
     </div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 
@@ -184,8 +184,8 @@ import { extendComponent } from 'wallace';
 
 const CounterList = (counters) => (
   <div>
-    <stub.stats props={counters} />
-    <Counter.repeat props={counters} />
+    <stub.stats model={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 
@@ -213,7 +213,7 @@ const highest = (counters) => (
 const CounterList = (counters) => (
   <div>
     <stub.stats>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
     <canvas ref:chart />
   </div>
 );
@@ -237,7 +237,7 @@ const CounterList = (counters) => (
   <div>
     <div total:clicks={counters}>
     </div>
-    <Counter.repeat props={counters} />
+    <Counter.repeat models={counters} />
   </div>
 );
 `}

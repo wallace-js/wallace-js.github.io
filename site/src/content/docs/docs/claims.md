@@ -47,8 +47,8 @@ These frameworks tend not to bother submitting a non-keyed implementation to the
 Other frameworks such as Wallace operate in either mode, depending on how you set up the repeat instruction:
 
 ```jsx
-<Row.repeat props={items} />           // non-keyed
-<Row.repeat props={items} key="id" />  // keyed
+<Row.repeat models={items} />           // non-keyed
+<Row.repeat models={items} key="id" />  // keyed
 ```
 
 These may use different algorithms, resulting in a performance difference, and so tend to submit both keyed and non-keyed implementations to the benchmarks.

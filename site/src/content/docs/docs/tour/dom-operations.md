@@ -46,8 +46,8 @@ const Counter = ({ clicks }) => (
 And then override the `render` method on the prototype:
 
 ```jsx
-Counter.prototype.render = function (props) {
-  this.ref.count.textContent = props.clicks * 3;
+Counter.prototype.render = function (model) {
+  this.ref.count.textContent = model.clicks * 3;
 };
 ```
 
@@ -70,10 +70,10 @@ Nested and repeated components work a bit differently:
 ```jsx
 const CounterList = (counters) => (
   <div>
-    <Counter props={counters[0]} />
+    <Counter model={counters[0]} />
     <hr/>
     <div>
-   	  <Counter.repeat props={counters.slice(1)} />
+   	  <Counter.repeat models={counters.slice(1)} />
     </div>
   </div>
 );
@@ -92,13 +92,13 @@ The `<Counter.repeat />` is a bit different as it attaches itself to its parent 
 By default it uses a sequential
 
 ```jsx
-<Counter.repeat props={counters} key="id" />
+<Counter.repeat models={counters} key="id" />
 ```
 
 You can provide your own repeater:
 
 ```jsx
-<Counter.repeat props={counters} repeater={MyRepeater} />
+<Counter.repeat models={counters} repeater={MyRepeater} />
 ```
 
 in that it skips them if they, or a parent element, is hidden or excluded by directives like `show`, `hide` or `if`.
@@ -109,7 +109,7 @@ and calls its `render` method instead of a DOM operation like `textContent`.
 
 The `CounterList` updates its own DOM as described above, and treats `Counter.repeat` (or rather its parent node) as a normal element
 
-and used a _repeater_ to create an instance of `Counter` for each item in `counters` and call their `render` methods (passing the item as props) then attached their DOM to the `<div>` element.
+and used a _repeater_ to create an instance of `Counter` for each item in `counters` and call their `render` methods (passing the item as model) then attached their DOM to the `<div>` element.
 
 And that's it. No global state, no special "app" or "root" object, no "engine" (other than the repeater's algorithm) and no virtual DOM.
 
@@ -137,7 +137,7 @@ root.render(counters);
 
 > You should now see two click counters on the page.
 
-The `CounterList` updated its own DOM, and used a _repeater_ to create an instance of `Counter` for each item in `counters` and call their `render` methods (passing the item as props) then attached their DOM to the `<div>` element.
+The `CounterList` updated its own DOM, and used a _repeater_ to create an instance of `Counter` for each item in `counters` and call their `render` methods (passing the item as model) then attached their DOM to the `<div>` element.
 
 And that's it. No global state, no special "app" or "root" object, no "engine" (other than the repeater's algorithm) and no virtual DOM.
 
@@ -157,4 +157,4 @@ And that's how simple Wallace is:
 
 There are only components controlling the page. There's no hidden engine, special root object, or global state. This makes things very simple and easy to reason with.
 
-Now let's see what `props` and `update` do.
+Now let's see what `model` and `update` do.

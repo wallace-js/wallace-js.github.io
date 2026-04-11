@@ -186,7 +186,7 @@ Hovering over a directives in the JSX shows you how to use that directive.
 
 Hovering over the module import shows a complete cheat sheet, which means you can look up 99% of docs without leaving your IDE.
 
-#### Props
+#### Models
 
 You will also get type documentation for model and other bits if you use TypeScript.
 

@@ -1,97 +1,21 @@
 ---
-title: Configuration
+title: Flags
 sidebar:
-  order: 2
+  order: 30
 ---
 
-You'll need to configure Babel, your bundler and Wallace itself.
+The Babel plugin accepts flags which toggle certain features. At present all features are enabled by default, and the only two reason you'd want to disable any are:
 
-## Babel configuration
+- Reducing bundle size.
+- Performance optimisation.
 
-Your project needs a bundler (such as [webpack](https://webpack.js.org/)) to transform and compile your code, and you need to tell the bundler which Babel plugins to use.
+These are covered in [performance](/docs/ref/performance).
 
-The best place to specify your plugins is in a **babel.config.cjs** file at the root of your project, which needs the following plugins:
 
-```js
-module.exports = {
-  plugins: ["babel-plugin-wallace", "@babel/plugin-syntax-jsx"],
-};
-```
 
-Note that plugin order matters - see [Babel plugin docs](https://babeljs.io/docs/plugins).
 
-The advantage of putting your plugins in this file is that it gets picked up by things other than your bundler, such as your test runner. It also allows you to run `babel` directly over a file, which can be useful for debugging more serious issues:
 
-```
-npx babel src/index.tsx
-```
-
-Note that Babel transforms individual files, it doesn't process imports or bundle them.
-
-You should be able to tell your bundler to read from your **babel.config.cjs** to avoid duplication, which will just cause pain.
-
-## Bundler configuration
-
-You need to configure your bundler to:
-
-1. Load the plugins.
-2. Apply them to:
-   1. Source files which contain component definitions.
-   2. The source files in the wallace library, which will be in your **node_modules**, however, you should not apply them to other files in **node_modules**.
-3. Display useful source maps.
-
-How you do this is specific to your bundler. Here is an example **webpack.config.js**:
-
-```js
-const path = require("path");
-
-const config = {
-  entry: "./src/index.tsx",
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "index.js",
-  },
-  resolve: {
-    extensions: [".js", ".jsx", ".tsx", ".ts"],
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(js|jsx|ts|tsx)$/,
-        exclude: /node_modules\/(?!(wallace)\/).*/,
-        use: [
-          {
-            // loads from webpack.config.js
-            loader: "babel-loader",
-          },
-        ],
-      },
-    ],
-  },
-};
-
-module.exports = function () {
-  config.mode = process.env.NODE_ENV || "development";
-  if (config.mode === "production") {
-    config.optimization = {
-      minimize: true,
-    };
-  } else {
-    config.devtool = "eval-source-map";
-    // alternative
-    // config.devtool = "inline-source-map";
-  }
-  return config;
-};
-```
-
-If using different bundler such as [vite](https://vite.dev/) or [parcel](https://parceljs.org/) then you will need to adjust accordingly.
-
-## Wallace configuration
-
-### Feature flags
-
-You can shave a few bytes off your bundle, or get a very small performance boost by disabling features you don't use. Wallace is tiny and insanely fast as it is, and the gains are really small, so this is only something you need special cases.
+, or get a very small performance boost by disabling features you don't use. Wallace is tiny and insanely fast as it is, and the gains are really small, so this is only something you need special cases.
 
 If you load the plugin without options:
 
@@ -228,7 +152,7 @@ const CounterList ({ total, counters }) => (
 );
 ```
 
-Otherwise you;d need to place it under another node on its own:
+Otherwise you'd need to place it under another node on its own:
 
 ```jsx
 const CounterList ({ total, counters }) => (

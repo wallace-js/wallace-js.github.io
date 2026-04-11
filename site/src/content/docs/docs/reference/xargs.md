@@ -1,24 +1,20 @@
 ---
 title: Xargs
 sidebar:
-  order: 9
+  order: 7
 ---
 
-Component functions can specify a second parameter after **model** called **xargs**:
-
-```tsx
-const Counter = (model, xargs) => <div></div>;
-```
-
-However it must always be destructured:
+Component functions can specify a second parameter after **model** called **xargs**, which contains various useful things, and must always be destructured:
 
 ```jsx
-const Counter = (model, { hub }) => <div></div>;
+const Counter = (model, { hub, stub }) => <div></div>;
 ```
+
+You currently cannot destructure an individual xarg (like `stub`) further.
 
 Bear in mind component functions are dismantled during compilation, and never get called, so these aren't real parameter. They just make things available to use in the JSX expression.
 
-Here are the available xargs:
+## List of Xargs
 
 ### element
 
@@ -157,4 +153,16 @@ const Counter = ({ count, id }, { hub }) => (
 );
 ```
 
-Note that you cannot destructure any xarg.
+### stub
+
+This xarg is only here for type support.
+
+```tsx
+const Counter = ({ count }, { model, stub }) => (
+  <div>
+    <span>Count: {count}</span>
+    <stub.button model={model} />
+  </div>
+);
+```
+

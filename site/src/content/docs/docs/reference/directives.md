@@ -1,37 +1,29 @@
 ---
 title: Directives
 sidebar:
-  order: 7
+  order: 10
 ---
 
-## Tool tips
+Directives are attributes which do things.
 
-A list of all directives is available on the tool tip for JSX elements:
-
-![Tool tip on JSX element](/img/div-tooltip.jpg)
-
-The listing shown is the same no matter which element you hover on.
-
-Custom directives do not show up in this list.
-
-Each directive has own tool tip with more detailed usage, however this won't display if the directive uses a qualifier:
+Each directive has own tool tip, however this won't display if the directive uses a qualifier. A trick you can use to show the tool tip  (works in VSCode and similar editors) is to add a `.` before the `:` which has the added bonus of breaking things which reminds you to remove it:
 
 ```tsx
 const Counter = ({ foo }) => (
   <div>
-    {/* Tool tip */}
+    {/* Tool tip will be visible */}
     <input bind={foo}>
     {/* No tool tip */}
     <input bind:keyup={foo}>
     {/* Still no tool tip */}
     <input bind  :keyup={foo}>
     {/* Temporary hack to show tool tip for bind */}
-    <input bind x_:keyup={foo}>
+    <input bind.:keyup={foo}>
   </div>
 );
 ```
 
-## Directives
+## Built-in directives
 
 ### apply
 
@@ -47,6 +39,42 @@ const Counter = ({ count }, { element }) => (
 const setStyle = (count, element) =>
   (element.style.color = count > 2 ? "red" : "black");
 ```
+
+### assign
+
+Assigns the component instance to a property during `render` by altering the `set` method.
+
+You can either supply an expression:
+
+```tsx
+const MyComponent = ({ id }, { hub }) => (
+  <div assign={hub.register[id]}>
+  </div>
+);
+
+// Results in:
+function set(model, hub) {
+  hub.register[id] = this;
+}
+```
+
+Or a qualifier, which is treated as a field on the model:
+
+```tsx
+const MyComponent = () => (
+  <div assign:c>
+  </div>
+);
+
+// Results in:
+function set(model, hub) {
+  model.c = this;
+}
+```
+
+Be careful not to assign to a watched property which updates this component or a parent, as that will create an infinite loop.
+
+May only be used on the root element.
 
 ### bind
 
@@ -91,6 +119,34 @@ const MyComponent = ({ name }) => <input type="text" bind:keyup={name} />;
 Note that destructured model are converted to member expressions, so these examples
 work even though it looks like you're setting a local variable.
 
+### bind-as
+
+Set input type and binding to the property you likely want for that input type:
+
+```tsx
+<input bind-as:checkbox={foo} />
+<input bind-as:date={foo} />
+<input bind-as:number={foo} />
+<input bind-as:range={foo} />
+```
+
+Is the equivalent of this:
+
+```tsx
+<input type="checkbox" bind:checked={foo} />
+<input type="date" bind:valueAsDate={foo} />
+<input type="number" bind:valueAsNumber={foo} />
+<input type="range" bind:valueAsNumber={foo} />
+```
+
+Other types like `month`, `time` and `datetime-local` are not supported as they don't use the properties you'd expect.
+
+Like `bind` it watches the `change` event, but you can specify a different one with the `event` directive:
+
+```tsx
+<input bind-as:range={foo} event:input />
+```
+
 ### class
 
 Without a qualifier this acts as a normal attribute setting the `class` attribute of the element:
@@ -120,19 +176,6 @@ Shorthand for `fixed:class`:
 
 See also: [fixed](#fixed).
 
-### hub
-
-Specifies an alternative `hub` for nested or repeated components, which would otherwise get the parent's `hub`:
-
-```jsx
-<div>
-  <MyComponent hub={altController} />
-  <div>
-    <MyComponent.repeat models={item} hub={altController} />
-  </div>
-</div>
-```
-
 ### fixed
 
 Sets the value of an attribute at point of component definition:
@@ -149,6 +192,10 @@ As the expression is evaluated once before any component is created, it cannot a
 It is useful when setting a string would take up too much space in the JSX.
 
 See also: [css](#css).
+
+### help
+
+No effect. Only used for its tool tip which displays a cheat sheet including a list of directives.
 
 ### hide
 
@@ -179,6 +226,19 @@ Set the element's `innnerHTML` property:
 </div>;
 
 const getDivContents = () => "<span>hello</span>";
+```
+
+### hub
+
+Specifies an alternative `hub` for nested or repeated components, which would otherwise get the parent's `hub`:
+
+```jsx
+<div>
+  <MyComponent hub={altController} />
+  <div>
+    <MyComponent.repeat models={item} hub={altController} />
+  </div>
+</div>
 ```
 
 ### if
@@ -213,13 +273,23 @@ The string option is a tad more efficient.
 
 If key is not specified, the components are reused sequentially, which is performs better but may cause issues if anything else, such as animation libraries or event handlers, track the DOM elements.
 
-### items
+### model
 
-Specifies the items to be repeated, which must be an array of the model that component expects:
+Sets the model for a nested component:
+
+```jsx
+<MyComponent model={foo} />
+```
+
+For repeated components use `models` instead.
+
+### models
+
+Sets the model for repeated nested component:
 
 ```jsx
 <div>
-  <MyComponent.repeat models={item} />
+  <MyComponent.repeat models={items} />
 </div>
 ```
 
@@ -249,16 +319,6 @@ component.part.title.update();
 ```
 
 This will update all elements underneath, as if you had called `update` taking into account visibility toggles from `if`, `show`, `hide` etc.
-
-### model
-
-Sets the model for a nested component:
-
-```jsx
-<MyComponent model={foo} />
-```
-
-For repeated components use items instead.
 
 ### ref
 
@@ -336,6 +396,29 @@ A component definition creates its own DOM template at point of definition, and 
 
 With `unique` the component uses the component definition's DOM, thereby only creating it once.
 
+### watch
+
+Wraps the model in a `watch` call which updates the component by overriding the `set` method:
+
+```tsx
+function set(model, hub) {
+  this.model = watch(model, () => this.update());
+  this.hub = hub;
+}
+```
+
+You can provide a different callback to `watch`:
+
+```tsx
+const MyComponent = () => (
+  <div watch={(target, key, value) => foo()}></div>
+);
+```
+
+For more complex use cases, import the `watch` function and use it in an overridden `render` method.
+
+May only be used on the root element.
+
 ## Custom directives
 
 You can customise the behaviour of directives or define new ones.
@@ -383,7 +466,6 @@ module.exports = {
     [
       "babel-plugin-wallace",
       {
-        flags: {},
         directives: [ColorDirective],
       },
     ],

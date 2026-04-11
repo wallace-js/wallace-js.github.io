@@ -1,7 +1,7 @@
 ---
 title: "Components"
 sidebar:
-  order: 5
+  order: 4
 ---
 
 Wallace controls the DOM with components, which you define as functions that return JSX:

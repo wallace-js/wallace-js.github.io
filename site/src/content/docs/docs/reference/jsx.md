@@ -1,7 +1,7 @@
 ---
 title: JSX
 sidebar:
-  order: 4
+  order: 7
 ---
 
 Instead of placing logic _around_ elements, you control structure from _within_ elements using directives (attributes with special behaviour) like `if`:
@@ -30,6 +30,4 @@ const CounterList = (counters) => (
 );
 ```
 
-But you don't need to remember all this. JSX elements have a tool tip which reminds you of syntax rules and lists the available directives, which have their own tool tips detailing their usage:
-
-![Tool tip on JSX element](/img/div-tooltip.jpg)
+But you don't need to remember all this. JSX elements have a tool tip which reminds you of syntax rules and lists the available directives, which have their own tool tips detailing their usage.

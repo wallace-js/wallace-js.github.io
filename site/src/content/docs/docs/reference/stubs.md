@@ -1,5 +1,5 @@
 ---
-title: Router
+title: Stubs
 sidebar:
-  order: 8
+  order: 15
 ---

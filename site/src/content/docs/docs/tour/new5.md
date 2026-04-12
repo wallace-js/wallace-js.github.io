@@ -4,6 +4,76 @@ sidebar:
   order: 2
 ---
 
+
+
+## Faster Development
+
+- Logical
+- Compact
+- Help
+- No magic
+- Progressive control
+- Does less
+- Extendable
+- Gets out of the way
+- Freedom
+
+Capture the essence
+
+
+
+Wallace has a very simple architecture which you control with high-level syntax
+
+
+
+```tsx
+import { mount } from "wallace";
+
+const Counter = ({ clicks }) => (
+  <button onClick={clicks++}>{clicks}</button>
+);
+
+const CounterList = (counters) => (
+  <div watch>
+    <button onClick={counters.push({clicks: 0})}>
+      New
+    </button>
+    <Counter.repeat models={counters} />
+  </div>
+);
+
+mount('main', CounterList, []);
+```
+
+
+
+```tsx
+import { watch } from "wallace";
+
+const Counter = ({ clicks }) => (
+  <div>
+    {clicks}
+    <button onClick={clicks++}>++</button>
+  </div>
+);
+
+Counter.methods = {
+  render(model) {
+    this.model = watch(model, () => this.update());
+    this.update();
+  }
+}
+
+const component = new Counter();
+const target = document.getElementById('main')
+target.parentNode.replaceChild(component.el, target);
+component.render({clicks: 0});
+```
+
+
+
+
+
 ## Overview
 
 This tour explains how Wallace works, and how that helps you develop faster. To do this we're going to create an app to record the time spent on different activities throughout the day. You can code along in StackBlitz or follow the code here:

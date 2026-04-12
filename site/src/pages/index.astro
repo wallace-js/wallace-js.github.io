@@ -90,8 +90,134 @@ const hero = {
 
     <section>
       <h2>Faster development</h2>
-      <p>Wallace helps you develop faster by being:</p>
 
+      <p>Wallace feels like a sophisticated modern reactive framework:</p>
+      <Code
+        lang="tsx"
+        code={`
+import { mount } from 'wallace'; 
+
+const Counter = ({ count }) => (
+  <button onClick={count++}>{count}</button>
+);
+
+const CounterList = (counters) => (
+  <div watch>
+    Total: {counters.reduce((a, c) => a + c.count, 0)}
+    <button onClick={counters.push({ count: 1 })}> 
+      Add Counter
+    </button>
+    <Counter.repeat models={counters} />
+  </div>
+);
+
+mount('main', CounterList, []);`}
+      />
+      <p>
+        But such frameworks invariably add layers of indirection and constraints
+        which:
+      </p>
+      <ol>
+        <li>
+          <strong>Obscure</strong> their internal operations, which impedes debugging.
+        </li>
+        <li>
+          <strong>Restrict</strong> your control of the DOM, which can limit options
+          or affect performance.
+        </li>
+        <li>
+          <strong>Force</strong> awkard patterns, which complicates development.
+        </li>
+      </ol>
+
+      <p>
+        Wallace lets you progressively peel back these layers to reveal a very
+        simple architecture which you can fully interact with, resulting in:
+      </p>
+      <ol>
+        <li>
+          <strong>Transparent</strong> operations.
+        </li>
+        <li>
+          <strong>Freedom</strong> to override any behaviour.
+        </li>
+        <li>
+          <strong>Natural</strong> development patterns.
+        </li>
+      </ol>
+      <p>
+        These (plus other goodies) help you develop faster, and have more fun
+        doing so!
+      </p>
+      <!-- 
+        <p>Wallace avoids these problems by fully openening up architecture.</p>
+        Wallace is the only frameworks with a fully open architecture, which
+        solves these problems and a lot more!
+
+       slow you down in several ways:
+      <p>
+        Wallace isn't sophisticated. Behind its pretty syntax lies a really
+        crude architecture you have full access to, which has severeal
+        implications.
+      </p>
+
+      <h4>Visibility</h4>
+      <p>
+        Seeing exactly how and when each operation fires saves a lot of time
+        when debugging.
+      </p>
+
+      <h4>Simplicity</h4>
+      <p>
+        A simpler architecture results in simpler user code. you write simpler
+        and more intuitive code.
+      </p>
+
+      <h4>Freedom</h4>
+      <p>You cna see all the operations and you can control everything.</p>
+
+
+
+                <ol>
+          <li>You have full visibility of operations.</li>
+          <li>You can control everything.</li>
+          <li></li>
+        </ol>
+
+
+        Visibility
+
+        Control
+
+        Ease
+
+        
+          
+        Wallace avoids this by having a really dumb architecture.
+        with its unique design. Instead of a clever run time
+        engine, it compiles into a really dumb engine.
+
+        Wallace is the only framework with an open architecture which gives you
+        full control and visibility where needed.
+
+        
+        Wallace lets you peel back those layers to get progressively closer to
+        its underlying operations, giving you full visibility and control where
+        needed, avoiding the slow down caused by frameworks.
+        
+      <p>
+        That's just one way Wallace helps you develop faster. Read the tour to
+        find out more.
+      </p>
+      <ul>
+        <li>Hubs, stubs and other goodies</li>
+        <li>Documentation in your IDE</li>
+        <li>Extendable syntax</li>
+      </ul>
+      -->
+
+      <!-- 
+  <p>Wallace helps you develop faster by being:</p>
       <h4>1. Expressive</h4>
       Directives make JSX clean and compact:
 
@@ -140,19 +266,7 @@ mount('main', CounterList, [
 
       <p>As these waste time in the long run.</p>
 
-      <!-- 
-      Know exactly when and how components update. No magic. No confusion.
-
-      <Code
-        lang="tsx"
-        code={`
-const root = mount(
-  'main',
-  CounterList,
-  watch([{ clicks: 0 }], () => root.update())
-);
-`}
-      /> -->
+     
 
       <h4>4. Powerful</h4>
       <p>Run partial updates inside components:</p>
@@ -246,6 +360,22 @@ const CounterList = (counters) => (
         Directives operate during compilation, so adding more doesn't increase
         bundle size.
       </p>
+      TODO -->
+
+      <!-- 
+      Know exactly when and how components update. No magic. No confusion.
+
+      <Code
+        lang="tsx"
+        code={`
+const root = mount(
+  'main',
+  CounterList,
+  watch([{ clicks: 0 }], () => root.update())
+);
+`}
+      /> -->
+
       <div id="next"></div>
     </section>
   </Landing>

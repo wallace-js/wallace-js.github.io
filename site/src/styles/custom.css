@@ -105,6 +105,10 @@ blockquote {
       padding: 0.8em;
       text-align: center;
     }
+
+    ol, ul {
+      padding-left: 1.5em;
+    }
   }
 
 }

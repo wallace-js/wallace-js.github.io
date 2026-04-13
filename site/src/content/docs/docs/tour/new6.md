@@ -4,27 +4,27 @@ sidebar:
   order: 2
 ---
 
+```
+Tutorial
+
+Positioning
 
 
-## Faster Development
-
-- Logical
-- Compact
-- Help
-- No magic
-- Progressive control
-- Does less
-- Extendable
-- Gets out of the way
-- Freedom
-
-Capture the essence:
-
-- Feel like but isn't
+```
 
 
 
-This tour explains how Wallace works, and how that helps you develop faster. 
+
+
+By the end of this tour you will understand:
+
+- How to use Wallace.
+- How Wallace works.
+
+all you need to know to start using Wallace. It's not a tutorial, but you can code along:
+
+- **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
+- **Locally** with `npx create-wallace-app`.
 
 ## Overview
 

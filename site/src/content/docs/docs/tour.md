@@ -6,9 +6,22 @@ sidebar:
 
 ## Introduction
 
-This tour will show you how Wallace works, and once you understand that you'll know how to use it.
+Frameworks are integral to modern front end development, but they have several downsides:
 
-To do this we're going to reuse the code sample from the home page, but with two tweaks that help us cover more topics:
+1. They seriously **bloat** your bundle.
+2. They involve **learning** new APIs and paradigms.
+3. They don't **perform** as well as vanilla JavaScript.
+4. They **obscure** operations, which impedes debugging.
+5. They force awkward **patterns**, like hooks.
+6. They restrict your **freedom**.
+
+This tour will show you how Wallace works, and how that addresses these issues.
+
+Mention layers here?
+
+## Code
+
+We'll reuse the code sample from the home page, but with two tweaks that help us cover more topics:
 
 1. Replace the counter's button with a range input.
 2. Add an interface and type annotations - but you can omit these if you don't want to use TypeScript.
@@ -48,94 +61,87 @@ In here we:
 2. Nest one component within the other. 
 3. Mount the root component with some data.
 
-It may look similar to React, but Wallace works differently in a few critical ways, starting with how it treats JSX.
+It may look similar to React, but Wallace works very differently, and this affects how you use it.
 
 You can code along:
 
 - **Online** with StackBlitz using [TypeScript](https://stackblitz.com/edit/wallace-ts?file=src%2Findex.tsx) or [JavaScript](https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx).
-- **Locally** with `npx create-wallace-app`.
+- **Locally** with `npx create-wallace-app`
 
 ## JSX
 
-Wallace doesn't use virtual DOM, and functions containing the JSX never get *called*. Instead they are *replaced* with component definitions during compilation, which act more like classes than functions.
-
-The function is essentially just a scope for a single JSX statement, and cannot contain anything else:
+Rather than mangling your JSX with JavaScript and losing all sense of structure:
 
 ```tsx
-const Counter = ({ count }) => {
-  // NOT ALLOWED
-  const double = count * 2;
-  return <div>
-    <input bind-as:range={count} />{double}
-  </div>
-};
-```
-
-The JSX is *read* during compilation and therefore cannot have any logic that changes its structure:
-
-```tsx
-const Counter = ({ count }) => (
-  // NOT ALLOWED
+// React code - won't work in Wallace!
+const CounterList = (counters) => (
   <div>
-    {count > 2 ? (
-      <input bind-as:range={count} />
+    {counters.length ? (
+      counters.map(c => <Counter props={c} />)
     ) : (
-      <span></span>
+      <div>No counters</div>
     )}
   </div>
 );
 ```
 
-The only code allowed in the function is inside JSX `{expressions}` and these may not return further JSX. Code in expressions is copied to the generated component definition, which is why we can supply raw code to events rather than callbacks:
+ Wallace uses *directives* and special syntax for nesting and repeating:
 
 ```tsx
-<button onClick={counters.push({ count: 1 })}> 
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat models={counters} />
+    <div if={!counters.length}>No counters</div>
+  </div>
+);
 ```
 
-At this point Wallace may feel like a React clone with all its power and freedom removed, however:
+You loose some of the flexibility of React, but:
 
-1. You get a lot more power thanks to *directives*.
-2. Your JSX ends up more readable and more compact (around ~50% line count).
-3. You actually get more freedom, as we'll see later.
+1. Your JSX ends up more compact (around ~50% line count).
+2. Your JSX is more readable, and hides fewer bugs.
+3. Directives bring more power than plain JSX.
+4. You actually gain more freedom, as we'll see later.
 
-And don't worry, you don't need to memorise new syntax or lists of directives. You only need to remember one:
+You only need to memorise one directive: `help` whose tool tip is a cheat sheet listing all the other directives:
 
 ```tsx
-const Counter = () => <div help ></div>;
+const Counter = () => (
+  <div help ></div>
+);
 ```
 
-The `help` directive's tool tip contains a cheat sheet which includes a list of available directives. Alternatively use the tool tip on the module import: 
+The module's tool tip covers everything else, so you can access full documentation without leaving your IDE:
 
 ```tsx
 import {} from 'wallace';
 ```
 
-That contains the complete reference documentation, so you can look things up without leaving your editor.
-
 ## Components
 
-The best way to understand what these generated component definitions look like is to substitute this line:
-
-```tsx
-mount('main', CounterList, [{ count: 0 }]);
-```
-
-With these lines, which do the exact same thing:
+During compilation, functions that return JSX get replaced with very different functions that are used as constructors to create objects we call components:
 
 ```tsx
 const component = new CounterList();
-component.render([{ count: 0 }]);
+```
+
+You don't usually see this code. In this case it happens in the `mount` which essentially does this:
+
+```tsx
+const component = new CounterList();
 const target = document.getElementById('main');
+component.render([{ count: 0 }]);
 target.parentNode.replaceChild(component.el, target);
 ```
 
-> Your editor may warn you that `Only a void function can be called with the 'new' keyword` but ignore this for now.
+During `render` this `component` object will:
 
-During compilation `CounterList` was replaced with a constructor function which lets us create objects with `new` (note how it doesn't take any arguments).
+1. Update its own DOM (the total calculation).
+2. Create (or reuse) an instance of `Counter` for every item in the array passed to `render` and tell those components to `render` their item.
 
-These objects (called components, component instances or component objects) have properties such as `el` which is its root DOM element, and methods like `render` which we'll look into in more detail shortly.
+There is no central coordination, DOM engine or global state. Each component updates its own DOM directly and instructs its nested components to do the same, and so on.
 
-During `render` our component will create as many instances of `Counter` as it needs, reusing existing ones where available, so what you end up with is a tree of component objects controlling the DOM tree:
+What you end up with is a tree of component objects controlling the DOM tree:
 
 ```html
 CounterList1 | <div>
@@ -150,25 +156,11 @@ CounterList1 | <div>
 |            | </div>
 ```
 
-Each component manages its own DOM and its nested components, which manage their DOM plus nested components, and so on down the tree.
+It's a simple model that's easier to visualise and interact with than the functional approach of virtual DOM based frameworks.
 
-It's a very simple structure that's easy to visualise and work with. 
+## Rendering
 
-Because component definitions are "classes" rather than functions, you can override their methods:
-
-```tsx
-Counter.prototype.render = function () {
-  this.el.innerHTML = '<h1>FREEDOM</h1>';
-}
-```
-
-This lets you customise how any component works, which is a nice safety feature that is sadly absent in almost every other framework.
-
-Of course you can customise in a far more granular manner, without loosing framework functionality.
-
-## Methods
-
-The unadulterated `render` method looks like this:
+The `render` method we saw above looks like this:
 
 ```tsx
 function render (model, hub) {
@@ -177,7 +169,9 @@ function render (model, hub) {
 }
 ```
 
-The `update` method coordinates the DOM updates, which we won't display here. The unadulterated `set` method looks like this:
+The `model` is the main data object passed to a component (the equivalent of React props, but it's one object) and `hub` is an optional second object which can safely ignore for now as we're not using it.
+
+Both are saved as properties on the component during `set`:
 
 ```tsx
 function set (model, hub) {
@@ -186,82 +180,63 @@ function set (model, hub) {
 }
 ```
 
-We'll cover `hub` later and can safely omit/ignore it for now as we're not using it.
+The `update` method coordinates the DOM updates, which we won't display here as it's more complex.
 
-#### Why
-
-This arrangement lets us do things that would not be possible if `render` updated the DOM directly.
-
-We can update a component by modifying its model in-place then calling `update` which bypasses `render`:
+Splitting the flow into three methods lets us do useful things, such as updating a component by modifying its model in-place then calling `update`:
 
 ```tsx
 const component = new Counter();
 component.render({ count: 0 });
-component.model.count = 1;
-component.update();
+
+const click = () => {
+  component.model.count = 1;
+  component.update();
+}
 ```
 
-This this helps with reactivity as we'll see later, and lets us treat `render` as a "setup" method as it is only called from above.
-
-Don't worry if this doesn't make sense just yet.
-
-#### Overriding
-
-We could override `render` on `Counter` (perhaps to add some logging) as follows and our app would still work:
+This comes in very handy for reactivity as we'll see later. It also bypasses `render` and `set` which would then only be called from the parent component, allowing us to override those methods to set things up for the "lifecycle" of the component, such as timeouts:
 
 ```tsx
-Counter.prototype.render = function (model) {
-  console.log('Rendered Counter');
-  this.model = model;
+CounterList.methods.render = function (model, hub) {
+  setTimeout(() => {
+    model.timedOut = true;
+    this.update();
+  }, 3000)
+  this.set(model, hub);
   this.update();
 }
 ```
 
-However if we do that with `CounterList` it would break, because the `watch` directive modifies the `set` method, and we skipped that. So you would have to do this:
-
-```tsx
-CounterList.prototype.render = function (model) {
-  console.log('Rendering CounterList');
-  this.set(model);
-  this.update();
-}
-```
-
-Or you could use the `base` property, to access the unadulterated `render` (note this is not the same as `super` in classes which crawls up the inheritance tree):
-
-```tsx
-CounterList.prototype.render = function (model) {
-  console.log('Rendering CounterList');
-  this.base.render.call(model);
-}
-```
-
-You won't be overriding methods that often, this is more to illustrate how Wallace works. If you do need to override or add methods, you're best using the `methods` helper:
+Here `methods` is just a proxy for `prototype` which lets you use more compact syntax without accidentally overwritting the prototype:
 
 ```tsx
 CounterList.methods = {
-  render (model) {
-    this.log();
-    this.base.render.call(model);
-  },
-  log () {
-    console.log('Rendering CounterList');
-  }
-};
+  render (model, hub) {},
+  udpate () {},
+  foo () {},
+}
 ```
 
-As it's more concise and prevents accidental overwriting of prototype methods.
-
-You can add new methods, or override existing ones, but bear in mind that `set` may be modified during compilation, so be careful with that one.
+Overriding the `update` method is occasionally useful, but you shouldn't override `set` as that gets customised by directives such as `watch`.
 
 ## DOM
 
-To illustrate how the `update` method updates the DOM let's use a `ref` to manually disable the input if `count` exceeds three:
+When you call a component constructor function:
+
+```tsx
+new Counter()
+```
+
+It creates that component instance's initial DOM and saves references to any dynamic elements so they can be accessed later without traversing the DOM, which is costly.
+
+During `update` the component will read each value used, compare it to the previous value, and only update the element if it has changed since last update.
+
+This is both highly efficient and robust, as you can layer in manual operations without breaking the component. To illustrate this let's use a `ref` to manually disable the input if `count` exceeds three:
 
 ```tsx
 const Counter: Takes<CounterModel> = ({ count }) => (
   <div>
-    <input ref="input" bind-as:range={count} />{count}
+    <input ref:input bind-as:range={count} />{count}
   </div>
 );
 
@@ -273,44 +248,82 @@ CounterList.methods = {
 };
 ```
 
-Here `this.ref.input` points to the actual DOM element, not a wrapper, and we can manipulate it directly.
+In the above:
 
-Note that we can manually control the `disabled` property while letting Wallace control its value and event handling without clashing. That's because we've essentially replicated how Wallace updates its DOM.
+- `this.base` lets you call the base methods.
+-  `this.ref.input` points to the actual DOM element.
 
-Components create their initial DOM and store references to dynamic elements. During `update` they compare the used values to last update, and modify the corresponding element property if the values have changed. It's dead simple, although there is an added check to ignore elements if they are hidden by `show`, `hide` or `if`. 
+We are able to set the `disabled` property manually while letting the component control its value and event handling without any clash.
 
-This results in minimal DOM operations and less computation than diffing a virtual DOM, which not only makes Wallace insanely fast, but also means you can predictably work with the DOM without breaking it. You could even move elements around within the component (or outside if you're a lunatic) and they would still safely update.
-
-There is a shorthand for directives like `ref` which simply name things:
-
-```tsx
-<input ref:input bind-as:range={count} />
-```
-
-And of course you could avoid using a ref altogether by using an expression:
+Of course you could have used an expression with the `disabled` attribute:
 
 ```tsx
-<input disabled={count > 5} bind-as:range={count} />
+<input disabled={count > 3} bind-as:range={count} />
 ```
 
-The point is that you can work with individual elements while letting the component control the rest in those edge cases where you need to, such as [chart.js](https://www.chartjs.org/) which requires `canvas` elements to be attached to the DOM before drawing graphs on them, which they won't be on first render.
+The end result and underlying opertations would be the same, except the later would not update the element if it was hidden by an `if` statement or similar, as `update` takes this into account.
 
-Other frameworks often end up with third party libraries for such cases. With Wallace you'd probably use the `apply` directive, or create a custom directive if you really needed to.
+If you want to the best of both (change the element manually, but only if it is visible) use the `apply` directive:
+
+```tsx
+<div apply={doStuff(element)} />
+```
+
+Where possible, Wallace provides intermediate levels of control.
+
+## Freedom
+
+Most components don't override methods or access the DOM directly:
+
+```tsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat models={counters} />
+    <div if={!counters.length}>No counters</div>
+  </div>
+);
+```
+
+In which case it doesn't really matter how the framework implements things under the hood, and you can essentially ignore the last three sections.
+
+Where it does matter is in those pesky little edge cases which consume a disproportionate amount of dev time such as:
+
+- Reparenting components.
+- Altering a top level component without updating its nested components.
+- Libraries like [chart.js](https://www.chartjs.org/) requires elements be attached to the DOM before it can do anything to them.
+
+These can wreak havoc on frameworks, which are forced to come up with elaborate features (like React portals)  to handle them or use plugins which further bloat your bundle. 
+
+In some cases there is no neat solution at all, and you are effectively left trapped by your framework.
+
+Wallace doesn't have this problem. All that exists at run time is a tree of components whose methods you can override, and whose DOM operations you can fully interact with.
+
+
+
+making Wallace the only fully open framework where you are totally free.
+
+
+
+avoids this dilema by being a fully open framework, seemingly the only one out there.
+
+
 
 ## Directives
 
-Directives are JSX attributes which add instructions to the generated component definition, meaning the task of interpreting, validating and combining your instructions happens during compilation, not execution
+Directives are JSX attributes which do something special.
 
-All the code involved in these steps stays out of the bundle too, except for the ultra compact instructions they leave behind.
+They take effect during transpilation, so all the heavy lifting involved in interpreting, validating and combining your instructions happens then and not at run time. Similarly the code involved in all that stays out of your bundle, leaving only instructions in very  compact form.
 
-This means we can add endless directives, permutations and combinations without adding bloat, which lets us create richer syntax. Take the ` bind-as:range` from our example:
+This means we can add endless directives, permutations and combinations at no extra cost, which lets us create multiple layers of abstraction. 
+
+The ` bind-as:range` directive is a perfect example:
 
 
 ```tsx
 <input bind-as:range={count} />
 ```
 
-Which is just a more compact way of doing this:
+It is just a more compact way of doing this:
 
 ```tsx
 <input type="range" bind:valueAsNumber={count} />
@@ -327,27 +340,28 @@ Which is just a more compact way of doing this:
 />
 ```
 
-All three permutations compile to the exact same code. We'll explain where that `element` comes from and why changing `count` updates our component in the next couple of sections.
+We'll explain where that `element` comes from and why changing `count` updates our component in the next couple of sections. The point here is that all three permutations compile to the *exact* same code.
 
-You'd use the longer version to do extra things like parse or format a value, or override defaults such as the event, although you can do that by combing `bind` or `bind-as` with `event`:
+The idea (which is repeated throughout Wallace) is to work at the highest level of abstraction with the most compact syntax, and progressively drop to lower levels with lengthier syntax as you need to deviate from default behaviour.
+
+In this case you may want to parse or format a value, or change the event which triggers the change, although you can do that with `event` which is an example of combining directives:
 
 ```tsx
 <input bind-as:range={count} event:input />
 ```
 
-The part after `:` is called the qualifier, and acts as an extra variable, or in cases like `event` it is interpreted as the value, so equates to `event="input"`. They can be required, as they are for `bind-as`, or optional as they are for `bind`:
+The part after `:` is called the qualifier, and acts as an extra variable, or for directives which simply require a text value it is interpreted as the value, so `event:input` equates to `event="input"`. 
+
+You can also define your own directives or override stock directives if you don't like the defaults:
 
 ```tsx
-<input type="range" bind={count} />
+// Doesn't work as it is just an example.
+<input bind-range:count />
 ```
 
-The latter would set `count` to the element's `value` property, which is a string.
+## Xargs
 
-You can also define your own directives.
-
-## Parameters
-
-Component definition functions may specify up to two parameters:
+Component functions may specify a second parameter known as xargs because it contains various helpful extras:
 
 ```tsx
 const Counter: Takes<CounterModel> = ({ count }, { element }) => (
@@ -361,14 +375,21 @@ const Counter: Takes<CounterModel> = ({ count }, { element }) => (
 );
 ```
 
-The first corresponds the model which is passed to `render` and saved as `this.model` by `set`. The second is an assortment of extra variables (called xargs) that may be useful such as:
+Remember this is not a real function, and these parameters do NOT equate to the arguments passed into `render`:
+
+```tsx
+// hub does not become xargs
+component.render(model, hub);
+```
+
+However, `hub` (which we'll cover soon) is one of the arguments available in xargs, along with:
 
 - `self` - alias for `this` as `this` is not allowed in arrow functions.
 - `model` - alias for `this.model`  which is useful when the main `model` parameter is destructured (i.e. `{count}` instead of `model`)
 - `event` - the event, where applicable.
 - `element` - the DOM element, where applicable.
 
-The `model` parameter *may* be destructured to exactly one level, and the `xargs` parameter *must* be destructured to exactly one level. Renaming is not supported. If destructured, the model is reassembled in the generated code, so the `onChange` event handler would look like this:
+The `model` parameter *may* be destructured to exactly one level, but the `xargs` parameter *must* be destructured to exactly one level. Renaming is not supported. If destructured, the model is reassembled in the generated code, so the `onChange` event handler would look like this:
 
 ```tsx
 function (event) {
@@ -376,9 +397,9 @@ function (event) {
 }
 ```
 
-Remember that the component definition function is never called, so these are not real parameters, just symbols to be used when modifying the code during compilation, which allows for interesting uses. 
+This matters for reactivity which we'll look at next.
 
-For example the `event` and `element` xargs can be referenced multiple times in the component, but it will point to their respective event and element in each location used. You can give them types:
+The `event` and `element` xargs can be referenced multiple times in the component, but it will point to their respective event and element in each location used. You can even give them different types:
 
 ```tsx
 const Example = (_, { event }) => (
@@ -418,7 +439,7 @@ watched[0].count = 1;
 watched.push({ count: 2});
 watched.reverse();
 
-// And modify the original:
+// And also modify the original:
 console.log(original)
 > [{ count: 2}, { count: 1}]
 ```
@@ -750,7 +771,7 @@ const CounterListWithButton = extendComponent(CounterList);
 CounterListWithRange.stub.counter = ButtonCounter;
 ```
 
-The extended components also inherit methods, but not the set method? - is this a problem?
+The extended components also inherit methods.
 
 ### Factories
 
@@ -776,11 +797,11 @@ const CounterListWithButton = getCounterList(ButtonCounter);
 
 This allows you to decide what component to nest at run time.
 
-## Partials
+## Updates
 
-So far we have been updating the entire tree whenever data changes, but you can also run more targeted updates of components and within components.
+So far we have been telling the root component to `udpate` whenever data changes, which is generally fine as it only touches those parts of the DOM that actually need to changed. But in larger apps where performance matters we can streamline this further by combining two approaches.
 
-The `part` directive lets you delineate a part of a component which you can update independently:
+The `part` directive lets you delineate parts within a component (including repeated components) which you can update independently:
 
 ```tsx
 const CounterList: Takes<Controller> = ctrl => (
@@ -795,17 +816,15 @@ const CounterList: Takes<Controller> = ctrl => (
 
 CounterList.methods = {
   updateTotal() {
-    this.part.total.update()
-  }
+    this.part.total.update();
+  },
   updateCounters() {
-    this.part.counters.update()
+    this.part.counters.update();
   }
 }
 ```
 
-Bear in mind that no matter what you update, only the those properties that actually need to change will result in a DOM operation, so this is just about reducing computation.
-
-To update individual components under a `repeat` instruction you'd save references to them, either on their model:
+We could also update specific `Counter` components by assigning them to a model:
 
 ```tsx
 const Counter: Takes<CounterModel> = ({ count }) => (
@@ -825,140 +844,48 @@ const Counter: Takes<CounterModel> = ({ count, id }, { hub }) => (
 );
 ```
 
-By combining these two approaches your Wallace app can match the performance of vanilla JavaScript.
+Which lets you target components deeply nested in the tree.
+
+You can combine these two approaches:
+
+```tsx
+CounterList.methods = {
+  updateCounter(id) {
+    this.models.find(counter => counter.id === id).component.update();
+    this.part.total.update();
+  }
+}
+```
+
+These capabilities lets you match the performance of any vanilla app, while keeping your code clean, safe and sane.
 
 ## Conclusion
 
+Wallace was designed to provide the benefits of a framework:
 
+- Structure and organisation
+- Declarative syntax
+- Reactivity
 
-- custom directives
+Without the disadvantages:
 
-- apply
+- Bloated bundles
+- Learning curve
+- Restricted freedom
 
+That last point is often overlooked. We can't anticipate what the web will throw at us, and handing over control of the DOM to a framework whose operations cannot be modified (as is the case in virtually all frameworks) is a very risk move.
 
+Wallace's basic architecture was designed to let you override *everything*, and though you may not need that freedom day-to-day, knowing you have it is a welcome safety net.
 
+As it turns out, that initial architectural decision led to Wallace becoming a very versatile tool which lends itself to a range of situations:
 
+- Tiny size > good for landing pages.
+- Concise syntax and easy reactivity > good for simple apps and prototypes.
+- Closeness to the DOM > good for performance-critical pages.
+- Built-in documentation > good for those who don't use it every day.
+- OOP patterns > good for managing large complex apps.
 
+This emphasis on freedom also explains how Wallace got its name, which makes a lot more sense if you've seen [Braveheart](https://www.imdb.com/title/tt0112573/) (or for a more modern adaptation: this [sketch](https://www.youtube.com/watch?v=HbDnxzrbxn4)).
 
+![](/public/img/braveheart-1.jpg)
 
-Inheritance (components later)
-
-For example our `Controller` encapsulates an array
-
-
-
-which works in simple examples where the data stays its original format. But in real apps the data may be assembled from multiple sources, and may contain complex combinations of persisted data and state.
-
-At that point you may wish to turn your models or hubs into more capable objects, typically connected by auxiliary controllers or services. 
-
-The `assign` directive assigns the component instance to the specified property. 
-
-Useful for deep updates, particularly in combination with parts.
-
-
-
-
-
-
-
-```tsx
-<input bind-as:range={count} />
-<input type="range" bind:valueAsNumber={count} />
-<input
-  type="range"
-  value={count}
-  onChange={(count = element.valueAsNumber)}
-/>
-```
-
-The idea is to use the more compact version until you need to change defaults.
-
-
-
-As do these, which change the event from the default `change` to `input` causing the UI to update as you move the slider:
-
-```tsx
-<input bind-as:range={count} event:input />
-<input type="range" bind:valueAsNumber={count} event="input" />
-<input
-  type="range"
-  value={count}
-  onInput={(count = element.valueAsNumber)}
-/>
-```
-
-
-
-
-
-leaving behind only efficient generated code in the bundle, which lets us create new directives or make them more complex without bloat.
-
-
-
-means they can increase in numbers and complexity at no cost.
-
-
-
-Take `bind-as` which takes a qualifier
-
-qualifiers
-
-```tsx
-<input bind-as:range={count} />
-```
-
-The `bind-as` directive:
-
-```
-<input bind-as:range={count} />
-```
-
-Is just a shorthand for setting the type and binding to the property you most likely want for that type:
-
-```
-<input type="range" bind:valueAsNumber={count} />
-```
-
-Which in turn is shorthand for this:
-
-```
-<input type="range" value={count} onChange={(count = element.valueAsNumber)} />
-```
-
-By default `bind` binds to the input’s `value` which is a string, so this would totally mess up the total:
-
-```
-<input type="range" bind={count} />
-```
-
-By default, bind responds to the `change` event, which fires once the input loses focus. If you want to update the UI in live time you could use the `input` event:
-
-```
-<input bind-as:range={count} event:input />
-```
-
-The idea is to use high-level concise syntax for default behaviour, and drop to progressively longer forms as you need to deviate from defaults.
-
-that do something, such as `if` which conditionally attaches an element, and `bind` which creates two-way binding between an element and data, and also takes a *qualifier* to specify which event fires the change:
-
-compilation
-
-Directives operate during compilation, so both of these result in the exact same code:
-
-```
-<input bind-as:range={count} />
-
-<input type="range" value={count} onChange={count = element.valueAsNumber} />
-```
-
-You can add endless custom directives without increasing bundle size:
-
-```
-<input range-input={count} />
-```
-
-Talk about directives.
-
-Change to event, use xargs?Because Wallace JSX is also more expressive and compact, you can really get an overview of your DOM structure by glancing at the components.
-
-#### 

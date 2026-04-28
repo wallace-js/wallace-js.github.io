@@ -1,7 +1,7 @@
 ---
 title: Claims
 sidebar:
-  order: 1
+  order: 5
 ---
 
 Wallace claims to:

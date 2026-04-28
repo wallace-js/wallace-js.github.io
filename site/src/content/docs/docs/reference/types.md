@@ -1,7 +1,7 @@
 ---
 title: Types
 sidebar:
-  order: 6
+  order: 9
 ---
 
 ## Components
@@ -65,10 +65,10 @@ interface TaskTypes {
 const Task: Uses<TaskTypes> = () => <div></div>;
 ```
 
-All fields are optional:
+All fields are optional, so you can omit model etc, which you can't do with `Takes`:
 
 ```tsx
-const Task: Uses<{props: Model, methods: Method}> = () => <div></div>;
+const Task: Uses<{methods: Method}> = () => <div></div>;
 ```
 
 #### Methods

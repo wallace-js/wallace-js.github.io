@@ -6,11 +6,18 @@ sidebar:
 
 ## Overview
 
-Wallace source files need to be transformed and compiled using a bundler such as [webpack](https://webpack.js.org/), [vite](https://vite.dev/) or [parcel](https://parceljs.org/) which runs each files through Babel, which uses plugins to transform the syntax.
+Wallace is not a library you can import directly into your page like [jQuery](https://jquery.com/). Instead you write code in ES6/JSX modules which your transpile (transform and compile) using a bundler such as [WebPack](https://webpack.js.org/), [Vite](https://vite.dev/) or similar to produce a bundle which the browser can read.
 
-Wallace supplies its own plugin, which requires [node](https://nodejs.org/en) version 18 or above.
+Wallace has two parts.
 
-## Easy
+1. A babel plugin which transforms your JSX files.
+2. A library which contains:
+   1. Functions used by the transformed code.
+   2. Functions you can import into your code.
+
+You will need [Node](https://nodejs.org/en) version 18 or above.
+
+## Quick start
 
 The easy way to get started is with the `create-wallace-app` script, which you can run directly with the [npx](https://docs.npmjs.com/cli/v8/commands/npx) command (no additional installation needed):
 
@@ -121,11 +128,68 @@ module.exports = {
 };
 ```
 
-See [flags](/docs/ref/flags) and custom [directives](/docs/ref/directives).
+See [flags](/docs/reference/flags) and custom [directives](/docs/reference/directives).
 
-## Examples
+## Samples
+
+Below are example configurations for Webpack and Vite based on the following directory structure:
+
+```
+index.html
+package.json
+babel.config.js
+tsconfig.json
+src/
+  index.tsx
+```
+
+Where **ts.config.json** might look like this:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts"]
+}
+```
+
+If using another bundler you'll need to adapt accordingly, paying attention to the points mentioned above.
 
 ### Webpack
+
+Script tag in **index.html**:
+
+```html
+<script src="index.js"></script>
+```
+
+Relevant pieces of **package.json**:
+
+```json
+{
+  "scripts": {
+    "build-prod": "NODE_ENV=production webpack",
+    "build-dev": "NODE_ENV=development webpack",
+    "start": "webpack serve",
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/preset-env": "^7.22.14",
+    "@babel/preset-typescript": "^7.28.5",
+    "babel-loader": "^9.1.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "wallace": "0.18.0"
+  }
+}
+```
+
+The **webpack.config.js** file:
 
 ```js
 const path = require("path");
@@ -172,8 +236,73 @@ module.exports = function () {
 
 ### Vite
 
-To be added.
+Script tag in **index.html**:
 
-### Parcel
+```html
+<script type="module" src="src/index.js"></script>
+```
 
-To be added.
+Relevant pieces of **package.json**:
+
+```json
+{   
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/preset-env": "^7.22.14",
+    "@babel/preset-typescript": "^7.25.7",
+    "vite": "^6.4.2",
+    "vite-plugin-babel": "^1.6.0",
+    "wallace": "0.18.0",
+  }
+}
+```
+
+The **vite.config.ts** file:
+
+```js
+import { defineConfig } from "vite";
+import path from "path";
+import babel from "vite-plugin-babel";
+
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    babel({
+      babelConfig: {
+        babelrc: true,
+        configFile: true,
+      },
+      filter: (id: string) => {
+        return id.includes("/src/") || id.includes("/node_modules/wallace/");
+      },
+    }),
+  ],
+
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+  },
+
+  build: {
+    outDir: "dist",
+    sourcemap: mode !== "production",
+    minify: mode === "production",
+    rollupOptions: {
+      input: path.resolve(__dirname, "src/index.tsx"),
+      output: {
+        entryFileNames: "index.js",
+      },
+    },
+  },
+
+  optimizeDeps: {
+    include: ["wallace"],
+  },
+}));
+```
+
+
+

@@ -2,18 +2,22 @@
 title : Wallace Docs
 sidebar:
   order: 0
-  label: Docs home
 ---
 
 The documentation comes in two parts:
 
-1. [Tour](/docs/tour) - shows you how to use Wallace. You should start with that.
+1. [Tour](/docs/tour) - introduces Wallace and covers a lot of basic. Start there.
 2. [Reference](/docs/reference) - has more detailed documentation per topic.
 
-You will also find documentation in the tool tips over imported functions, as well as JSX elements:
+You can also access documentation from your editor in the tool tip on the module import: 
 
-![Tool tip on JSX element](/img/div-tooltip.jpg)
+```tsx
+import {} from 'wallace';
+```
 
-There is also a full cheat sheet in the module tool tip, which gives you access to most things you need without leaving your editor:
+As well as the `help` directive in any JSX expression:
 
-![Tool tip on JSX element](/img/cheat-sheet.jpg)
+```tsx
+<div help >
+```
+

@@ -1,5 +1,7 @@
 ---
 title: Prototypes
+sidebar:
+  order: 1
 ---
 
 Prototypes are one of the neatest ideas in JavaScript, but certain aspects are confusing.

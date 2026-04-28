@@ -1,33 +1,177 @@
 ---
 title: JSX
 sidebar:
-  order: 7
+  order: 4
 ---
 
-Instead of placing logic _around_ elements, you control structure from _within_ elements using directives (attributes with special behaviour) like `if`:
+## Overview
+
+Wallace uses JSX very differently to React, which can be confusing initially.
+
+- **React** replaces JSX with code that yields virtual DOM during compilation, then *calls* these modified component functions at run time.
+- **Wallace** replaces the entire function with a component definition generated from the instructions found in the JSX during compilation, then creates components from that definition at run time.
+
+So a function with JSX is never executed, it is a static construct that is read during compilation. This means you can't blend JavaScript in it like you can with React:
+
+```tsx
+// React code - won't work in Wallace!
+const CounterList = (counters) => (
+  <div>
+    {counters.length ? (
+      counters.map(c => <Counter props={c} />)
+    ) : (
+      <div>No counters</div>
+    )}
+  </div>
+);
+```
+
+Instead you use directives and special syntax:
+
+```tsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat models={counters} />
+    <div if={!counters.length}>No counters</div>
+  </div>
+);
+```
+
+You loose some of the flexibility of React, but gain more power through directives, and often end up with neater and more compact JSX, particularly as you outsource logic to models.
+
+## Rules
+
+There are just two rules:
+
+1. JSX is only allowed as the return value of a function which has nothing else in its body.
+2. JSX may not contain JavaScript except inside expression, so long as it doesn't return further JSX.
+
+Here are some examples of invalid code:
+
+```tsx
+// JSX is not inside a function:
+const btn = <button onClick={count++}>{doubleCount}</button>;
+
+// Function does not actually return the JSX expression:
+const Counter = ({ count }) => {
+  <div>
+    <button onClick={count++}>{count}</button>
+  </div>
+};
+
+// JavaScript found outside of JSX expressions:
+const Counter = ({ count }) => (
+  const doubleCount = count * 2;
+  <div>
+    <button onClick={count++}>{doubleCount}</button>
+  </div>
+);
+
+// JavaScript within JSX expression but returns JSX:
+const Counter = ({ count }) => {
+  <div>
+    <button onClick={count++}>{count}</button>
+    {count > 3 && <div>Warning</div>}
+  </div>
+};
+```
+
+Remember that these functions never run, the only reason they must return the JSX is to help TypeScript.
+
+## Special syntax
+
+There are just three special syntax cases.
+
+### Nesting
+
+You can nest a component so long as it is assignd to a capitalised variable:
 
 ```tsx
 const Counter = ({ count }) => (
   <div>
     <button onClick={count++}>{count}</button>
-    <button if={count > 2} onClick={(count = 0)}>
-      reset
-    </button>
+  </div>
+);
+
+const CounterList = (counters) => (
+  <div>
+    <Counter model={counters[0]} />
+    <Counter model={counters[1]} />
   </div>
 );
 ```
 
-And special syntax for nesting and repeating:
+Note that Wallace components expect a model, whereas React expects props:
+
+```tsx
+// React code - won't work in Wallace!
+const CounterList = (counters) => (
+  <div>
+    <Counter count={counters[0].count} />
+  </div>
+);
+```
+
+This is helpful as you can use other directives:
 
 ```tsx
 const CounterList = (counters) => (
   <div>
     <Counter model={counters[0]} />
-    <div>
-      <Counter.repeat models={counters} />
-    </div>
+    <Counter if={counters.length > 1} model={counters[1]} />
   </div>
 );
 ```
 
-But you don't need to remember all this. JSX elements have a tool tip which reminds you of syntax rules and lists the available directives, which have their own tool tips detailing their usage.
+The allowed directives are  `hub` , `if`, `model`, `part` and `ref`.
+
+You may not use normal attributes, as this is not a real element:
+
+```tsx
+// Not allowed!
+const CounterList = (counters) => (
+  <div>
+    <Counter id="counter1" model={counters[0]} />
+    <Counter id={counters[1].id} model={counters[1]} />
+  </div>
+);
+```
+
+Instead you would specify normal attributes in the `Counter` component.
+
+### Repeating
+
+You can repeat nested components by adding `repeat` to the component name:
+
+```tsx
+const CounterList = (counters) => (
+  <div>
+    <Counter.repeat models={counters} />
+  </div>
+);
+```
+
+The same general rules and restrictions apply as with nesting single components, except that a different set of directives is allowed:  `hub` , `key`, `models` and`part`.
+
+### Stubs
+
+You may nest and repeat [stubs](/docs/reference/stubs) just like regular components:
+
+```tsx
+const CounterList = (counters, { stub }) => (
+  <div>
+    <stub.counter model={counters[0]} />
+    <stub.counter.repeat models={counters} />
+  </div>
+);
+
+CounterList.stub.counter = Counter;
+```
+
+You don't need to use `stub` in the [xargs](/docs/reference/xargs) - it just helps for type support.
+
+## Intellisense
+
+Wallace offers best effort intellisense in JSX. In some cases intellisense will appear to allow a directive, yet the compiler throws an error.
+
+### 

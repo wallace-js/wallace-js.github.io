@@ -51,7 +51,7 @@ Generally:
 
 Bear in mind that if you use it once, that code is imported and there's no penalty for using it again.
 
-In addition to this, the Babel plugin uses several [flags](/docs/ref/flags) which disable features altogether and further shrink bundle size.
+In addition to this, the Babel plugin uses several [flags](/docs/reference/flags) which disable features altogether and further shrink bundle size.
 
 ## Rendering
 

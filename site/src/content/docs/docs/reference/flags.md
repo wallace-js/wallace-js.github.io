@@ -9,7 +9,7 @@ The Babel plugin accepts flags which toggle certain features. At present all fea
 - Reducing bundle size.
 - Performance optimisation.
 
-These are covered in [performance](/docs/ref/performance).
+These are covered in [performance](/docs/reference/performance).
 
 
 

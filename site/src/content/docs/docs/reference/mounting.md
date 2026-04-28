@@ -1,7 +1,7 @@
 ---
 title: Mounting
 sidebar:
-  order: 9
+  order: 8
 ---
 
 You mount the root component of your tree using `mount`:

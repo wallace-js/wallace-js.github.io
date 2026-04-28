@@ -87,6 +87,18 @@ blockquote {
     margin: 1.5rem 0;
   }
 
+  #app {
+    border: solid 2px #3d5fcc;
+    padding: 1rem;
+    border-radius: 7px;
+    button {
+      border-radius: 5px;
+      margin: 0.5rem 0;
+      display: block;
+      min-width: 2rem;
+    }
+  }
+
   #next {
     margin: 2rem 0;
     display: flex;

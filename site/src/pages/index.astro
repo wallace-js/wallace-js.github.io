@@ -113,6 +113,9 @@ const CounterList = (counters) => (
 
 mount('main', CounterList, []);`}
       />
+      <div id="app">
+        <div id="counters"></div>
+      </div>
       <p>But frameworks slow down development by:</p>
       <ol>
         <li>
@@ -275,4 +278,4 @@ mount('main', CounterList, []);`}
   };
 </script>
 
-<script src="apps/counter.js"></script>
+<script is:inline src="/apps/counter/index.js"></script>

@@ -27,23 +27,18 @@ export default defineConfig({
       sidebar: [
         {
           label: "Main",
-          items: [{ slug: "docs" }],
-        },
-        {
-          label: "Tour",
-          autogenerate: { directory: "docs/tour" },
+          items: [
+            { label: "Welcome", link: "/docs" },
+            { label: "Tour", link: "/docs/tour" },
+          ],
         },
         {
           label: "Reference",
           autogenerate: { directory: "docs/reference" },
         },
         {
-          label: "Other",
-          items: [
-            // { label: "About", link: "/about" },
-            { label: "Claims", link: "/docs/claims" },
-            { label: "Why", link: "/docs/why" },
-          ],
+          label: "Misc",
+          autogenerate: { directory: "docs/misc" },
         },
       ],
     }),

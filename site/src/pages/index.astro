@@ -91,7 +91,7 @@ const hero = {
     <section>
       <h2>Faster development</h2>
 
-      <p>Wallace feels like a fancy modern reactive framework:</p>
+      <p>Wallace feels like a modern reactive framework:</p>
       <Code
         lang="tsx"
         code={`
@@ -113,268 +113,19 @@ const CounterList = (counters) => (
 
 mount('main', CounterList, []);`}
       />
-      <p>
-        But fancy frameworks add layers of indirection and constraints which:
-      </p>
+      <p>But frameworks slow down development by:</p>
       <ol>
         <li>
-          <strong>Obscure</strong> their internal operations, which impedes debugging.
+          <strong>Obscuring</strong> their internal operations, which impedes debugging.
         </li>
         <li>
-          <strong>Restrict</strong> your control of the DOM, which can limit options
-          or affect performance.
+          <strong>Restricting</strong> your freedom, which requires work-arounds.
         </li>
         <li>
-          <strong>Force</strong> awkard patterns, which complicates development.
+          <strong>Forcing</strong> awkard patterns, which complicate development.
         </li>
       </ol>
-
-      <p>
-        Wallace lets you progressively peel back these layers to reveal an ultra
-        simple architecture which you can fully interact with, resulting in:
-      </p>
-      <ol>
-        <li>
-          <strong>Transparent</strong> operations.
-        </li>
-        <li>
-          <strong>Freedom</strong> to override any behaviour.
-        </li>
-        <li>
-          <strong>Natural</strong> development patterns.
-        </li>
-      </ol>
-      <p>
-        These (plus other goodies) help you develop faster, and have more fun
-        doing so!
-      </p>
-      <!-- 
-        <p>Wallace avoids these problems by fully openening up architecture.</p>
-        Wallace is the only frameworks with a fully open architecture, which
-        solves these problems and a lot more!
-
-       slow you down in several ways:
-      <p>
-        Wallace isn't sophisticated. Behind its pretty syntax lies a really
-        crude architecture you have full access to, which has severeal
-        implications.
-      </p>
-
-      <h4>Visibility</h4>
-      <p>
-        Seeing exactly how and when each operation fires saves a lot of time
-        when debugging.
-      </p>
-
-      <h4>Simplicity</h4>
-      <p>
-        A simpler architecture results in simpler user code. you write simpler
-        and more intuitive code.
-      </p>
-
-      <h4>Freedom</h4>
-      <p>You cna see all the operations and you can control everything.</p>
-
-
-
-                <ol>
-          <li>You have full visibility of operations.</li>
-          <li>You can control everything.</li>
-          <li></li>
-        </ol>
-
-
-        Visibility
-
-        Control
-
-        Ease
-
-        
-          
-        Wallace avoids this by having a really dumb architecture.
-        with its unique design. Instead of a clever run time
-        engine, it compiles into a really dumb engine.
-
-        Wallace is the only framework with an open architecture which gives you
-        full control and visibility where needed.
-
-        
-        Wallace lets you peel back those layers to get progressively closer to
-        its underlying operations, giving you full visibility and control where
-        needed, avoiding the slow down caused by frameworks.
-        
-      <p>
-        That's just one way Wallace helps you develop faster. Read the tour to
-        find out more.
-      </p>
-      <ul>
-        <li>Hubs, stubs and other goodies</li>
-        <li>Documentation in your IDE</li>
-        <li>Extendable syntax</li>
-      </ul>
-      -->
-
-      <!-- 
-  <p>Wallace helps you develop faster by being:</p>
-      <h4>1. Expressive</h4>
-      Directives make JSX clean and compact:
-
-      <Code
-        lang="tsx"
-        code={`
-const Counter = ({ clicks }) => (
-  <div>
-    <span>Count: {clicks}</span>
-    <button onClick={clicks++}>
-      Click me
-    </button>
-  </div>
-);
-
-const CounterList = (counters) => (
-  <div>
-    <Counter.repeat models={counters} />
-  </div>
-);
-
-mount('main', CounterList, [
-  { clicks: 0 },
-  { clicks: 0 }
-]);
-`}
-      />
-      <p>Expect ~50% fewer lines of JSX than React.</p>
-
-      <h4>2. Helpful</h4>
-      Full docs in tool tips = one less browser tab open:
-
-      <img src="/img/cheat-sheet.jpg" />
-
-      There is also full (but optional) TypeScript support.
-
-      <h4>3. Logical</h4>
-
-      Wallace is insultingly simple, and avoids:
-
-      <ul>
-        <li>Awkward syntax.</li>
-        <li>Confusing paradigms.</li>
-        <li>Magic updates.</li>
-      </ul>
-
-      <p>As these waste time in the long run.</p>
-
-     
-
-      <h4>4. Powerful</h4>
-      <p>Run partial updates inside components:</p>
-      <Code
-        lang="tsx"
-        code={`
-const CounterList = (counters) => (
-  <div>
-    <div part:stats>
-      Total: {total(counters)}
-    </div>
-    <Counter.repeat models={counters} />
-  </div>
-);
-
-const total = (counters) => (
-  counters.reduce((a, c) => a + c.clicks, 0)
-)
-const updateStats = () => (
-  root.part.stats.update();
-);
-`}
-      />
-      <p>Define stubs to implement later:</p>
-      <Code
-        lang="tsx"
-        code={`
-import { extendComponent } from 'wallace';
-
-const CounterList = (counters) => (
-  <div>
-    <stub.stats model={counters} />
-    <Counter.repeat models={counters} />
-  </div>
-);
-
-const HighestCounterList = extendComponent(
-  CounterList
-);
-
-HighestCounterList.stub.stats = (counters) => (
-  <div>
-    Highest: {highest(counters)}
-  </div>
-);
-
-const highest = (counters) => (
-  Math.max(...counters.map(c => c.clicks))
-);
-`}
-      />
-      <h4>5. Extendable</h4>
-      <p>Override component methods:</p>
-      <Code
-        lang="tsx"
-        code={`
-
-const CounterList = (counters) => (
-  <div>
-    <stub.stats>
-    <Counter.repeat models={counters} />
-    <canvas ref:chart />
-  </div>
-);
-
-CounterList.methods = {
-  render(counters) {
-    // Handle awkward DOM operation...
-    buildChart(this.ref.chart, counters);
-    // And let Wallace do the rest...
-    this.base.render.call(this, counters);
-  }
-}
-`}
-      />
-
-      <p>Create custom directives:</p>
-      <Code
-        lang="tsx"
-        code={`
-const CounterList = (counters) => (
-  <div>
-    <div total:clicks={counters}>
-    </div>
-    <Counter.repeat models={counters} />
-  </div>
-);
-`}
-      />
-      <p>
-        Directives operate during compilation, so adding more doesn't increase
-        bundle size.
-      </p>
-      TODO -->
-
-      <!-- 
-      Know exactly when and how components update. No magic. No confusion.
-
-      <Code
-        lang="tsx"
-        code={`
-const root = mount(
-  'main',
-  CounterList,
-  watch([{ clicks: 0 }], () => root.update())
-);
-`}
-      /> -->
-
+      <p>Take the tour to learn how Wallace solves these issues.</p>
       <div id="next"></div>
     </section>
   </Landing>
@@ -523,3 +274,5 @@ const root = mount(
     });
   };
 </script>
+
+<script src="apps/counter.js"></script>

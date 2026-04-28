@@ -51,6 +51,12 @@ blockquote {
     font-size: 0.60rem;
   }
 
+  .copy {
+    button {
+      height: 1.8rem;
+      width: 1.8rem;
+    }
+  }
 }
 
 .no-after::after {
@@ -82,7 +88,7 @@ blockquote {
   }
 
   #next {
-    margin: 3rem 0;
+    margin: 2rem 0;
     display: flex;
     gap: 1rem 2rem;
     flex-wrap: wrap;

@@ -52,7 +52,7 @@ Here are some examples of invalid code:
 // JSX is not inside a function:
 const btn = <button onClick={count++}>{doubleCount}</button>;
 
-// Function does not actually return the JSX expression:
+// Function doesn't return the JSX expression:
 const Counter = ({ count }) => {
   <div>
     <button onClick={count++}>{count}</button>
@@ -78,13 +78,26 @@ const Counter = ({ count }) => {
 
 Remember that these functions never run, the only reason they must return the JSX is to help TypeScript.
 
+Other than that it is regular JSX: you are allowed expressions inside elements, and as attribute values. And you are allowed comments as normal:
+
+```tsx
+const Counter = ({ count }) => (
+  <div>
+    {/* Expression inside an element: */}
+    <span>Clicked {count} times</span>
+    {/* Expression as attribute value: */}
+    <button onClick={count++}>++</button>
+  </div>
+);
+```
+
 ## Special syntax
 
 There are just three special syntax cases.
 
 ### Nesting
 
-You can nest a component so long as it is assignd to a capitalised variable:
+You can nest a component so long as it is assigned to a capitalised variable:
 
 ```tsx
 const Counter = ({ count }) => (
@@ -170,8 +183,9 @@ CounterList.stub.counter = Counter;
 
 You don't need to use `stub` in the [xargs](/docs/reference/xargs) - it just helps for type support.
 
-## Intellisense
+## Code completion
 
-Wallace offers best effort intellisense in JSX. In some cases intellisense will appear to allow a directive, yet the compiler throws an error.
+Wallace offers "best effort" code completion support in JSX through its exported types, but it isn't perfect. In fact, getting TypeScript plus JSX to support code that it doesn't know will be compiled into something different was one of the trickiest parts of the library.
 
-### 
+The imperfections are survivable. In some cases code completion will appear to allow a directive, yet the compiler throws an error. Naturally, the compiler has the last word.
+

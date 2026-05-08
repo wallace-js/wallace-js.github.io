@@ -3,6 +3,10 @@
   max-width: 100%;
 }
 
+.code {
+  font-size: 0.8rem;
+}
+
 .tagline {
   text-align: left;
   ul {
@@ -88,11 +92,20 @@ blockquote {
   }
 
   #app {
+    display: block;
+    margin: 1rem auto;
+    padding: 1rem 2rem;
     border: solid 2px #3d5fcc;
-    padding: 1rem;
-    border-radius: 7px;
+    border-radius: 9px;
+    /* max-width: 200px; */
+    /* max-width: 100%; */
     button {
-      border-radius: 5px;
+      /* border: 1px solid black; */
+      border: none;
+      background-color: #4169E1;
+      color: white;
+      padding: 0.2rem 1rem;
+      border-radius: 9px;
       margin: 0.5rem 0;
       display: block;
       min-width: 2rem;

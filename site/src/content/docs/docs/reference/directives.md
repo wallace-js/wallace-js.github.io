@@ -1,12 +1,12 @@
 ---
-title: Directives
+title: Directives*
 sidebar:
   order: 10
 ---
 
 Directives are attributes which do things.
 
-Each directive has own tool tip, however this won't display if the directive uses a qualifier. A trick you can use to show the tool tip  (works in VSCode and similar editors) is to add a `.` before the `:` which has the added bonus of breaking things which reminds you to remove it:
+Each directive has own tool tip, however this won't display if the directive uses a qualifier. A trick you can use to show the tool tip (works in VSCode and similar editors) is to add a `.` before the `:` which has the added bonus of breaking things which reminds you to remove it:
 
 ```tsx
 const Counter = ({ foo }) => (
@@ -223,7 +223,7 @@ Set the element's `innnerHTML` property:
 ```jsx
 <div>
   <div html={getDivContents()}></div>
-</div>;
+</div>
 
 const getDivContents = () => "<span>hello</span>";
 ```

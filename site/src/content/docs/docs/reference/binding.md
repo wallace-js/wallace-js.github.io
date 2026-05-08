@@ -1,7 +1,7 @@
 ---
-title: Binding
+title: Binding*
 sidebar:
-  order: 12
+  order: 15
 ---
 
 The `bind` directive binds an element's value to data:

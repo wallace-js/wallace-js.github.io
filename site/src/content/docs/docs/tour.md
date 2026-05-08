@@ -15,9 +15,9 @@ Frameworks are integral to modern front end development, but they have several d
 5. They force awkward **patterns**, like hooks.
 6. They restrict your **freedom**.
 
-This tour will show you how Wallace works, and how that addresses these issues.
+This tour shows you how Wallace works, and how that solves these issues. 
 
-Mention layers here?
+Assuming you've use frameworks before, it should also be enough for you to start using it in place of any other framework, as it is pretty simple and has built-in documentation.
 
 ## Code
 
@@ -156,7 +156,7 @@ CounterList1 | <div>
 |            | </div>
 ```
 
-It's a simple model that's easier to visualise and interact with than the functional approach of virtual DOM based frameworks.
+It's a simple model that's easier to visualise and interact with than the functional components typical of virtual DOM based frameworks, which often require awkward patterns like hooks.
 
 ## Rendering
 
@@ -269,7 +269,11 @@ If you want to the best of both (change the element manually, but only if it is 
 <div apply={doStuff(element)} />
 ```
 
-Where possible, Wallace provides intermediate levels of control.
+This is an example of **progressive control**, which is a concept you'll be seeing throughout Wallace. The idea being that you:
+
+1. Start by using the compact syntax convenience mode, in this case attributes and basic directives.
+2. If you need more control, switch to a more powerful directive, like `apply`.
+3. If you need even more control, use `ref` and override `update`.
 
 ## Freedom
 
@@ -292,29 +296,21 @@ Where it does matter is in those pesky little edge cases which consume a disprop
 - Altering a top level component without updating its nested components.
 - Libraries like [chart.js](https://www.chartjs.org/) requires elements be attached to the DOM before it can do anything to them.
 
-These can wreak havoc on frameworks, which are forced to come up with elaborate features (like React portals)  to handle them or use plugins which further bloat your bundle. 
+These can wreak havoc on frameworks, which are forced to come up with elaborate features (like React's portals) or use plugins which further bloat your bundle. Sometimes there is no neat solution, meaning you are effectively trapped by the framework.
 
-In some cases there is no neat solution at all, and you are effectively left trapped by your framework.
+Wallace avoids these problem as it has a fully open architecture: all that exists at run time is a tree of components whose behaviour you can fully override, and whose internal operations are simple enough to interact with.
 
-Wallace doesn't have this problem. All that exists at run time is a tree of components whose methods you can override, and whose DOM operations you can fully interact with.
+You will never be trapped by Wallace, or reliant on fixes or plugins to deal with gnarly situations. Wallace essentially comes with an eject button, except that **progressive control** means you rarely have to push the button all the way.
 
-
-
-making Wallace the only fully open framework where you are totally free.
-
-
-
-avoids this dilema by being a fully open framework, seemingly the only one out there.
-
-
+This will make more sense with the coming sections.
 
 ## Directives
 
 Directives are JSX attributes which do something special.
 
-They take effect during transpilation, so all the heavy lifting involved in interpreting, validating and combining your instructions happens then and not at run time. Similarly the code involved in all that stays out of your bundle, leaving only instructions in very  compact form.
+They take effect during transpilation, so all the heavy lifting involved in interpreting, validating and combining your instructions happens then, rather than at run time. Similarly, all the code involved in doing this work stays out of your bundle, leaving behind only compact instructions.
 
-This means we can add endless directives, permutations and combinations at no extra cost, which lets us create multiple layers of abstraction. 
+This means we can add endless directives, permutations and combinations at no extra cost, which helps us offer progressive control.
 
 The ` bind-as:range` directive is a perfect example:
 
@@ -323,14 +319,14 @@ The ` bind-as:range` directive is a perfect example:
 <input bind-as:range={count} />
 ```
 
-It is just a more compact way of doing this:
+That is just a more compact way of setting the input type and binding to the property you're most likely interested in:
 
 ```tsx
 <input type="range" bind:valueAsNumber={count} />
 ```
 
 
-Which is just a more compact way of doing this:
+And binding is just a more compact way of creating a two-way update manually:
 
 ```tsx
 <input
@@ -342,26 +338,28 @@ Which is just a more compact way of doing this:
 
 We'll explain where that `element` comes from and why changing `count` updates our component in the next couple of sections. The point here is that all three permutations compile to the *exact* same code.
 
-The idea (which is repeated throughout Wallace) is to work at the highest level of abstraction with the most compact syntax, and progressively drop to lower levels with lengthier syntax as you need to deviate from default behaviour.
+Again the idea is to start at the highest level of abstraction with the most compact syntax, and progressively drop to lower levels with lengthier syntax as you need to deviate from default behaviour.
 
-In this case you may want to parse or format a value, or change the event which triggers the change, although you can do that with `event` which is an example of combining directives:
+You might want to parse or format a value, or change the event which triggers the change, - although you can do that with `event` which is an example of combining directives:
 
 ```tsx
 <input bind-as:range={count} event:input />
 ```
+
+>  The total now updates as you move the slider, rather than when you let go.
 
 The part after `:` is called the qualifier, and acts as an extra variable, or for directives which simply require a text value it is interpreted as the value, so `event:input` equates to `event="input"`. 
 
 You can also define your own directives or override stock directives if you don't like the defaults:
 
 ```tsx
-// Doesn't work as it is just an example.
+// Just an example - won't work unless you implement it.
 <input bind-range:count />
 ```
 
 ## Xargs
 
-Component functions may specify a second parameter known as xargs because it contains various helpful extras:
+Component functions may specify a second parameter called **xargs** which contains various helpful extras, like `element`:
 
 ```tsx
 const Counter: Takes<CounterModel> = ({ count }, { element }) => (
@@ -385,7 +383,7 @@ component.render(model, hub);
 However, `hub` (which we'll cover soon) is one of the arguments available in xargs, along with:
 
 - `self` - alias for `this` as `this` is not allowed in arrow functions.
-- `model` - alias for `this.model`  which is useful when the main `model` parameter is destructured (i.e. `{count}` instead of `model`)
+- `model` - alias for `this.model` which is useful when the main `model` parameter is destructured (i.e. `{count}` instead of `model`)
 - `event` - the event, where applicable.
 - `element` - the DOM element, where applicable.
 
@@ -417,46 +415,7 @@ const handleKeyPress = (event: KeyboardEvent) => {};
 
 ## Reactivity
 
-Our app is reactive (the UI updates when the data is changed) because we used the `watch` directive in the root component, which causes it to get a modified `set` method that looks like this:
-
-```tsx
-function set (model, hub) {
-  this.model = watch(model, () => this.update());
-  this.hub = hub;
-}
-```
-
-The `watch` function is a helper included in Wallace which returns a proxy of an object which calls a callback when it (or any of its nested objects) is modified:
-
-```tsx
-import { watch } from 'wallace';
-
-const original = [{ count: 0}];
-const watched = watch(original, () => console.log('modified'));
-
-// Each of these lines triggers the callback:
-watched[0].count = 1;
-watched.push({ count: 2});
-watched.reverse();
-
-// And also modify the original:
-console.log(original)
-> [{ count: 2}, { count: 1}]
-```
-
-Note however that you are dealing with proxies of the original objects, which are identical but not the same object in memory:
-
-```tsx
-// Both false
-original === watched
-original[0] === watched[1]
-
-// Both true
-JSON.stringify(original) === JSON.stringify(watched)
-JSON.stringify(original[0]) === JSON.stringify(watched[1])
-```
-
-So in our example, `counters` points to `this.model` which is a proxy of the original array passed into `mount` :
+The `watch` directive causes the component to update whenver its model is modified by that component or any nested components, thereby making our app reactive:
 
 ```tsx
 const CounterList = (counters) => (
@@ -468,45 +427,80 @@ const CounterList = (counters) => (
     <Counter.repeat models={counters} />
   </div>
 );
-
-mount('main', CounterList, [{ count: 1 }]);
 ```
 
-The proxy's callback tells the component instance to `update` when it is modified, which happens in this line:
+It does this by modifying the `set` method to look like this:
 
 ```tsx
-<button onClick={counters.push({ count: 1 })}>
-```
+import { watch } from 'wallace';
 
-And in the `Counter` whose input event handler looks like this:
-
-```tsx
-function (event) {
-  this.model.count = event.element.valueAsNumber;
+function set (model, hub) {
+  this.model = watch(model, () => this.update());
+  this.hub = hub;
 }
 ```
 
-Because `this.model` is a proxy of one of the items in the `counters` array, so modifying it triggers the callback.
+The `watch` function (not to be confused with the `watch` directive) returns a proxy of an object which fires a callback when it (or any of its nested objects) is modified:
 
-By default the `watch` directive sets `() => this.update()` as the callback in `set` but you can specify an alternative, perhaps to save to local storage:
+```tsx
+import { watch } from 'wallace';
+
+const original = [{ count: 0}];
+const callback = () => console.log('modified');
+const watched = watch(original, callback);
+
+// Each of these lines fires the callback:
+watched[0].count = 1;
+watched.push({ count: 2});
+watched.reverse();
+
+// And also modifies the original:
+console.log(original)
+> [{ count: 2}, { count: 1}]
+```
+
+The proxy returns a new proxy for nested elements, which also fire the callback. So `watched[0]` is a proxy of the object at `original[0]` which is why changing the `count` property via the input in `Counter` also makes the `CounterList` update.
+
+The important part of this is that watching of data is totally decoupled from the updating of components, which makes it easy to:
+
+1. Follow exactly how, why and when updates are triggered.
+2. Control what gets watched and what happens when parts change.
+
+Reactivity is very prone to confusing, hard to diagnose bugs, so having full visibility and control really helps.
+
+Again the idea is to start out with the basic format, then drop down to lower level when you need different behaviour or (even temporary) visibility, which you can do by passing a callback to the `watch` directive:
 
 ```tsx
 const CounterList = (counters, { self }) => (
-  <div watch={() => onDataChange(self, counters)}>
+  <div watch={() => countersChanged(self, counters)}>
     ...
   </div>
 );
 
-const onDataChange = (component, data) => {
+const countersChanged = (component, counters) => {
   localStorage.setItem("data", JSON.stringify(data));
   component.update();
 }
 ```
 
-So far we've been watching the full model with one callback, but you can break it up, perhaps to separate data from state, which you'd probably set up in the `render` method, after removing the `watch` directive:
+If you need even more control you're best removing the `watch` directive and setting it up yourself in `render`. Say you have some UI state in the model which should update the UI but shouldn't trigger a data save:
 
 ```tsx
-const CounterList = ({counters, state}) => (
+import { mount, watch } from 'wallace';
+import type { Takes } from 'wallace';
+
+interface CounterModel {
+  count: number;
+}
+
+interface CounterListModel {
+  counters: CounterModel[];
+  state: {
+    showTotal: boolean
+  }
+}
+
+const CounterList: Takes<CounterListModel> = ({counters, state}) => (
   <div>
     <div>
       <label>Show Total</label>
@@ -523,44 +517,36 @@ const CounterList = ({counters, state}) => (
 );
 
 CounterList.methods = {
-  render(model) {
-    const proxy = {
-      counters: watch(model.counters, () => onDataChange(this, model)),
-      state: watch(model.state, () => this.update()),
+  render({counters, state}) {
+    const model = {
+      counters: watch(counters, () => countersChanged(this, counters)),
+      state: watch(state, () => this.update()),
     }
-    this.set(proxy);
+    this.set(model);
     this.udpate();
   }
 };
 
 mount("main", CounterList, {
   counters: [{ count: 0 }],
-  state: {
-    showTotal: true;
-  }   
+  state: {showTotal: true}
 });
 ```
 
-Again we see how Wallace offers high-level convenience (the `watch` directive) but you can progressively drop lower and take more control if you need to, which is possible as the underlying mechanism is really simple.
+We'll look at more fine grained updates in a bit, but first lets look at a nicer way to handle state.
 
-Because reactivity is totally decoupled from the component, you can easily follow why and when each update fires, which you will be very thankful for when things get weird (as they often do with reactive apps).
+## Hubs
 
-## Patterns
+Say we want to access the `state` from the `Counter` components. This gets messy when we only have a single input into a component (the model) and that's where hubs come in.
 
-The approach we've seen so far doesn't scale well, so we'll explore a couple of patterns that do.
-
-### Hubs
-
-What if we want the `state` to be passed down to nested `Counter` components? That gets messy as we'd have to map it into the `counters`, and one solution to this is using a hub.
-
-Any function which accepts a `model` argument (like `mount`, `render`, `set`) also accepts an optional `hub` argument right after it:
+Any function which accepts a `model` argument (such as `mount`, `render`, `set`) also accepts an optional `hub` argument right after it. Lets move the state to that slot, and add a "mode" which the `Counter` will access.
 
 ```tsx
 mount(
-  "main",
+  'main',
   CounterList,
   [{ count: 0 }],                    // model
-  {showTotal: true, mode: "button"}  // hub
+  {showTotal: true, mode: 'button'}  // hub
 );
 ```
 
@@ -573,56 +559,67 @@ function set (model, hub) {
 }
 ```
 
-What makes `hub` different is that it is automatically forwarded to `render` for nested components which do the same and so on, meaning the whole tree from that point down shares the same hub object.
+What makes `hub` special is that it is automatically propagated to nested components, meaning the whole tree from that point down shares the same `hub` object.
 
-Components access the `hub` in their **xargs**, whose type you can also annotate with `Takes`:
+Components access their `hub` in their **xargs**, whose type you can also annotate with `Takes`:
 
 ```tsx
 interface Hub {
   showTotal: boolean;
-  mode: "range" | "button";
+  mode: 'range' | 'button';
 }
 
 const Counter: Takes<CounterModel, Hub> = ({ count }, { hub }) => (
   <div>
-    <div if={hub.mode === "range"} >
+    <div if={hub.mode === 'range'} >
       <input bind-as:range={count} />{count}
     </div>
-    <button if={hub.mode === "button"} onClick={count++}>
+    <button if={hub.mode === 'button'} onClick={count++}>
       {count}
     </button>
   </div>
 );
 ```
 
-The `Takes` type lets you annotate the model and hub, but there are other bits you can annotate such as methods and if doing this you need to switch to a different type called `Uses`:
+Here we used the hub to share a plain object with state, which we can watch it just like we watch the model.
+
+We can also use the hub to share custom objects with methods, getters and setters, which we can think of as controllers. These often have a reference to a component so they can trigger updates:
 
 ```tsx
-import type { Uses } from 'wallace';
-
-interface Methods {
-  btnClicked(): void;
+class Controller {
+  constructor(root) {
+    this.root = root;
+    this._showTotal = true;
+  }
+  get showTotal () {
+    return this._showTotal;
+  }
+  set showTotal (value) {
+    this._showTotal = value;
+    this.root.update();
+  }
 }
 
-const Counter: Uses<{model: CounterModel, methods: Methods}> = 
-  ({ count }, { self }) => (
-  <div>
-    <button onClick={self.btnClicked()}>{count}</button>
-  </div>
-);
-
-Counter.methods = {
-  btnClicked() {
-    this.model.count ++;
+CounterList.methods = {
+  render(counters) {
+    this.set(model, new Controller(this));
+    this.udpate();
   }
 };
+
+mount('main', CounterList, [{count: 1}]);
 ```
 
-### Classes
+Notice how we:
 
-So far we've been using plain objects as models and hubs, but we can also use custom objects with methods, getters and setters, which is where things get really interesting.
+1. Instantiated the controller in `render` rather than passing it in.
+2. Used setters to produce reactive behaviour instead of `watch`.
 
-Although it is overkill for our example, let's see what these classes might look like. We've removed the state management for clarity:
+Both of these alternatives are perfectly valid. Use whatever feels best according to your needs.
+
+## Models
+
+Of course we can also use custom objects as models, which is a very powerful pattern. Although it is overkill for our example, let's see what these classes might look like:
 
 ```tsx
 import type { ComponentInstance } from 'wallace';
@@ -710,12 +707,43 @@ function set (model, hub) {
 }
 ```
 
-The model and the component cross-reference each other, which is perfectly safe, and very useful.
+Although we end up writing more code, that extra code is free code (nothing to do with the framework) and we actually end with *less* framework code. Free code is quicker to work with on two counts:
 
-This approach also brought about a few small changes:
+1. It is easier to assess whether it is correct just by looking at it, as we understand it fully and there's no framework operation to take into account.
+2. You have the full range of constructs available in that language to organise your code with, whereas framework code may impose some restrictions.
 
-- We don't need `watch` as the methods and setters update the component.
-- We don't need interfaces as classes are their own interface.
+
+
+
+
+There are two major benefits to this, which relate to the fact different kinds of code have different qualities.
+
+Time to certainty is how long you need to stare at a piece of code to be certain it has no errors. Organisation potential is how much power you have organise your code clearly and without duplication etc.
+
+|           | Time to Certainty | Organisation Potential |
+| --------- | ----------------- | ---------------------- |
+| Regex     | Terrible          | Terrible               |
+| Framework | Average           | Average                |
+| Free      | Best              | Best                   |
+
+You will be more efficient working with a codebase 
+
+
+
+#### Certainty
+
+Different kinds of code
+
+
+
+Firstly we tend to suspect framework
+
+
+
+This approach has a couple of small benefits:
+
+- We don't need the hub to share the `Controller` as the `CounterModel` has a reference to it.
+- We don't need interfaces, as classes are their own interface.
 - The `CounterList` has become a lot simpler.
 
 The bigger change is subtle but radical: the locus of control has shifted from the components to our classes. To understand the impact, let's follow what would happen to both as the application grows.

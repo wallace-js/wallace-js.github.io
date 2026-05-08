@@ -1,5 +1,5 @@
 ---
-title: Flags
+title: Flags*
 sidebar:
   order: 30
 ---

@@ -1,5 +1,5 @@
 ---
-title: Stubs
+title: Stubs*
 sidebar:
   order: 15
 ---

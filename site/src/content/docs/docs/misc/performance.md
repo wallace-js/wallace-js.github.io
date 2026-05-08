@@ -1,5 +1,5 @@
 ---
-title: Performance
+title: Performance*
 sidebar:
   order: 32
 ---
@@ -83,6 +83,14 @@ The more DOM on the page the slower it will get, and this is typically caused by
 It is quite unlikely that your slowdown is due to non-DOM related computation, and it should be easy enough to determine if that is the case. 
 
 
+
+
+
+
+
+#### Pooling
+
+Pre-emptive pooling.
 
 
 

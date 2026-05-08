@@ -99,20 +99,21 @@ in addition to standard methods like `render`, which are already typed for you.
 
 #### Stubs
 
-You can specify the model and hub of each stub:
+You can specify the model and hub of each stub, which you then access using the `stub` [xarg](/docs/reference/xargs).
 
 ```tsx
 import type { Takes, Uses } from 'wallace';
 
 interface ParentTypes {
+  model: iDay[];
   hub: Hub;
   stub: {
     foo: Takes<iDay>;
-    bar: Takes<iDay, Hub}>;
+    bar: Takes<iDay, Hub>;
   };
 }
 
-const Parent: Uses<ParentTypes> = (_, { stub }) => (
+const Parent: Uses<ParentTypes> = (dat, { stub }) => (
   <div>
     <stub.foo model={data[0]} /> 
     <stub.foo.repeat models={data} /> 

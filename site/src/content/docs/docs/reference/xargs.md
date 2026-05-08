@@ -4,17 +4,21 @@ sidebar:
   order: 7
 ---
 
-Component functions can specify a second parameter after **model** called **xargs**, which contains various useful things, and must always be destructured:
+## Overview
+
+Component definition functions may specify a second parameter after `model` called **xargs**, which contains various useful things:
 
 ```jsx
-const Counter = (model, { hub, stub }) => <div></div>;
+const Counter = ({count}, { hub, self }) => <div></div>;
 ```
 
-You currently cannot destructure an individual xarg (like `stub`) further.
+This parameter must be destructured to exactly one level as shown above.
 
 Bear in mind component functions are dismantled during compilation, and never get called, so these aren't real parameter. They just make things available to use in the JSX expression.
 
-## List of Xargs
+## Xargs
+
+Here is the list of available xargs:
 
 ### element
 
@@ -23,13 +27,11 @@ A reference to the element for use in directives which allow access to the eleme
 ```tsx
 const Counter = (_, { element }) => (
   <div>
-    <button onClick={print(element)}></button>
+    <button onClick={logEl(element)}></button>
   </div>
 );
 
-const print = (element) => console.log(element.tagName);
-// Prints:
-("BUTTON");
+const logEl = (element) => console.log(element.tagName);
 ```
 
 It always refers to the element where it is used, meaning you can use it in multiple places:
@@ -37,53 +39,53 @@ It always refers to the element where it is used, meaning you can use it in mult
 ```tsx
 const Counter = (_, { element }) => (
   <div>
-    <button apply={print(element)}></button>
-    <span apply={print(element)}></span>
+    <button apply={logEl(element)}></button>
+    <span apply={logEl(element)}></span>
   </div>
 );
 
-const print = (element) => console.log(element.tagName);
-// Prints:
-("BUTTON");
-("SPAN");
+const logEl = (element) => console.log(element.tagName);
+// Logs:
+// BUTTON
+// SPAN
 ```
 
-If you need to make the element of a specific type, do it at point of use rather than in the signature:
+If you need to coerce the element type, do it at point of use rather than in the signature:
 
 ```tsx
 const Counter = (_, { element }) => (
   <div>
     <imr src="/icon.jpg"
-       apply={printSrc(element as HTMLImageElement)}
+       apply={logSrc(element as HTMLImageElement)}
     />
     <a href="/"
-      apply={printHref(element as HTMLAnchorElement)}
+      apply={logHref(element as HTMLAnchorElement)}
     ></span>
   </div>
 );
 
-const printSrc = (element: HTMLImageElement) => (
+const logSrc = (element: HTMLImageElement) => (
   console.log(element.src);
 )
-const printHref = (element: HTMLAnchorElement) => (
+const logHref = (element: HTMLAnchorElement) => (
   console.log(element.href);
 )
 ```
 
 ### event
 
-A reference to the element for use in `event` handing directives:
+A reference to the event for use in `event` directives which allow access to the event:
 
 ```tsx
 const Counter = (_, { event }) => (
   <div>
-    <button onClick={print(event)}></button>
+    <button onClick={log(event)}></button>
   </div>
 );
 
-const print = (event) => console.log(event.type);
-// Prints:
-("click");
+const log = (event) => console.log(event.type);
+// logs:
+// click
 ```
 
 Like `element` it always refers to the event where it is used, meaning you can use it in multiple places, and assign different types:
@@ -100,25 +102,17 @@ const foo = (event: ClickEvent) => {};
 const bar = (event: KeyUpEvent) => {};
 ```
 
-### self
+### hub
 
-A reference to the component instance, useful for accessing methods:
+The hub:
 
-```tsx
-const Counter = ({ count }, { self }) => (
+```jsx
+const Counter: Takes<CounterModel, Hub> = ({ count, id }, { hub }) => (
   <div>
-    <button onClick={(count++, self.update())}>{count}</button>
+    <span>Count: {count}</span>
+    <button onClick={hub.removeCounter(id)}>Remove</button>
   </div>
 );
-```
-
-Unfortunately we can't use `this` in arrow functions, which makes it a bit annoying transitioning from code in JSX and code in methods, where you need to use `this`:
-
-```js
-Counter.methods.render = function (model) {
-  this.model = model;
-  this.update();
-};
 ```
 
 ### model
@@ -129,39 +123,106 @@ The model as a complete object, which is useful as the original model is usually
 const Counter = ({ count, id }, { model }) => (
   <div>
     <span>Count: {count}</span>
-    <button onClick={removeCounter(model)}>Remove</button>
+    <button onClick={logCounter(model)}>Remove</button>
+  </div>
+);
+
+const logCounter = (counter) => (
+  console.log(counter);
+)
+```
+
+Again these parameters aren't real, all references to the `model` inside the JSX end up the same, regardless of where they come from, so the compiled code will look like this:
+
+```tsx
+// lookup
+return this.model.count;
+// onClick
+logCounter(this.model)
+```
+
+##### Warning
+
+Avoid passing models *out* of components like we just did - as any parent component could turn the model into a reactive proxy, meaning:
+
+1. The model isn't the object you think it is.
+2. The model object, and all nested objects, are reactive.
+
+For example:
+
+```tsx
+const CounterList = (counters) => (
+  <div watch>
+    <Counter.repeat models={counters} />
+  </div>
+);
+
+const Counter = ({ count }, { model }) => (
+  <div>
+    <span>Count: {count}</span>
+    <button onClick={increment(model)}>++</button>
+  </div>
+);
+
+const increment = (counter) => (
+  counter.count ++;
+  saveCounter(counter);
+)
+
+const saveCounter = (obj) => (
+  // causes CounterList to update if id is not set.
+  if (!obj.id) obj.id = getNextId();
+  localStorage.setItem(obj.id, JSON.stringify(obj));
+)
+
+mount('main', CounterList, [{count: 0}]);
+```
+
+This produces a subtle glitch whereby the `CounterList` is updated twice on first click for each counter, and once on subsequent clicks. This would likely go unnoticed, but could cause confusion later on.
+
+To avoid this, stick to passing primitives out of components, such as ids, and using those to retrieve original objects.
+
+### self
+
+A reference to the component instance, as TypeScript won't allow `this` in arrow functions. It is useful for accessing methods:
+
+```tsx
+const Counter = ({ count }, { self }) => (
+  <div>
+    <button onClick={(count++, self.update())}>{count}</button>
   </div>
 );
 ```
 
-This does not result in the model getting passed into the function twice - as there is no function. Both get compiled to access the `model` property of the component.
+Note that you must use `this` in methods:
 
-Note that you generally want to avoid passing the entire model object to external functions, as it may not be the object you think it is, particularly if using `watch`. Try to rely on identifying keys instead.
-
-Note that you cannot destructure any xarg.
-
-### hub
-
-The hub:
-
-```jsx
-const Counter = ({ count, id }, { hub }) => (
-  <div>
-    <span>Count: {count}</span>
-    <button onClick={hub.removeCounter(id)}>Remove</button>
-  </div>
-);
+```js
+Counter.methods.render = function (model) {
+  this.model = model;
+  this.update();
+};
 ```
 
 ### stub
 
-This xarg is only here for type support.
+Provides access to stubs, which are annotated with the `Uses`  [type](/docs/reference/types). This ensures you only pass valid models and hubs when nesting:
 
 ```tsx
-const Counter = ({ count }, { model, stub }) => (
+import type { Takes, Uses } from 'wallace';
+
+interface ParentTypes {
+  hub: Hub;
+  stub: {
+    foo: Takes<iDay>;
+    bar: Takes<iDay, Hub>;
+  };
+}
+
+const Parent: Uses<ParentTypes> = (_, { stub }) => (
   <div>
-    <span>Count: {count}</span>
-    <stub.button model={model} />
+    <stub.foo model={data[0]} /> 
+    <stub.foo.repeat models={data} />
+    <stub.bar.repeat models={data} hub={compatibleHub} /> 
   </div>
 );
 ```

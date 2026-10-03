@@ -1,7 +1,7 @@
 ---
 title: Repeaters*
 sidebar:
-  order: 12
+  order: 18
 ---
 
 ## Overview

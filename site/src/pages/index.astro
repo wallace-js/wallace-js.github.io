@@ -76,7 +76,7 @@ const hero = {
       <p>
         Wallace renders faster than <a href="/docs/claims"
           >most other frameworks</a
-        > and lets you fine tune updates, making it ideal for performance-critical
+        > and gives you much more control, making it ideal for performance-critical
         apps.
       </p>
       <p class="caption">
@@ -90,8 +90,7 @@ const hero = {
 
     <section>
       <h2>Faster development</h2>
-
-      <p>Wallace feels like a modern reactive framework:</p>
+      <p>Wallace looks like a typical modern reactive framework:</p>
       <Code
         lang="tsx"
         code={`
@@ -114,17 +113,18 @@ const CounterList = (counters) => (
 mount('main', CounterList, []);`}
       />
       <p>
-        Try it below or play with the code in StackBlitz (<a
-          href="https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx"
-          >JS</a
-        > or <a
-          href="https://stackblitz.com/edit/wallace-js?file=src%2Findex.tsx"
-          >TS</a
-        >).
+        But its unique open architecture solves the issues common to all other
+        frameworks which harm your velocity.
       </p>
-      <div id="app">
-        <div id="counters"></div>
-      </div>
+      <p>Read all about this in the <a href="docs/tour">tour</a>.</p>
+    </section>
+    <!-- 
+
+            <blockquote style="font-style: italic;">
+        Handing over full control of the DOM to an opaque and immutable engine
+        is a risky move as you never know when it will work against you, or how
+        much time that will consume, and sometimes that's a lot.
+      </blockquote>
       <p>But frameworks slow down development by:</p>
       <ol>
         <li>
@@ -136,8 +136,30 @@ mount('main', CounterList, []);`}
         <li>
           <strong>Obscuring</strong> internal operations, which impedes debugging.
         </li>
-      </ol>
-      <p>To see how Wallace solves these issues, and more, take the tour.</p>
+      </ol> -->
+    <section>
+      <h2>Try it</h2>
+      <p>Here is the app produced from the code sample above:</p>
+      <div id="app">
+        <div id="counters"></div>
+      </div>
+      <p>
+        You can edit this example in StackBlitz (<a
+          href="https://stackblitz.com/edit/wallace-js?file=src%2Findex.jsx"
+          >JavaScript</a
+        > or <a
+          href="https://stackblitz.com/edit/wallace-js?file=src%2Findex.tsx"
+          >TypeScript</a
+        >).
+      </p>
+      <p>Alternatively, create a blank project locally:</p>
+      <Code lang="bash" code={`npx create-wallace-app`} />
+      <p>
+        If you get stuck simply hover over the module import to access built-in
+        documentation:
+      </p>
+      <Code lang="tsx" code={`import {} from 'wallace';`} />
+      <p>But you should probably start with the tour.</p>
       <div id="next"></div>
     </section>
   </Landing>
@@ -277,13 +299,12 @@ mount('main', CounterList, []);`}
   };
 
   window.onload = (event) => {
-    document
-      .getElementById("next")
-      .appendChild(document.getElementById("tour-btn").cloneNode(true));
-
     extractChartData(benchmarkData).forEach((data) => {
       buildChart(document.getElementById(data.label), sortData(data));
     });
+    document
+      .getElementById("next")
+      .appendChild(document.getElementById("tour-btn").cloneNode(true));
   };
 </script>
 

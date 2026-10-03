@@ -1,5 +1,5 @@
 ---
-title: Prototypes
+title: Prototypes*
 sidebar:
   order: 1
 ---
@@ -76,6 +76,8 @@ shape.area(); // 15
 ```
 
 It even works after the object was created, but that's messes with engine optimisation, and should therefore be avoided.
+
+Should use class syntax.
 
 ## Inheritance
 

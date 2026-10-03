@@ -41,11 +41,11 @@
   font-size: 0.75rem;
 }
 
-blockquote {
+/* blockquote {
   * {
     font-size: smaller;
   }
-}
+} */
 
 @media (max-width: 768px) {
   .sl-markdown-content {
@@ -113,7 +113,7 @@ blockquote {
   }
 
   #next {
-    margin: 2rem 0;
+    margin: 1rem 0;
     display: flex;
     gap: 1rem 2rem;
     flex-wrap: wrap;

@@ -6,6 +6,68 @@ sidebar:
 
 ## Introduction
 
+Front end frameworks speed up development by:
+
+1. Letting us work at a higher level (focus on what rather than how).
+2. Reducing how much boilerplate code we write.
+3. Restricting scopes, which massively reduces errors.
+4. Providing structure, which reduces decisions.
+
+But frameworks also add new problems and impositions which slow down development. The meta problem is that it's very difficult to assess just how much, because these are always exceptions.
+
+### Flexibility
+
+The framework's mechanism (aka engine) restricts what you can do with the DOM. For example, you couldn't move a React component until they added "portals", and you also can't update part of a component.
+
+Sometimes these restrictions simply prevent you from implementing a logical solution and you'll waste time trying to find a way round it. Sometimes they cause performance issues, which waste time as you attempt to solve that , if you even can.
+
+These are not very common problems, but you never know when your project will need that flexibility.
+
+### Clarity
+
+The engine's internals are hidden from view, and this can make it difficult to see what's going on. This is mostly a problem when implementing reactivity in a complex UI, where it is difficult to detect when updates firing over each other. 
+
+These bits of the project often consume disproportionate resources over the years.
+
+### Organisation
+
+Hooks, functions not classes or prototypes.
+
+
+
+## Mechanism
+
+Here is a button which displays how many times it has been clicked:
+
+```tsx
+import { mount } from "wallace";
+
+const Counter = ({ count }) => (
+  <div watch>
+    <button onClick={count++}>{count}</button>
+  </div>
+);
+
+mount("main", Counter, { count: 0 });
+```
+
+It looks very similar like React in that we appear to be defining a component as a function that returns JSX, which we then mount to the page with some data.
+
+
+
+
+
+1. Define a component called `Counter` as a function that returns JSX.
+2. Mount it to the page with some data (replacing the element with id `main`).
+
+
+
+
+
+
+
+# ------------------------
+
 This tour covers how to use Wallace, how it works, and how it solves many of the problems inherent in using frameworks.
 
 We'll start with a button which displays how many times it has been clicked:

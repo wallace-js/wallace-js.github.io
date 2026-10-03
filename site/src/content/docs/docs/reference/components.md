@@ -6,9 +6,7 @@ sidebar:
 
 ## Overview
 
-The term component is often used interchangeably to refer to component *definitions* and component *instances*.
-
-You define a component as a function which returns JSX, usually assigned to a variable:
+The term component may refer to a component *definition*:
 
 ```tsx
 const Counter = ({ count }) => (
@@ -17,6 +15,32 @@ const Counter = ({ count }) => (
   </div>
 );
 ```
+
+Or component *instance*, which is an object created from a component definition:
+
+```tsx
+const component = new Counter();
+```
+
+Component instances are ordinary objects which manage their own section of the DOM and coordinate nested components. 
+
+This page covers the details of component definitions and instances. The next page on [flow](/docs/reference/flow) explains how it all fits together.
+
+## Component definitions
+
+
+
+Component instances have properties and methods, such as `render`:
+
+```
+component.render({ count: 0 });
+```
+
+
+
+You define a component as a function which returns JSX, usually assigned to a variable:
+
+
 
 The entire function (including its parameters) is replaced with a call to `defineComponent` which is imported from the wallace library:
 
@@ -28,21 +52,7 @@ const Counter = defineComponent(
 );
 ```
 
-`defineComponent` returns a new function based on the instructions passed in its arguments, which are built from directives found in the JSX. This new function is used to create objects:
-
-```tsx
-const component = new Counter();
-```
-
-These objects are the component instances, or objects, and have various properties and "methods" like `render`:
-
-```tsx
-component.render({ count: 99 });
-```
-
-Component instances manage their own section of the DOM, and coordinate nested components.
-
-## Component definitions
+The `defineComponent` function returns a new function based on the instructions passed in its arguments, which are built from directives found in the JSX. This new function is used to create objects:
 
 Component functions must follow a specific format. Bear in mind that these functions are completely replaced during compilation, so they aren't real, and neither are their parameters.
 
@@ -300,7 +310,7 @@ function render (model, hub) {
 
 It gets called during `mount` and `createComponent` as it should be called before first attaching the component to the DOM to prevent rendering DOM without data, which would look off.
 
-During `update` a component calls `render` on all its nested components.
+During `update` a component calls `render` on all its nested components, not `update`.
 
 #### set
 
@@ -354,7 +364,7 @@ This property gives you access to the base component's methods, which is useful 
 Counter.methods = {
   render (model, hub) {
     // do your thing here
-    this.base.render.call(model, hub);
+    this.base.render.call(this, model, hub);
   }
 }
 ```
@@ -363,9 +373,26 @@ Note that this doesn't behave the way `super` does inside classes, which accesse
 
 #### dismount
 
-This method is called whenever a nested component is detached from the DOM, either because it is no longer needed in a repeat function, or an `if` directive evaluates false.
+This method is called whenever a nested component is detached from the DOM, either because it is no longer needed in a repeat function, or an `if` directive evaluates false. It is not automatically called in any other situation.
 
-It is not automatically called in any other situation.
+You can override it to preform cleanup of things like timers and intervals:
+
+```tsx
+Counter.methods = {
+  render () {
+    this.interval = setInterval(
+      () => doSomething(),
+      1000
+    )
+  }
+  dismount () {
+    clearInterval(this.interval);
+    this.base.dismount.call(this);
+  }
+}
+```
+
+However this creates state on the component, and you many way to manage such things in the [model](/docs/reference/models) or [hub](/docs/reference/hub) instead.
 
 ### Internal
 
@@ -385,100 +412,10 @@ If you must save properties on the component instance you should ensure they are
 
 ```tsx
 Counter.methods = {
-  update function () {
+  update () {
     this.total = calculateTotal();
-    this.base.update.call();
+    this.base.update.call(this);
   }
 }
 ```
 
-## Operation
-
-It is important to understand how the methods and properties interact.
-
-### Flow
-
-Consider the following code snippet:
-
-```tsx
-import { mount } from 'wallace';
-
-const Counter = ({ count }) => (
-  <div>
-    <button onClick={count++}>{count}</button>
-  </div>
-);
-
-const CounterList = (counters) => (
-  <div>
-    Total: {counters.reduce((a, c) => a + c.count, 0)}
-    <Counter.repeat models={counters} />
-  </div>
-);
-
-const data = [{ count: 0 }, { count: 0 }];
-const root = mount('main', CounterList, data);
-```
-
-Here the call to `mount` creates an instance of `CounterList`, calls its `render` method (passing `data` as its model) and attaches its DOM (the `el` property) to the DOM. We then save that instance as `root` as we'll be using it again.
-
-The call to `render` received the array we called `data` as its `model` arguments, then called `set` which saved that array as `this.model`, and finally called `update` - here are these two methods again:
-
-```tsx
-function render (model, hub) {
-  this.set(model, hub);
-  this.update();
-}
-
-function set (model, hub) {
-  this.model = model;
-  this.hub = hub;
-}
-```
-
-During `update` the component iterates through its dynamic elements:
-
-- The total calculation.
-- The repeated `Counter` declaration.
-
-Repeated components are handled using an internal "repeater" object which creates component instances, renders them and attaches their DOM to the correct location, in this case creating two instances of `Counter`, and passing `{count: 0}` to each.
-
-Now let's insert new counter at the start of the array:
-
-```tsx
-data.unshift({count: 1});
-root.update();
-```
-
-This on its own won't update the UI as we haven't set up any 
-
-
-
-This updates the UI to display three counters, but it's important to understand what happened.
-
-Firstly `data` and `root.model` point to the same object in memory, which is the array that now has three elements.
-
-We then called `root.update` which will update the total, and then instruct the repeater to run its patch operation, which in this case recycles component instances sequentially. 
-
-```tsx
-{count: 1} // recycle component 0
-{count: 0} // recycle component 1
-{count: 0} // create new component
-```
-
-Component 0 previously displayed count 0 and will now be updated to display count of 1.
-
-Note that we updated `root` without calling `render` - just `root.update` - in fact `root.render` only gets called once in its lifetime. However, calling `root.update` results in calls to `render` on all the nested `Counter` components.
-
-Of course we could have called `render` passing the same object back in:
-
-```
-data.push({count: 1});
-root.render(data);
-```
-
-But the point is that we can avoid doing this, which means the `render` method of higher level components only gets called at predictable points, and this lets us use it to set things up for the current life span.
-
-
-
-Mention dismount.

@@ -1,5 +1,5 @@
 ---
-title: Directives*
+title: Directives
 sidebar:
   order: 10
 ---
@@ -14,11 +14,9 @@ const Counter = ({ foo }) => (
     {/* Tool tip will be visible */}
     <input bind={foo}>
     {/* No tool tip */}
-    <input bind:keyup={foo}>
-    {/* Still no tool tip */}
-    <input bind  :keyup={foo}>
-    {/* Temporary hack to show tool tip for bind */}
-    <input bind.:keyup={foo}>
+    <input bind={foo} event:keyup>
+    {/* Temporary hack to show the bind tooltip for a qualified directive */}
+    <input bind.:checked={foo}>
   </div>
 );
 ```
@@ -110,10 +108,10 @@ const MyComponent = ({ done }, { event }) => (
 );
 ```
 
-By defaults it listens to the `change` event, but you can specify a different one:
+By default it listens to the `change` event. Use `event` to choose a different one:
 
 ```jsx
-const MyComponent = ({ name }) => <input type="text" bind:keyup={name} />;
+const MyComponent = ({ name }) => <input type="text" bind={name} event:keyup />;
 ```
 
 Note that destructured model are converted to member expressions, so these examples
@@ -218,12 +216,10 @@ See also: [show](#show).
 
 ### html
 
-Set the element's `innnerHTML` property:
+Sets the element's `innerHTML` property:
 
 ```jsx
-<div>
-  <div html={getDivContents()}></div>
-</div>
+const MyComponent = () => <div html={getDivContents()}></div>;
 
 const getDivContents = () => "<span>hello</span>";
 ```
@@ -234,9 +230,9 @@ Specifies an alternative `hub` for nested or repeated components, which would ot
 
 ```jsx
 <div>
-  <MyComponent hub={altController} />
+  <MyComponent hub={altHub} />
   <div>
-    <MyComponent.repeat models={item} hub={altController} />
+    <MyComponent.repeat models={items} hub={altHub} />
   </div>
 </div>
 ```
@@ -298,7 +294,7 @@ Sets the model for repeated nested component:
 Creates an event handler for the specified event, calling the expression:
 
 ```jsx
-const Counter = (, { event, element}) => (
+const Counter = (_, { event, element }) => (
   <div>
     <button onClick={btnClicked(event, element)}>Click me</button>
   </div>
@@ -328,7 +324,7 @@ Saves a reference to an element:
 const Greeting = ({ name }) => <div ref:title></div>;
 
 const component = createComponent(Greeting);
-component.ref.title.textConten = "Hello";
+component.ref.title.textContent = "Hello";
 ```
 
 ### show

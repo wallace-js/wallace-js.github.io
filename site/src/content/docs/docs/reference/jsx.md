@@ -8,7 +8,7 @@ sidebar:
 
 Wallace uses JSX very differently to React, which can be confusing initially.
 
-- **React** replaces JSX with code that yields virtual DOM during compilation, then *calls* these modified component functions at run time.
+- **React** replaces JSX with code that yields virtual DOM during compilation, then _calls_ these modified component functions at run time.
 - **Wallace** replaces the entire function with a component definition generated from the instructions found in the JSX during compilation, then creates components from that definition at run time.
 
 So a function with JSX is never executed, it is a static construct that is read during compilation. This means you can't blend JavaScript in it like you can with React:
@@ -18,7 +18,7 @@ So a function with JSX is never executed, it is a static construct that is read 
 const CounterList = (counters) => (
   <div>
     {counters.length ? (
-      counters.map(c => <Counter props={c} />)
+      counters.map((c) => <Counter model={c} />)
     ) : (
       <div>No counters</div>
     )}
@@ -37,7 +37,7 @@ const CounterList = (counters) => (
 );
 ```
 
-You loose some of the flexibility of React, but gain more power through directives, and often end up with neater and more compact JSX, particularly as you outsource logic to models.
+You lose some of React's flexibility, but gain more power through directives, and often end up with neater and more compact JSX, particularly as you outsource logic to models.
 
 ## Rules
 
@@ -136,7 +136,7 @@ const CounterList = (counters) => (
 );
 ```
 
-The allowed directives are  `hub` , `if`, `model`, `part` and `ref`.
+The allowed directives are `hub` , `if`, `model`, `part` and `ref`.
 
 You may not use normal attributes, as this is not a real element:
 
@@ -164,11 +164,11 @@ const CounterList = (counters) => (
 );
 ```
 
-The same general rules and restrictions apply as with nesting single components, except that a different set of directives is allowed:  `hub` , `key`, `models` and`part`.
+The same general rules and restrictions apply as with nesting single components, except that a different set of directives is allowed: `hub` , `key`, `models` and`part`.
 
 ### Stubs
 
-You may nest and repeat [stubs](/docs/reference/stubs) just like regular components:
+You may nest and repeat [stubs](/docs/reference/extending#stubs) just like regular components:
 
 ```tsx
 const CounterList = (counters, { stub }) => (
@@ -188,4 +188,3 @@ You don't need to use `stub` in the [xargs](/docs/reference/xargs) - it just hel
 Wallace offers "best effort" code completion support in JSX through its exported types, but it isn't perfect. In fact, getting TypeScript plus JSX to support code that it doesn't know will be compiled into something different was one of the trickiest parts of the library.
 
 The imperfections are survivable. In some cases code completion will appear to allow a directive, yet the compiler throws an error. Naturally, the compiler has the last word.
-

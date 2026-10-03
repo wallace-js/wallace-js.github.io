@@ -4,11 +4,29 @@ sidebar:
   order: 13
 ---
 
-## Overview
+## What is a model?
 
-A model is the object passed into a component. It is the equivalent of React "props" except it remains intact.
+A model is the value passed to a component when it is rendered. It can be any JavaScript value, although objects and arrays are the usual choices. A model is not a bag of JSX attributes: a component receives one model value.
 
-You can pass any data type you like, but typically you would either pass a plain object, or a custom object instantiated from a class.
+Pass a model to a root component as the third argument to `mount`:
+
+```tsx
+const Counter = ({ count }) => <button>{count}</button>;
+
+const root = mount("app", Counter, { count: 0 });
+```
+
+For a nested component, use `model`:
+
+```tsx
+const CounterList = (counters) => (
+  <ul>
+    <Counter model={counters[0]} />
+  </ul>
+);
+```
+
+The component instance stores the current value on `model`. When the instance is rendered again, Wallace sets the new model before updating its DOM. Repeated components receive one item from the `models` array each time they are rendered.
 
 ## Setting
 

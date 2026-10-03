@@ -1,12 +1,40 @@
 ---
-title: State*
+title: State
 sidebar:
   order: 15
 ---
 
-## Overview
+## Keep the DOM derived from data
 
-State refers to a few different things:
+Wallace updates the DOM from the expressions in a component definition. Prefer expressing a changing attribute or property in JSX rather than changing it imperatively:
+
+```tsx
+const Counter = ({ count }) => (
+  <button disabled={count > 2} onClick={count++}>
+    {count}
+  </button>
+);
+```
+
+If you use a ref or `apply` to modify DOM directly, make sure the property is set correctly on every relevant update. A component instance or its DOM may be reused, so a value left behind by an earlier model can otherwise leak into its next use.
+
+## Where to keep state
+
+Wallace does not require a particular state container. Choose based on the lifetime and ownership of the value:
+
+- Put domain data in the model that describes it.
+- Put shared or temporary interface state in an application object or optional hub when that is a useful fit.
+- Store values on a component instance only when they are derived again or reset whenever the instance renders with a new model.
+
+Repeated components can be reused for different models. Do not keep per-model state on an instance unless it is reset as part of the component lifecycle. See [Repeating components](/docs/reference/repeaters) and [Pooling](/docs/reference/pooling).
+
+## Inputs
+
+Use `bind` when the DOM input and data should stay in sync. This avoids leaving stale input text or checked state behind when a component is reused. Binding updates the model expression when the configured event fires; it does not by itself make every other model change reactive. See [Binding](/docs/reference/binding) and [Watching](/docs/reference/watching).
+
+## Imperative DOM work
+
+Use an ordinary dynamic attribute for a single property. Use `apply` when several DOM properties need coordinated updates, or override `update` only when the behavior is too complex to express in JSX. When overriding a method, preserve the base behavior where needed by calling `this.base.update.call(this)`.
 
 1. DOM state such as whether a checkbox is checked.
 2. State stored in a component such as the result of a calculation.

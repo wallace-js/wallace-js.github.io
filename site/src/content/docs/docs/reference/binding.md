@@ -51,8 +51,6 @@ There are two alternative values for numbers and dates:
 
 Wallace does an under the hood hack make `valueAsDate` work with [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) objects returned by watch.
 
-
-
 ##### Date
 
 For date inputs you can use `valueAsDate`:
@@ -61,15 +59,10 @@ For date inputs you can use `valueAsDate`:
 <input type="date" bind:valueAsDate={foo} />
 ```
 
-
-
-
 HOWEVER this will fail if when using reactive data:
 
 ```jsx
-const DateInput = ({ date }) => (
-  <input type="date" bind:valueAsDate={date} />
-);
+const DateInput = ({ date }) => <input type="date" bind:valueAsDate={date} />;
 
 const root = mount(
   "main",
@@ -113,6 +106,3 @@ If you need more control, then you drop bind:
 ```jsx
 <input type="text" value={foo} onkeyUp={} />
 ```
-
-
-

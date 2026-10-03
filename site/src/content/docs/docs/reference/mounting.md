@@ -9,13 +9,13 @@ sidebar:
 DOM elements start life in a detached state, and don't affect the document until they are mounted to it:
 
 ```js
-const root = document.createElement('div');
-root.appendChild(document.createElement('span'));
-root.appendChild(document.createElement('span'));
+const root = document.createElement("div");
+root.appendChild(document.createElement("span"));
+root.appendChild(document.createElement("span"));
 
-const target = document.getElementById('main');
+const target = document.getElementById("main");
 // mount root as last child of target
-target.appendChild(root)
+target.appendChild(root);
 ```
 
 Mounting an element also attaches its nested elements (which form a tree) to the document.
@@ -23,22 +23,22 @@ Mounting an element also attaches its nested elements (which form a tree) to the
 The same applies to the tree of elements created by nesting components, whose root node must be mounted to the document:
 
 ```tsx
-const root = new CounterList();
-const target = document.getElementById('main');
-target.appendChild(el);
+import { mount } from "wallace";
+
+const Counter = ({ count }) => <button>{count}</button>;
+const root = mount("app", Counter, { count: 0 });
 ```
 
-However we usually 
+The first argument can be an element ID or an `HTMLElement`. The target element is replaced, so attributes on the target (including its ID) are not copied to the component's root element. The returned value is the root component instance.
 
+The arguments are, in order:
 
+1. The target element or its ID.
+2. The component definition.
+3. The model (optional).
+4. The hub (optional).
 
-
-
-Components create their own tree of elements, 
-
-Components create their own DOM tree
-
-
+The model and hub are separate values. To provide a hub without a model, pass `null` for the model:
 
 ```tsx
 const Counter = ({ count }) => (
@@ -46,11 +46,7 @@ const Counter = ({ count }) => (
     <button onClick={count++}>{count}</button>
   </div>
 );
-
-
 ```
-
-
 
 ## mount
 
@@ -59,26 +55,14 @@ The `mount` function
 You mount the root component of your tree using `mount`:
 
 ```tsx
-const root = mount("root", MyComponent, model, hub);
+import { createComponent } from "wallace";
+
+const counter = createComponent(Counter, { count: 0 });
+document.body.appendChild(counter.el);
 ```
 
-The arguments are:
+Use this when another part of the application controls where the component is inserted. For ordinary root components, prefer `mount`.
 
-1. Element or id string.
-2. Component definition.
-3. model (optional)
-4. hub (optional)
+## Multiple roots
 
-`mount` returns the component instance, allowing you to call its methods:
-
-```tsx
-root.update();
-```
-
-You may mount as many 
-
-Every tree is separate
-
-
-
-## Manual
+Each call to `mount` creates an independent component tree. You can mount multiple components into different target elements. Nested component trees are managed by their parent component; mount only the root of each tree.

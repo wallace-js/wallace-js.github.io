@@ -6,20 +6,20 @@ sidebar:
 
 ## Components
 
-Wallace exports two types for annotating components: `Takes` and `Uses` which let you annotate various aspects. 
+Wallace exports two types for annotating components: `Takes` and `Uses` which let you annotate various aspects.
 
 ### Takes
 
 This type lets you annotate the model and hub (both optional) which a component takes:
 
 ```tsx
-import type { Takes } from 'wallace';
+import type { Takes } from "wallace";
 
 interface TaskModel {
-  text: string
+  text: string;
 }
 
-const Task: Takes<TaskModel, Hub> = ({text}) => <div>{text}</div>;
+const Task: Takes<TaskModel, Hub> = ({ text }) => <div>{text}</div>;
 ```
 
 It must be placed right after the component name as shown above. This ensures you pass correct model and/or hub during mounting, nesting and repeating:
@@ -33,7 +33,7 @@ const TaskList: Takes<TaskModel[]> = (tasks) => (
   </div>
 );
 
-mount("main", TaskList, [{test: 'foo'}]);
+mount("main", TaskList, [{ test: "foo" }]);
 ```
 
 Do not annotate types like this, as that only works inside the function:
@@ -54,13 +54,13 @@ const Task: Takes<null> = () => <div>Hello</div>;
 Lets you annotate model, hub and other things the component uses. It is used the same way as `Takes` except you pass a composite type as an object:
 
 ```tsx
-import type { Uses } from 'wallace';
+import type { Uses } from "wallace";
 
 interface TaskTypes {
-  model: Model,
-  hub: Hub,
-  methods: Methods,
-  stub: Stub
+  model: Model;
+  hub: Hub;
+  methods: Methods;
+  stub: Stub;
 }
 const Task: Uses<TaskTypes> = () => <div></div>;
 ```
@@ -68,7 +68,7 @@ const Task: Uses<TaskTypes> = () => <div></div>;
 All fields are optional, so you can omit model etc, which you can't do with `Takes`:
 
 ```tsx
-const Task: Uses<{methods: Method}> = () => <div></div>;
+const Task: Uses<{ methods: Method }> = () => <div></div>;
 ```
 
 #### Methods
@@ -102,7 +102,7 @@ in addition to standard methods like `render`, which are already typed for you.
 You can specify the model and hub of each stub, which you then access using the `stub` [xarg](/docs/reference/xargs).
 
 ```tsx
-import type { Takes, Uses } from 'wallace';
+import type { Takes, Uses } from "wallace";
 
 interface ParentTypes {
   model: iDay[];
@@ -115,8 +115,8 @@ interface ParentTypes {
 
 const Parent: Uses<ParentTypes> = (dat, { stub }) => (
   <div>
-    <stub.foo model={data[0]} /> 
-    <stub.foo.repeat models={data} /> 
+    <stub.foo model={data[0]} />
+    <stub.foo.repeat models={data} />
   </div>
 );
 ```
@@ -149,6 +149,6 @@ The helper functions like `mount` `watch` and `extendComponent`, `createComponen
 
 Wallace defines a couple more types you may use:
 
- - `Component<Model, Hub, Methods>` - the base component class (it is a 
-   constructor, not a class)
- - `ComponentInstance<Model, Hub, Methods>` - a component instance.
+- `Component<Model, Hub, Methods>` - the base component class (it is a
+  constructor, not a class)
+- `ComponentInstance<Model, Hub, Methods>` - a component instance.

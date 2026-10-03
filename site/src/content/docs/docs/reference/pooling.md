@@ -53,24 +53,36 @@ Say step 2 takes 2000ms and step 4 takes 1000ms because it creates a lot of DOM.
 
 > This is an illustration, not an indication of the kind of ratios to expect, which will vary massively according to the DOM structure, data, logic, styles, device and network. As with all things performance related - measure first using representative devices and network.
 
-The way you'd do this in most frameworks is by rendering DOM with dummy data in a hidden state, which is a bit of a pain. With Wallace you can use the `seed` method to create instances in the pool. This method returns a promise, which makes it convenient to use:
+## Reusing component instances
 
-```tsx
-// Display progress bar...
-const root = mount("main", App);
+When enabled by the `allowDismount` Babel plugin flag, Wallace returns nested component instances removed by repeaters or conditional nesting to a pool associated with their component definition. A later repeater can reuse a pooled instance instead of constructing a new one. See [Flags](/docs/reference/flags).
 
-Promise.all([
-  // All these run async...
-  fetchData(),
-  CounterList.seed(50),
-  Counter.seed(1000),
-]).then(() => {
-  // Update with data...
-  root.update();
-})
+## Dismounting
+
+A component is dismounted when its parent removes it through Wallace's conditional or repeat lifecycle. Removing an element manually from the DOM does not automatically dismount its component tree. If you manually detach a component and want its nested components to run their dismount lifecycle, call `dismount()`:
+
+```ts
+component.dismount();
 ```
 
-Even if you create some of the DOM needed, or even too much, you may get a performance boost. Then again you may not, which is why it's important to take representative measurements.
+Calling `dismount` on an instance does not itself return that instance to a pool; a parent repeater manages that part of the lifecycle.
+
+## Reuse implications
+
+A component instance can be rendered with a different model after reuse. Do not keep per-model state on the instance unless it is recalculated or reset when the component renders. Likewise, avoid leaving DOM properties in a manually changed state; express them as dynamic attributes or restore them during updates. See [State](/docs/reference/state).
+
+You can override `dismount` to clean up external resources such as timers. If you override it, call the base implementation when nested components also need dismounting:
+
+```tsx
+Counter.methods = {
+  dismount() {
+    clearInterval(this.interval);
+    this.base.dismount.call(this);
+  },
+};
+```
+
+Pooling is an implementation detail that most applications do not need to manage directly. Measure before tuning it or disabling related flags.
 
 
 
